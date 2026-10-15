@@ -304,6 +304,64 @@
     });
   }
 
+  /* ---- drawn art --------------------------------------------------------
+     Everything below can be replaced by PNGs. assets/data/arcade-art.json
+     says which images exist; anything it doesn't list keeps using the art
+     drawn in code further down, so the two can be mixed freely while a
+     redraw is in progress. See ART.md. */
+
+  var ART = {
+    player: null, playerCell: [16, 24], playerFrames: 4, playerRows: null,
+    tiles: null, tileCell: [16, 16], tileVariants: 1, tileRow: {}, pathEdges: false,
+    buildings: {},
+  };
+
+  var ROW_TO_TILE = {
+    grass: GRASS, path: PATH, tall: TALL, flower: FLOWER,
+    tree: TREE, water: WATER, stone: STONE, fence: FENCE,
+  };
+
+  function loadImage(src, onload) {
+    var img = new Image();
+    img.onload = function () { onload(img); };
+    img.onerror = function () { /* keep the code-drawn fallback */ };
+    img.src = src;
+  }
+
+  function loadArt() {
+    fetch("assets/data/arcade-art.json")
+      .then(function (r) { return r.ok ? r.json() : null; })
+      .then(function (m) {
+        if (!m) return;
+
+        if (m.player && m.player.src) {
+          ART.playerCell = m.player.cell || ART.playerCell;
+          ART.playerFrames = m.player.frames || 4;
+          ART.playerRows = m.player.rows || ["down", "up", "right"];
+          loadImage(m.player.src, function (img) { ART.player = img; });
+        }
+
+        if (m.tiles && m.tiles.src) {
+          ART.tileCell = m.tiles.cell || ART.tileCell;
+          ART.tileVariants = m.tiles.variants || 1;
+          ART.pathEdges = !!m.tiles.pathEdges;
+          (m.tiles.rows || []).forEach(function (name, i) {
+            if (ROW_TO_TILE[name] !== undefined) ART.tileRow[ROW_TO_TILE[name]] = i;
+          });
+          loadImage(m.tiles.src, function (img) { ART.tiles = img; });
+        }
+
+        Object.keys(m.buildings || {}).forEach(function (id) {
+          var b = m.buildings[id];
+          if (!b || !b.src) return;
+          loadImage(b.src, function (img) {
+            ART.buildings[id] = { img: img, off: b.offset || [0, 0], label: !!b.label };
+          });
+        });
+      })
+      .catch(function () { /* no manifest: everything stays code-drawn */ });
+  }
+
   /* ---- state ------------------------------------------------------------ */
 
   var cv, ctx, raf, running = false;
@@ -328,8 +386,32 @@
 
   /* ---- tiles ------------------------------------------------------------ */
 
+  /* The darker lip wherever a path meets something that isn't path. */
+  function pathEdge(g, x, y, px, py, T) {
+    g.fillStyle = T.pathEdge;
+    var open = function (a, b) { var v = tileAt(a, b); return v !== PATH && v !== DOOR; };
+    if (open(x, y - 1)) g.fillRect(px, py, TILE, 2);
+    if (open(x, y + 1)) g.fillRect(px, py + TILE - 2, TILE, 2);
+    if (open(x - 1, y)) g.fillRect(px, py, 2, TILE);
+    if (open(x + 1, y)) g.fillRect(px + TILE - 2, py, 2, TILE);
+  }
+
   function drawTile(g, x, y, v, T) {
     var px = x * TILE, py = y * TILE, h = hash(x, y);
+
+    var row = ART.tileRow[v];
+    if (ART.tiles && row !== undefined) {
+      var cw = ART.tileCell[0], ch = ART.tileCell[1];
+      var cols = Math.max(1, Math.floor(ART.tiles.width / cw));
+      var n = Math.min(cols, ART.tileVariants);
+      // water cycles its columns as animation; everything else varies by place
+      var col = v === WATER ? Math.floor(tick / 12) % n : h % n;
+      g.drawImage(ART.tiles, col * cw, row * ch, cw, ch, px, py, TILE, TILE);
+      // optional: keep the drawn lip where a path meets something else, for
+      // path art that doesn't include its own edge tiles
+      if (v === PATH && ART.pathEdges) pathEdge(g, x, y, px, py, T);
+      return;
+    }
 
     function grassBase() {
       g.fillStyle = (h & 1) ? T.grass : T.grass2;
@@ -349,12 +431,7 @@
         g.fillStyle = T.speck;
         g.fillRect(px + (h % 12), py + (h >> 4) % 13, 2, 1);
         g.fillRect(px + 3 + (h >> 8) % 10, py + 6 + (h >> 6) % 8, 1, 1);
-        // darker lip wherever the path meets something that isn't path
-        g.fillStyle = T.pathEdge;
-        if (tileAt(x, y - 1) !== PATH && tileAt(x, y - 1) !== DOOR) g.fillRect(px, py, TILE, 2);
-        if (tileAt(x, y + 1) !== PATH && tileAt(x, y + 1) !== DOOR) g.fillRect(px, py + TILE - 2, TILE, 2);
-        if (tileAt(x - 1, y) !== PATH && tileAt(x - 1, y) !== DOOR) g.fillRect(px, py, 2, TILE);
-        if (tileAt(x + 1, y) !== PATH && tileAt(x + 1, y) !== DOOR) g.fillRect(px + TILE - 2, py, 2, TILE);
+        pathEdge(g, x, y, px, py, T);
         break;
       }
       case TALL: {
@@ -467,6 +544,13 @@
     var px = p.x * TILE, py = p.y * TILE, pw = p.w * TILE, ph = p.h * TILE;
     var roofH = 2 * TILE, over = 3;
 
+    var art = ART.buildings[p.id];
+    if (art) {
+      g.drawImage(art.img, px + art.off[0], py + art.off[1]);
+      if (art.label) drawNameBoard(g, p, T, night);
+      return;
+    }
+
     // ground shadow
     g.fillStyle = T.shadow;
     g.fillRect(px - over, py + ph, pw + over * 2, 3);
@@ -508,10 +592,14 @@
     g.fillStyle = T.doorDark; g.fillRect(dx + TILE / 2, dy - 1, 1, TILE + 1);
     g.fillStyle = "#f6d14a";  g.fillRect(dx + TILE - 5, dy + 7, 2, 2);
 
-    // name board mounted above the door
+    drawNameBoard(g, p, T, night);
+  }
+
+  function drawNameBoard(g, p, T, night) {
     var label = p.name;
     var lw = textWidth(label) + 6;
-    var lx = Math.round(dx + TILE / 2 - lw / 2), ly = py + roofH + 1;
+    var dx = p.doorX * TILE;
+    var lx = Math.round(dx + TILE / 2 - lw / 2), ly = p.y * TILE + 2 * TILE + 1;
     g.fillStyle = T.fenceDark; g.fillRect(lx - 1, ly - 1, lw + 2, 12);
     g.fillStyle = T.fence;     g.fillRect(lx, ly, lw, 10);
     pixText(g, label, lx + 3, ly + 1, night ? "#2a1a0e" : "#3a2412");
@@ -613,10 +701,7 @@
     var inTall = tileAt(player.tx, player.ty) === TALL;
     ctx.fillStyle = T.shadow;
     ctx.fillRect(player.px + 4, player.py + 13, 9, 3);
-    var dirKey = player.face === "left" ? "side" : player.face === "right" ? "side" : player.face;
-    var flip = player.face === "left" ? "flip" : "";
-    var sheet = sheets[dirKey + player.frame + flip] || sheets["down0"];
-    ctx.drawImage(sheet, Math.round(player.px), Math.round(player.py) + TILE - SPR_H);
+    drawPlayer(ctx);
 
     if (inTall) drawTallFront(ctx, player.tx, player.ty, T);
     if (rustle > 0) {
@@ -644,6 +729,44 @@
       ctx.fillStyle = "rgba(10,16,24," + Math.min(1, fading) + ")";
       ctx.fillRect(0, 0, vw, vh);
     }
+  }
+
+  function drawPlayer(g) {
+    var px = Math.round(player.px), py = Math.round(player.py);
+
+    if (ART.player && ART.playerRows) {
+      var cw = ART.playerCell[0], ch = ART.playerCell[1];
+      var want = player.face;
+      var ri = ART.playerRows.indexOf(want);
+      var mirror = false;
+      if (ri === -1 && want === "left") {       // no left row: mirror the right one
+        ri = ART.playerRows.indexOf("right");
+        mirror = true;
+      }
+      if (ri === -1 && want === "right") {
+        ri = ART.playerRows.indexOf("left");
+        mirror = true;
+      }
+      if (ri === -1) ri = 0;
+      var cols = Math.max(1, Math.floor(ART.player.width / cw));
+      var col = Math.min(cols - 1, player.frame % ART.playerFrames);
+      var dy = py + TILE - ch;
+      if (mirror) {
+        g.save();
+        g.translate(px + cw, dy);
+        g.scale(-1, 1);
+        g.drawImage(ART.player, col * cw, ri * ch, cw, ch, 0, 0, cw, ch);
+        g.restore();
+      } else {
+        g.drawImage(ART.player, col * cw, ri * ch, cw, ch, px, dy, cw, ch);
+      }
+      return;
+    }
+
+    var dirKey = player.face === "left" || player.face === "right" ? "side" : player.face;
+    var flip = player.face === "left" ? "flip" : "";
+    var sheet = sheets[dirKey + player.frame + flip] || sheets["down0"];
+    g.drawImage(sheet, px, py + TILE - SPR_H);
   }
 
   /* ---- update ----------------------------------------------------------- */
@@ -903,6 +1026,8 @@
                face: player.face, found: found.slice() };
     },
   };
+
+  loadArt();
 
   document.addEventListener("click", function (e) {
     var btn = e.target.closest ? e.target.closest("[data-arcade]") : null;

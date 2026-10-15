@@ -1,0 +1,85 @@
+{
+  "player": {
+    "src": "assets/img/arcade/player.png",
+    "cell": [
+      16,
+      24
+    ],
+    "frames": 4,
+    "rows": [
+      "down",
+      "up",
+      "right"
+    ]
+  },
+  "tiles": {
+    "src": "assets/img/arcade/tiles.png",
+    "cell": [
+      16,
+      16
+    ],
+    "variants": 4,
+    "rows": [
+      "grass",
+      "path",
+      "tall",
+      "flower",
+      "tree",
+      "water",
+      "stone",
+      "fence"
+    ],
+    "pathEdges": true
+  },
+  "buildings": {
+    "met": {
+      "src": "assets/img/arcade/buildings/met.png",
+      "offset": [
+        -3,
+        0
+      ]
+    },
+    "moma": {
+      "src": "assets/img/arcade/buildings/moma.png",
+      "offset": [
+        -3,
+        0
+      ]
+    },
+    "gal": {
+      "src": "assets/img/arcade/buildings/gal.png",
+      "offset": [
+        -3,
+        0
+      ]
+    },
+    "stu": {
+      "src": "assets/img/arcade/buildings/stu.png",
+      "offset": [
+        -3,
+        0
+      ]
+    },
+    "news": {
+      "src": "assets/img/arcade/buildings/news.png",
+      "offset": [
+        -3,
+        0
+      ]
+    },
+    "off": {
+      "src": "assets/img/arcade/buildings/off.png",
+      "offset": [
+        -3,
+        0
+      ]
+    },
+    "home": {
+      "src": "assets/img/arcade/buildings/home.png",
+      "offset": [
+        -3,
+        0
+      ]
+    }
+  }
+}

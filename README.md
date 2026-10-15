@@ -34,6 +34,7 @@ js/arcade.js            arcade mode
 assets/img/             all images, pulled off Squarespace's CDN
 assets/data/            palettes.json, visualizations.json
 tools/parse_palettes.py regenerates palettes.json from the R sources
+assets/img/arcade/      arcade artwork (see ART.md)
 CNAME                   custom domain for GitHub Pages
 ```
 
@@ -66,6 +67,12 @@ positions, paths are run out from each door, then scenery is scattered with a
 seeded RNG (so the map is identical every visit). Because random scenery can box
 something in, a flood fill from the spawn point checks that every door and every
 swatch is reachable, and carves a way through if not.
+
+All of it can be replaced with PNGs you draw yourself — the artwork in
+`assets/img/arcade/` is loaded through `assets/data/arcade-art.json`, and
+anything that file doesn't list falls back to the code-drawn version, so the
+art can be swapped one piece at a time. **See [ART.md](ART.md)** for the sheet
+layouts and sizes.
 
 `window.brmArcade` exposes `open()`, `close()` and `state()` if you want to poke
 at it from the console.
