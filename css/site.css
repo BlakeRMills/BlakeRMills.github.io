@@ -564,26 +564,6 @@ body.arcade-on { overflow: hidden; }
 }
 .arcade__exit:hover { background: rgba(255,255,255,.24); }
 
-.arcade__sign {
-  position: absolute; left: 50%; bottom: 4.5rem; transform: translateX(-50%);
-  display: grid; gap: .1rem; justify-items: center;
-  min-width: 190px; padding: .7rem 1.4rem;
-  background: rgba(8,20,28,.92);
-  border: 1px solid rgba(255,255,255,.18);
-  border-top: 3px solid var(--accent-place, #c2591f);
-  border-radius: 10px;
-  color: #fff; text-align: center;
-  box-shadow: 0 10px 30px rgba(0,0,0,.45);
-  pointer-events: none;
-}
-.arcade__sign[hidden] { display: none; }
-.arcade__sign strong { font-family: var(--display); font-size: 1.15rem; }
-.arcade__sign span { font-size: .8rem; opacity: .7; }
-.arcade__sign em {
-  font-style: normal; font-size: .72rem; letter-spacing: .1em;
-  text-transform: uppercase; color: #f6c200; margin-top: .3rem;
-}
-
 /* on-screen controls — touch devices only */
 .arcade__pad, .arcade__action { display: none; }
 
@@ -616,7 +596,6 @@ body.arcade-on { overflow: hidden; }
     cursor: pointer; -webkit-tap-highlight-color: transparent;
   }
   .arcade__action:active { background: rgba(224,124,55,1); }
-  .arcade__sign { bottom: 10.5rem; }
 }
 
 /* the header button that launches it */

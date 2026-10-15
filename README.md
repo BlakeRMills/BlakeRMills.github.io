@@ -40,27 +40,32 @@ CNAME                   custom domain for GitHub Pages
 ## Arcade mode
 
 The gamepad button in the header swaps the site for a small top-down world
-(`js/arcade.js`). You walk a sprite around a park; each building is one of the
-real pages, and standing at a door and pressing **E** navigates there.
+(`js/arcade.js`), drawn in the visual language of a GBA-era overworld RPG. You
+walk a sprite around a town; each building is one of the real pages.
 
-- **Controls:** WASD or arrow keys, **E** / Enter / Space to enter, **Esc** to
-  leave. On touch devices an on-screen d-pad and action button appear instead.
+- **Controls:** WASD or arrow keys, **Esc** to leave. Movement is grid-based —
+  one tile per step, with a turn-in-place beat if you're facing the wrong way.
+- **Doors:** stand in front of one and a dialogue box names the building; walk
+  onto it and you go to that page. **E** works too, and on touch devices there's
+  a d-pad and an **A** button.
 - **Buildings:** The Met → {MetBrewer}, MoMA → {MoMAColors}, The Gallery →
   Visualizations, The Studio → Designs, The Newsstand → Writings, The Office →
   Resume, Blake's Place → About.
-- **Swatches:** eight colour pickups scattered around the map, counted in the
-  HUD and remembered in `localStorage`.
-- **Night:** the world follows the site's light/dark setting — at night the
-  windows light up.
+- **Swatches:** eight colour pickups scattered around, counted in the HUD and
+  remembered in `localStorage`.
+- **Night:** the world follows the site's light/dark setting, and the windows
+  light up.
 
-There are no image assets. The character, tiles, trees, fountain and pigeon are
-all drawn pixel by pixel in code, so the whole thing is about 25KB.
+There are no image assets. The character, tiles, trees, flowers, fences,
+fountain, buildings, pigeon and the dialogue box are all drawn pixel by pixel in
+code. Text in the world is rendered at 8px into an offscreen buffer and blitted
+scaled up, so it stays chunky instead of going smooth.
 
 The map is generated rather than hand-drawn: buildings are stamped at fixed
-positions, then trees are scattered with a seeded RNG (so the map is identical
-every visit). Because random scenery can box something in, a flood fill from the
-spawn point checks that every door and every swatch is reachable, and carves a
-way through if not.
+positions, paths are run out from each door, then scenery is scattered with a
+seeded RNG (so the map is identical every visit). Because random scenery can box
+something in, a flood fill from the spawn point checks that every door and every
+swatch is reachable, and carves a way through if not.
 
 `window.brmArcade` exposes `open()`, `close()` and `state()` if you want to poke
 at it from the console.
