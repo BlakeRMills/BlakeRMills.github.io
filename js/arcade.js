@@ -311,12 +311,13 @@
      redraw is in progress. See ART.md. */
 
   var ART = {
-    player: null, playerCell: [16, 24], playerFrames: 4, playerRows: null,
+    density: 1,
+    player: null, playerCell: [16, 24], playerFrames: 4, playerRows: null, playerDensity: 1,
     tiles: null, tileCell: [16, 16], tileVariants: 1, tileRow: {}, pathEdges: false,
     buildings: {},
-    pigeon: null, pigeonCell: [16, 16], pigeonFrames: 1,
-    swatch: null, swatchCell: [16, 16], swatchFrames: 1, swatchFill: [4, 3, 8, 8],
-    box: null, boxSlice: [8, 8, 8, 8], boxHeight: 38, boxText: "#1c3a5e", boxSubText: "#4a6a8a",
+    pigeon: null, pigeonCell: [16, 16], pigeonFrames: 1, pigeonDensity: 1,
+    swatch: null, swatchCell: [16, 16], swatchFrames: 1, swatchFill: [4, 3, 8, 8], swatchDensity: 1,
+    box: null, boxSlice: [8, 8, 8, 8], boxHeight: 38, boxDensity: 1, boxText: "#1c3a5e", boxSubText: "#4a6a8a",
   };
 
   var ROW_TO_TILE = {
@@ -343,11 +344,16 @@
         // bump "version" in the manifest after redrawing a PNG and browsers
         // will pick the new file up instead of serving the cached one
         if (m.version) artVersion = "?v=" + encodeURIComponent(m.version);
+        // how many image pixels make one world unit; per-asset values win, so
+        // art can be redrawn at a higher density one piece at a time
+        ART.density = m.density || 1;
+        var den = function (e) { return (e && e.density) || ART.density; };
 
         if (m.player && m.player.src) {
           ART.playerCell = m.player.cell || ART.playerCell;
           ART.playerFrames = m.player.frames || 4;
           ART.playerRows = m.player.rows || ["down", "up", "right"];
+          ART.playerDensity = den(m.player);
           loadImage(m.player.src, function (img) { ART.player = img; });
         }
 
@@ -364,6 +370,7 @@
         if (m.pigeon && m.pigeon.src) {
           ART.pigeonCell = m.pigeon.cell || ART.pigeonCell;
           ART.pigeonFrames = m.pigeon.frames || 1;
+          ART.pigeonDensity = den(m.pigeon);
           loadImage(m.pigeon.src, function (img) { ART.pigeon = img; });
         }
 
@@ -371,12 +378,14 @@
           ART.swatchCell = m.swatch.cell || ART.swatchCell;
           ART.swatchFrames = m.swatch.frames || 1;
           if (m.swatch.fill) ART.swatchFill = m.swatch.fill;
+          ART.swatchDensity = den(m.swatch);
           loadImage(m.swatch.src, function (img) { ART.swatch = img; });
         }
 
         if (m.box && m.box.src) {
           ART.boxSlice = m.box.slice || ART.boxSlice;
           ART.boxHeight = m.box.height || ART.boxHeight;
+          ART.boxDensity = den(m.box);
           ART.boxText = m.box.text || ART.boxText;
           ART.boxSubText = m.box.subtext || ART.boxSubText;
           loadImage(m.box.src, function (img) { ART.box = img; });
@@ -386,7 +395,8 @@
           var b = m.buildings[id];
           if (!b || !b.src) return;
           loadImage(b.src, function (img) {
-            ART.buildings[id] = { img: img, off: b.offset || [0, 0], label: !!b.label };
+            ART.buildings[id] = { img: img, off: b.offset || [0, 0],
+                                  label: !!b.label, d: den(b) };
           });
         });
       })
@@ -577,7 +587,9 @@
 
     var art = ART.buildings[p.id];
     if (art) {
-      g.drawImage(art.img, px + art.off[0], py + art.off[1]);
+      g.drawImage(art.img, 0, 0, art.img.width, art.img.height,
+                  px + art.off[0], py + art.off[1],
+                  art.img.width / art.d, art.img.height / art.d);
       if (art.label) drawNameBoard(g, p, T, night);
       return;
     }
@@ -638,27 +650,29 @@
 
   /* Draws an image as a stretchable frame: corners stay put, edges repeat
      along one axis, the middle fills the rest. */
-  function nineSlice(g, img, sl, x, y, w, h) {
-    var l = sl[0], t = sl[1], r = sl[2], b = sl[3];
+  function nineSlice(g, img, sl, x, y, w, h, d) {
+    d = d || 1;
+    var l = sl[0], t = sl[1], r = sl[2], b = sl[3];   // insets, in image pixels
     var iw = img.width, ih = img.height;
-    var sw = iw - l - r, sh = ih - t - b;      // source middle
-    var dw = w - l - r, dh = h - t - b;        // destination middle
+    var sw = iw - l - r, sh = ih - t - b;             // source middle
+    var L = l / d, T = t / d, R = r / d, B = b / d;   // the same, in world units
+    var dw = w - L - R, dh = h - T - B;               // destination middle
 
-    g.drawImage(img, 0, 0, l, t, x, y, l, t);
-    g.drawImage(img, iw - r, 0, r, t, x + w - r, y, r, t);
-    g.drawImage(img, 0, ih - b, l, b, x, y + h - b, l, b);
-    g.drawImage(img, iw - r, ih - b, r, b, x + w - r, y + h - b, r, b);
+    g.drawImage(img, 0, 0, l, t, x, y, L, T);
+    g.drawImage(img, iw - r, 0, r, t, x + w - R, y, R, T);
+    g.drawImage(img, 0, ih - b, l, b, x, y + h - B, L, B);
+    g.drawImage(img, iw - r, ih - b, r, b, x + w - R, y + h - B, R, B);
 
     if (dw > 0 && sw > 0) {
-      g.drawImage(img, l, 0, sw, t, x + l, y, dw, t);
-      g.drawImage(img, l, ih - b, sw, b, x + l, y + h - b, dw, b);
+      g.drawImage(img, l, 0, sw, t, x + L, y, dw, T);
+      g.drawImage(img, l, ih - b, sw, b, x + L, y + h - B, dw, B);
     }
     if (dh > 0 && sh > 0) {
-      g.drawImage(img, 0, t, l, sh, x, y + t, l, dh);
-      g.drawImage(img, iw - r, t, r, sh, x + w - r, y + t, r, dh);
+      g.drawImage(img, 0, t, l, sh, x, y + T, L, dh);
+      g.drawImage(img, iw - r, t, r, sh, x + w - R, y + T, R, dh);
     }
     if (dw > 0 && dh > 0 && sw > 0 && sh > 0) {
-      g.drawImage(img, l, t, sw, sh, x + l, y + t, dw, dh);
+      g.drawImage(img, l, t, sw, sh, x + L, y + T, dw, dh);
     }
   }
 
@@ -669,7 +683,7 @@
     var x = m, y = viewH - boxH - m, w = viewW - m * 2;
 
     if (ART.box) {
-      nineSlice(g, ART.box, ART.boxSlice, x, y, w, boxH);
+      nineSlice(g, ART.box, ART.boxSlice, x, y, w, boxH, ART.boxDensity);
     } else {
       g.fillStyle = "#1c3a5e"; g.fillRect(x, y, w, boxH);
       g.fillStyle = "#4a84c4"; g.fillRect(x + 2, y + 2, w - 4, boxH - 4);
@@ -752,7 +766,9 @@
         var cw2 = ART.swatchCell[0], ch2 = ART.swatchCell[1];
         var cols2 = Math.max(1, Math.floor(ART.swatch.width / cw2));
         var col2 = Math.floor(tick / 14) % Math.min(cols2, ART.swatchFrames || 1);
-        ctx.drawImage(ART.swatch, col2 * cw2, 0, cw2, ch2, sx, sy + bob, cw2, ch2);
+        var sd = ART.swatchDensity;
+        ctx.drawImage(ART.swatch, col2 * cw2, 0, cw2, ch2,
+                      sx, sy + bob, cw2 / sd, ch2 / sd);
       } else {
         ctx.fillStyle = "#ffffff";
         ctx.fillRect(sx + 3, sy + 2 + bob, 10, 10);
@@ -769,14 +785,15 @@
       var pw2 = ART.pigeonCell[0], ph2 = ART.pigeonCell[1];
       var pcols = Math.max(1, Math.floor(ART.pigeon.width / pw2));
       var pcol = Math.floor(tick / 16) % Math.min(pcols, ART.pigeonFrames || 1);
+      var pd = ART.pigeonDensity, pww = pw2 / pd, pwh = ph2 / pd;
       // the sheet faces right; flip it when the bird walks the other way
       if (pigeon.dir > 0) {
-        ctx.drawImage(ART.pigeon, pcol * pw2, 0, pw2, ph2, pigeon.x, pigeon.y, pw2, ph2);
+        ctx.drawImage(ART.pigeon, pcol * pw2, 0, pw2, ph2, pigeon.x, pigeon.y, pww, pwh);
       } else {
         ctx.save();
-        ctx.translate(pigeon.x + pw2, pigeon.y);
+        ctx.translate(pigeon.x + pww, pigeon.y);
         ctx.scale(-1, 1);
-        ctx.drawImage(ART.pigeon, pcol * pw2, 0, pw2, ph2, 0, 0, pw2, ph2);
+        ctx.drawImage(ART.pigeon, pcol * pw2, 0, pw2, ph2, 0, 0, pww, pwh);
         ctx.restore();
       }
     } else {
@@ -840,18 +857,20 @@
       if (ri === -1) ri = 0;
       var cols = Math.max(1, Math.floor(ART.player.width / cw));
       var col = Math.min(cols - 1, player.frame % ART.playerFrames);
+      var d = ART.playerDensity;
+      var ww = cw / d, wh = ch / d;          // size in world units
       // feet sit on the bottom of the tile; anything wider than a tile is
       // centred on it rather than hanging off to the right
-      var dx = px + Math.round((TILE - cw) / 2);
-      var dy = py + TILE - ch;
+      var dx = px + (TILE - ww) / 2;
+      var dy = py + TILE - wh;
       if (mirror) {
         g.save();
-        g.translate(dx + cw, dy);
+        g.translate(dx + ww, dy);
         g.scale(-1, 1);
-        g.drawImage(ART.player, col * cw, ri * ch, cw, ch, 0, 0, cw, ch);
+        g.drawImage(ART.player, col * cw, ri * ch, cw, ch, 0, 0, ww, wh);
         g.restore();
       } else {
-        g.drawImage(ART.player, col * cw, ri * ch, cw, ch, dx, dy, cw, ch);
+        g.drawImage(ART.player, col * cw, ri * ch, cw, ch, dx, dy, ww, wh);
       }
       return;
     }

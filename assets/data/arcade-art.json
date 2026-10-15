@@ -1,10 +1,11 @@
 {
-  "version": "2",
+  "version": "3",
+  "density": 2,
   "player": {
     "src": "assets/img/arcade/player.png",
     "cell": [
-      16,
-      24
+      32,
+      48
     ],
     "frames": 4,
     "rows": [
@@ -16,8 +17,8 @@
   "tiles": {
     "src": "assets/img/arcade/tiles.png",
     "cell": [
-      16,
-      16
+      32,
+      32
     ],
     "variants": 4,
     "rows": [
@@ -86,16 +87,16 @@
   "pigeon": {
     "src": "assets/img/arcade/pigeon.png",
     "cell": [
-      16,
-      16
+      32,
+      32
     ],
     "frames": 1
   },
   "swatch": {
     "src": "assets/img/arcade/swatch.png",
     "cell": [
-      16,
-      16
+      32,
+      32
     ],
     "frames": 1,
     "fill": [
@@ -108,10 +109,10 @@
   "box": {
     "src": "assets/img/arcade/box.png",
     "slice": [
-      8,
-      8,
-      8,
-      8
+      16,
+      16,
+      16,
+      16
     ],
     "height": 38,
     "text": "#1c3a5e",

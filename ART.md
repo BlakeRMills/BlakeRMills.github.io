@@ -10,44 +10,46 @@ and leave the rest alone — nothing breaks part-way through.
 The PNGs currently in the repo were exported from that code-drawn art, so they
 are a starting point to paint over rather than blank canvases.
 
-## Do the sizes have to stay the same?
+## Density, and what the sizes mean
 
-Mostly no — but it differs per asset, because they're anchored and scaled
-differently.
+The world is measured in **units**, not pixels. A tile is 16 units; the map is
+40 x 28 tiles. How many image pixels you draw per unit is up to you, and it's
+set by `density` in the manifest.
 
-| Asset       | Can you change the size?                                        |
-|-------------|------------------------------------------------------------------|
-| Buildings   | **Freely.** Drawn at natural size, nothing is scaled.             |
-| Pigeon      | **Freely.** Drawn at natural size.                                |
-| Swatches    | **Freely**, but move `fill` to match.                             |
-| Character   | **Height freely**, width is best left at 16.                      |
-| Dialogue box| **Freely**, set `height` to match.                                |
-| Tiles       | **Keep them 16 x 16.**                                            |
+Everything is currently at **density 2** — 2 image pixels per world unit — so a
+16-unit tile is a 32 x 32 drawing. Raise it to 3 or 4 and everything gets
+correspondingly finer. The game scales whatever you give it to the same world
+size, so **changing density changes detail, not how big things look.**
 
-The details behind that:
+`density` at the top of the manifest is the default; any asset can override it
+with its own `density`, so you can redraw the buildings at 4 while the tiles are
+still at 2.
 
-**Buildings** are drawn at natural size wherever `offset` puts them, so a taller
-roof or a wider overhang just works — redraw the PNG, nudge `offset`. The tile
-footprint in `PLACES` controls what you can walk through, and is separate from
-what the image looks like. Only the door tile has to line up.
+### What's in units and what's in pixels
 
-**The character** is anchored by its feet to the bottom of its tile, so you can
-make it as tall as you like — a 16 x 32 sprite leans further over whatever is
-behind it, which is how taller overworld sprites usually read. Width is a
-different story: a cell wider than a tile gets centred on it, which is fine for
-a cape or a wide stance, but the collision box is still one tile, so a very wide
-sprite will clip into walls. Update `cell` either way.
+This is the bit that catches people:
 
-**Tiles are the one real constraint.** Each cell is squeezed into 16 x 16 world
-pixels no matter what size you draw it, so a 32 x 32 tile gets halved and loses
-every other pixel. If you want genuinely more detail per tile, the fix isn't a
-bigger cell — it's raising `TILE` in `js/arcade.js`, which scales the whole
-world. That's a real change and it would retire the code-drawn fallbacks, since
-their offsets are all written against 16. Worth doing if you want it; just say
-so.
+- **In image pixels** (so they scale with density): `cell`, and the nine-slice
+  `slice` on the box.
+- **In world units** (so they don't): the building `offset`, the swatch `fill`,
+  and the box `height`.
 
-**The dialogue box** stretches horizontally on its own, and `height` sets how
-tall it's drawn. The nine-slice `slice` inset has to stay inside your art.
+Double your density and you double `cell` and `slice`, and leave the rest alone.
+
+### Can I change an individual size?
+
+| Asset        | Freedom                                                     |
+|--------------|-------------------------------------------------------------|
+| Buildings    | **Any size.** Set `offset` to place it.                      |
+| Pigeon       | **Any size.**                                                |
+| Swatches     | **Any size**; `fill` is in units, so it doesn't move.        |
+| Character    | **Any height.** Width over one tile is centred, but the      |
+|              | collision box stays one tile, so very wide art clips walls.  |
+| Dialogue box | **Any size**; set `height` (units) and `slice` (pixels).     |
+| Tiles        | **Any size**, as long as it's square and `cell` matches.     |
+
+The character is anchored by its feet to the bottom of its tile, so a taller
+sprite just leans further over whatever is behind it.
 
 ## General rules
 
@@ -57,13 +59,13 @@ tall it's drawn. The nine-slice `slice` inset has to stay inside your art.
   soft edges will look like mud once the game scales it up 4x.
 - **Transparency is respected.** Leave the background transparent, not white.
 - **Indexed or RGBA both work.** Any normal PNG is fine.
-- A tile is **16 x 16**. The world is 40 x 28 tiles.
+- A tile is **16 world units**, drawn at 32 x 32 pixels at the current density.
 
 ## The character
 
-`assets/img/arcade/player.png` — currently **64 x 72**.
+`assets/img/arcade/player.png` — currently **128 x 144**.
 
-A grid of cells, each **16 wide x 24 tall**. The sprite is taller than a tile
+A grid of cells, each **32 wide x 48 tall** (16 x 24 world units at density 2). The sprite is taller than a tile
 on purpose: it stands 8px above its tile so it overlaps whatever is behind it.
 Feet should sit at the **bottom** of the cell.
 
@@ -84,7 +86,7 @@ Make the image taller to add rows, wider to add frames, and update `cell`,
 
 ## Tiles
 
-`assets/img/arcade/tiles.png` — currently **64 x 128**.
+`assets/img/arcade/tiles.png` — currently **128 x 256**, cells of **32 x 32**.
 
 - **Rows are tile types**, in the order given by `rows` in the manifest:
   `grass, path, tall, flower, tree, water, stone, fence`
@@ -93,7 +95,7 @@ Make the image taller to add rows, wider to add frames, and update `cell`,
   stamped. One column is fine if you don't want variety.
 - **Water is the exception:** its columns are animation frames, cycled over time.
 
-Two things to know:
+Tiles should be square and match `cell`. Two other things to know:
 
 **Solidity is not in the art.** Whether you can walk through something is set by
 `SOLID` in `js/arcade.js`, not by what the tile looks like. Draw a boulder over
@@ -111,18 +113,19 @@ set in `PLACES` in `js/arcade.js`:
 
 | file       | building       | tiles  | image     |
 |------------|----------------|--------|-----------|
-| `met.png`  | The Met        | 10 x 6 | 166 x 100 |
-| `moma.png` | MoMA           | 10 x 6 | 166 x 100 |
-| `gal.png`  | The Gallery    | 8 x 5  | 134 x 84  |
-| `stu.png`  | The Studio     | 8 x 5  | 134 x 84  |
-| `news.png` | The Newsstand  | 7 x 4  | 118 x 68  |
-| `off.png`  | The Office     | 7 x 4  | 118 x 68  |
-| `home.png` | Blake's Place  | 7 x 4  | 118 x 68  |
+| `met.png`  | The Met        | 10 x 6 | 332 x 200 |
+| `moma.png` | MoMA           | 10 x 6 | 332 x 200 |
+| `gal.png`  | The Gallery    | 8 x 5  | 268 x 168 |
+| `stu.png`  | The Studio     | 8 x 5  | 268 x 168 |
+| `news.png` | The Newsstand  | 7 x 4  | 236 x 136 |
+| `off.png`  | The Office     | 7 x 4  | 236 x 136 |
+| `home.png` | Blake's Place  | 7 x 4  | 236 x 136 |
 
-The images are slightly bigger than `w*16 x h*16` because the roof overhangs by
-3px each side and the shadow falls 3px below. `offset` in the manifest says
-where the image's top-left corner goes relative to the building's top-left tile
-— `[-3, 0]` for all of these.
+The images are bigger than `w*16 x h*16` units because the roof overhangs by 3
+units each side and the shadow falls 3 below — at density 2 that's 6 pixels of
+extra width and 8 of height. `offset` says where the image's top-left corner
+goes relative to the building's top-left tile, in **units**: `[-3, 0]` for all
+of these, whatever the density.
 
 **The door matters.** It sits on the bottom row, in the middle column
 (`x + floor(w/2)`), and that's the tile you walk onto to enter the page. Draw
@@ -136,16 +139,24 @@ code-drawn board on top of your art, set `"label": true` for that building.
 
 ```json
 {
-  "player": { "src": "...", "cell": [16, 24], "frames": 4,
+  "version": "3",
+  "density": 2,
+  "player": { "src": "...", "cell": [32, 48], "frames": 4,
               "rows": ["down", "up", "right"] },
-  "tiles":  { "src": "...", "cell": [16, 16], "variants": 4, "pathEdges": true,
+  "tiles":  { "src": "...", "cell": [32, 32], "variants": 4, "pathEdges": true,
               "rows": ["grass", "path", "tall", "flower", "tree", "water",
                        "stone", "fence"] },
+  "pigeon": { "src": "...", "cell": [32, 32], "frames": 1 },
+  "swatch": { "src": "...", "cell": [32, 32], "frames": 1, "fill": [4, 3, 8, 8] },
+  "box":    { "src": "...", "slice": [16, 16, 16, 16], "height": 38,
+              "text": "#1c3a5e", "subtext": "#4a6a8a" },
   "buildings": {
     "met": { "src": "...", "offset": [-3, 0], "label": false }
   }
 }
 ```
+
+Any asset can carry its own `"density"` to override the top-level one.
 
 Delete an entry and that thing goes back to being drawn in code. Point `src` at
 a file that doesn't exist and it does the same, silently — handy while you work,
@@ -156,14 +167,15 @@ but worth knowing if something you drew isn't showing up.
 1. Add it to `PLACES` in `js/arcade.js` with its tile position, size, `href`
    and `name`. The map generator stamps it, puts a door on the bottom row and
    runs a path out to the street.
-2. Draw the PNG at `w*16 x h*16` (plus any overhang) and add it to the manifest.
+2. Draw the PNG at `w*16 x h*16` units — times your density, plus any overhang
+   — and add it to the manifest.
 
 A flood fill checks every door is still reachable after scenery is scattered and
 carves a way through if not, so you can't accidentally wall one off.
 
 ## The pigeon
 
-`assets/img/arcade/pigeon.png` — **16 x 16**, one row.
+`assets/img/arcade/pigeon.png` — **32 x 32**, one row.
 
 Columns are animation frames, cycled over time; set `frames` to how many you
 drew. The sheet faces **right** and is mirrored automatically when the bird
@@ -171,7 +183,7 @@ walks the other way.
 
 ## Swatches
 
-`assets/img/arcade/swatch.png` — **16 x 16**, one row. Columns are frames.
+`assets/img/arcade/swatch.png` — **32 x 32**, one row. Columns are frames.
 
 All eight swatches share this one image, because each one has its own colour.
 What you draw is the **holder** — think of the clear plastic around a paint
@@ -184,7 +196,7 @@ nothing if you'd rather the colour didn't show at all.
 
 ## The dialogue box
 
-`assets/img/arcade/box.png` — currently **64 x 38**, drawn `height` tall.
+`assets/img/arcade/box.png` — currently **128 x 76**, drawn `height` units tall.
 
 The box stretches to the width of the screen, so it's drawn as a nine-slice:
 the four corners are left alone, the four edges stretch along one axis, and the
