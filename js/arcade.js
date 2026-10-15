@@ -723,7 +723,13 @@
     var vw = cv.width, vh = cv.height;
 
     var cover = Math.max(vw / (MAP_W * TILE), vh / (MAP_H * TILE));
-    var scale = Math.min(8, Math.max(2, Math.ceil(cover)));
+    var scale = Math.max(2, Math.ceil(cover));
+    // Land on a whole multiple of the art's density, so one drawn pixel is
+    // always the same whole number of screen pixels. Without this a viewport
+    // that wants, say, 5x with density-2 art upscales by 2.5 and the pixels
+    // come out unevenly sized.
+    var d = Math.max(1, Math.round(ART.density) || 1);
+    scale = Math.min(16, Math.ceil(scale / d) * d);
     var viewW = vw / scale, viewH = vh / scale;
 
     var cx = player.px + TILE / 2 - viewW / 2;

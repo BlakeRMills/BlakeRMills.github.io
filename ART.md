@@ -25,6 +25,42 @@ size, so **changing density changes detail, not how big things look.**
 with its own `density`, so you can redraw the buildings at 4 while the tiles are
 still at 2.
 
+### How big can I draw before pixels get thrown away?
+
+Short answer: **you can't lose pixels any more**, up to density 16.
+
+On screen one world unit covers `scale` device pixels, where `scale` comes from
+the viewport — roughly 2 in a small non-retina window, 4 on a phone, 6 on a
+retina laptop, 8 on a 1440p display. Detail is lost only if `density` is bigger
+than `scale`.
+
+The renderer now rounds `scale` up to a whole multiple of `density`, which has
+two useful effects:
+
+- `scale` is never less than `density`, so your art is never downscaled.
+- The ratio between them is always a whole number, so one drawn pixel is always
+  the same whole number of screen pixels. Before this, density-2 art on a 13in
+  retina screen landed on a 2.5x upscale and the pixels came out unevenly sized
+  — some two screen pixels across, some three.
+
+### So what stops you going higher?
+
+Zoom, not fidelity. A higher density forces a higher minimum `scale`, which
+means a more zoomed-in camera and less of the map on screen at once:
+
+| density | tile is | met.png is | smallest window shows |
+|---------|---------|------------|------------------------|
+| 2 *(now)* | 32 x 32 | 332 x 200 | ~28 tiles across |
+| 3 | 48 x 48 | 498 x 300 | ~19 tiles across |
+| 4 | 64 x 64 | 664 x 400 | ~14 tiles across |
+| 6 | 96 x 96 | 996 x 600 | ~9 tiles across |
+| 8 | 128 x 128 | 1328 x 800 | ~7 tiles across |
+
+Below about 12 tiles across the world starts feeling cramped — you can't see a
+whole building and its surroundings at once. **3 or 4 is the sensible ceiling**;
+past that you're drawing detail nobody can see without a big monitor, and the
+files grow with the square of the density.
+
 ### What's in units and what's in pixels
 
 This is the bit that catches people:
