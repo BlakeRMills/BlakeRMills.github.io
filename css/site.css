@@ -513,3 +513,112 @@ a.card:hover {
   transition: transform .25s ease; pointer-events: none;
 }
 .toast.is-visible { transform: translate(-50%, 0); }
+
+/* ------------------------------------------------------- arcade mode ---- */
+
+body.arcade-on { overflow: hidden; }
+
+.arcade {
+  position: fixed; inset: 0; z-index: 300;
+  background: #0a171f;
+  animation: arcade-in .22s ease;
+}
+@keyframes arcade-in { from { opacity: 0; } to { opacity: 1; } }
+
+.arcade__canvas {
+  display: block; width: 100%; height: 100%;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  touch-action: none;
+}
+
+.arcade__hud {
+  position: absolute; top: 0; left: 0; right: 0;
+  display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;
+  padding: .85rem 1rem;
+  padding-right: 7.5rem;   /* clear the Exit button */
+  background: linear-gradient(180deg, rgba(8,20,28,.78), transparent);
+  color: #e8eef1; font-size: .82rem;
+  pointer-events: none;
+}
+.arcade__keys { display: flex; align-items: center; gap: .3rem; flex-wrap: wrap; }
+.arcade__keys span { opacity: .72; margin: 0 .45rem 0 .15rem; }
+.arcade__hud kbd {
+  display: inline-grid; place-items: center;
+  min-width: 20px; height: 20px; padding: 0 .3rem;
+  font-family: var(--mono); font-size: .7rem;
+  background: rgba(255,255,255,.14);
+  border: 1px solid rgba(255,255,255,.22);
+  border-bottom-width: 2px; border-radius: 4px;
+}
+.arcade__score { margin-left: auto; opacity: .9; white-space: nowrap; }
+.arcade__score b { font-family: var(--mono); color: #f6c200; margin-left: .3rem; }
+
+.arcade__exit {
+  position: absolute; top: .7rem; right: 1rem;
+  font-family: var(--display); font-weight: 600; font-size: .85rem;
+  letter-spacing: .1em; text-transform: uppercase;
+  padding: .45rem 1rem; border-radius: 99px; cursor: pointer;
+  color: #e8eef1; background: rgba(255,255,255,.12);
+  border: 1px solid rgba(255,255,255,.25);
+}
+.arcade__exit:hover { background: rgba(255,255,255,.24); }
+
+.arcade__sign {
+  position: absolute; left: 50%; bottom: 4.5rem; transform: translateX(-50%);
+  display: grid; gap: .1rem; justify-items: center;
+  min-width: 190px; padding: .7rem 1.4rem;
+  background: rgba(8,20,28,.92);
+  border: 1px solid rgba(255,255,255,.18);
+  border-top: 3px solid var(--accent-place, #c2591f);
+  border-radius: 10px;
+  color: #fff; text-align: center;
+  box-shadow: 0 10px 30px rgba(0,0,0,.45);
+  pointer-events: none;
+}
+.arcade__sign[hidden] { display: none; }
+.arcade__sign strong { font-family: var(--display); font-size: 1.15rem; }
+.arcade__sign span { font-size: .8rem; opacity: .7; }
+.arcade__sign em {
+  font-style: normal; font-size: .72rem; letter-spacing: .1em;
+  text-transform: uppercase; color: #f6c200; margin-top: .3rem;
+}
+
+/* on-screen controls — touch devices only */
+.arcade__pad, .arcade__action { display: none; }
+
+@media (hover: none) and (pointer: coarse) {
+  .arcade__pad {
+    display: grid; position: absolute; left: 1.1rem; bottom: 1.4rem;
+    grid-template-columns: repeat(3, 48px);
+    grid-template-rows: repeat(3, 48px);
+    gap: 4px;
+  }
+  .arcade__dir {
+    font-size: 1.2rem; line-height: 1; cursor: pointer;
+    color: #e8eef1; background: rgba(255,255,255,.14);
+    border: 1px solid rgba(255,255,255,.24); border-radius: 10px;
+    -webkit-tap-highlight-color: transparent; touch-action: none;
+  }
+  .arcade__dir:active { background: rgba(255,255,255,.3); }
+  .arcade__dir--up    { grid-area: 1 / 2; }
+  .arcade__dir--left  { grid-area: 2 / 1; }
+  .arcade__dir--right { grid-area: 2 / 3; }
+  .arcade__dir--down  { grid-area: 3 / 2; }
+
+  .arcade__action {
+    display: grid; place-items: center;
+    position: absolute; right: 1.4rem; bottom: 2.6rem;
+    width: 72px; height: 72px; border-radius: 50%;
+    font-family: var(--display); font-weight: 700; font-size: 1.5rem;
+    color: #fff; background: rgba(194,89,31,.9);
+    border: 2px solid rgba(255,255,255,.35);
+    cursor: pointer; -webkit-tap-highlight-color: transparent;
+  }
+  .arcade__action:active { background: rgba(224,124,55,1); }
+  .arcade__sign { bottom: 10.5rem; }
+}
+
+/* the header button that launches it */
+.arcade-btn svg { width: 20px; height: 20px; }
+.arcade-btn:hover { color: var(--accent-text); }
