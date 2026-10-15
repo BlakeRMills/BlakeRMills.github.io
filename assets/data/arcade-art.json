@@ -1,4 +1,5 @@
 {
+  "version": "1",
   "player": {
     "src": "assets/img/arcade/player.png",
     "cell": [
@@ -81,5 +82,38 @@
         0
       ]
     }
+  },
+  "pigeon": {
+    "src": "assets/img/arcade/pigeon.png",
+    "cell": [
+      16,
+      16
+    ],
+    "frames": 1
+  },
+  "swatch": {
+    "src": "assets/img/arcade/swatch.png",
+    "cell": [
+      16,
+      16
+    ],
+    "frames": 1,
+    "fill": [
+      4,
+      3,
+      8,
+      8
+    ]
+  },
+  "box": {
+    "src": "assets/img/arcade/box.png",
+    "slice": [
+      8,
+      8,
+      8,
+      8
+    ],
+    "text": "#1c3a5e",
+    "subtext": "#4a6a8a"
   }
 }

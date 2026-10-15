@@ -122,8 +122,60 @@ but worth knowing if something you drew isn't showing up.
 A flood fill checks every door is still reachable after scenery is scattered and
 carves a way through if not, so you can't accidentally wall one off.
 
-## What isn't an image yet
+## The pigeon
 
-The pigeon, the colour swatches, the dialogue box and the fade are still drawn
-in code. If you want those as PNGs too, say so and I'll extend the manifest the
-same way.
+`assets/img/arcade/pigeon.png` — **16 x 16**, one row.
+
+Columns are animation frames, cycled over time; set `frames` to how many you
+drew. The sheet faces **right** and is mirrored automatically when the bird
+walks the other way.
+
+## Swatches
+
+`assets/img/arcade/swatch.png` — **16 x 16**, one row. Columns are frames.
+
+All eight swatches share this one image, because each one has its own colour.
+What you draw is the **holder** — think of the clear plastic around a paint
+chip. The swatch's colour is painted in as a flat rectangle *behind* your
+drawing, so leave that area transparent and it shows through.
+
+`fill` says where that rectangle goes inside the cell, as `[x, y, w, h]`.
+The default `[4, 3, 8, 8]` is an 8x8 block, 4px in and 3px down. Shrink it to
+nothing if you'd rather the colour didn't show at all.
+
+## The dialogue box
+
+`assets/img/arcade/box.png` — currently **64 x 38**.
+
+The box stretches to the width of the screen, so it's drawn as a nine-slice:
+the four corners are left alone, the four edges stretch along one axis, and the
+middle fills whatever is left.
+
+`slice` is how far in the corners reach, as `[left, top, right, bottom]` — the
+default `[8, 8, 8, 8]` means the corner 8x8 of each corner stays fixed. Keep
+your border detail inside that inset, or it'll stretch.
+
+`text` and `subtext` set the colour of the building name and the line beneath
+it. The blinking arrow uses `text` too.
+
+## A note on caching
+
+The manifest is always revalidated, so adding or removing an entry takes effect
+on a normal reload. **Images are not** — a browser that already has `player.png`
+will happily keep showing you the old one after you redraw it.
+
+Bump `version` at the top of the manifest when that happens:
+
+```json
+{ "version": "2", ... }
+```
+
+It's appended to every image URL, so everything reloads. A hard refresh works
+too, but the version field is what makes it reliable for other people's
+browsers once the site is live.
+
+## Still drawn in code
+
+The fade when you enter a door, the drop shadows under the sprite and swatches,
+and the name boards over each building (unless you set `"label": true`). Say the
+word if you want any of those opened up too.

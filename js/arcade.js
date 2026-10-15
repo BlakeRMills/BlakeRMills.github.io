@@ -314,6 +314,9 @@
     player: null, playerCell: [16, 24], playerFrames: 4, playerRows: null,
     tiles: null, tileCell: [16, 16], tileVariants: 1, tileRow: {}, pathEdges: false,
     buildings: {},
+    pigeon: null, pigeonCell: [16, 16], pigeonFrames: 1,
+    swatch: null, swatchCell: [16, 16], swatchFrames: 1, swatchFill: [4, 3, 8, 8],
+    box: null, boxSlice: [8, 8, 8, 8], boxText: "#1c3a5e", boxSubText: "#4a6a8a",
   };
 
   var ROW_TO_TILE = {
@@ -321,18 +324,25 @@
     tree: TREE, water: WATER, stone: STONE, fence: FENCE,
   };
 
+  var artVersion = "";
+
   function loadImage(src, onload) {
     var img = new Image();
     img.onload = function () { onload(img); };
     img.onerror = function () { /* keep the code-drawn fallback */ };
-    img.src = src;
+    img.src = src + artVersion;
   }
 
   function loadArt() {
-    fetch("assets/data/arcade-art.json")
+    // revalidate the manifest rather than trusting the browser's copy, so a
+    // newly added entry shows up without a hard refresh
+    fetch("assets/data/arcade-art.json", { cache: "no-cache" })
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (m) {
         if (!m) return;
+        // bump "version" in the manifest after redrawing a PNG and browsers
+        // will pick the new file up instead of serving the cached one
+        if (m.version) artVersion = "?v=" + encodeURIComponent(m.version);
 
         if (m.player && m.player.src) {
           ART.playerCell = m.player.cell || ART.playerCell;
@@ -349,6 +359,26 @@
             if (ROW_TO_TILE[name] !== undefined) ART.tileRow[ROW_TO_TILE[name]] = i;
           });
           loadImage(m.tiles.src, function (img) { ART.tiles = img; });
+        }
+
+        if (m.pigeon && m.pigeon.src) {
+          ART.pigeonCell = m.pigeon.cell || ART.pigeonCell;
+          ART.pigeonFrames = m.pigeon.frames || 1;
+          loadImage(m.pigeon.src, function (img) { ART.pigeon = img; });
+        }
+
+        if (m.swatch && m.swatch.src) {
+          ART.swatchCell = m.swatch.cell || ART.swatchCell;
+          ART.swatchFrames = m.swatch.frames || 1;
+          if (m.swatch.fill) ART.swatchFill = m.swatch.fill;
+          loadImage(m.swatch.src, function (img) { ART.swatch = img; });
+        }
+
+        if (m.box && m.box.src) {
+          ART.boxSlice = m.box.slice || ART.boxSlice;
+          ART.boxText = m.box.text || ART.boxText;
+          ART.boxSubText = m.box.subtext || ART.boxSubText;
+          loadImage(m.box.src, function (img) { ART.box = img; });
         }
 
         Object.keys(m.buildings || {}).forEach(function (id) {
@@ -605,27 +635,56 @@
     pixText(g, label, lx + 3, ly + 1, night ? "#2a1a0e" : "#3a2412");
   }
 
+  /* Draws an image as a stretchable frame: corners stay put, edges repeat
+     along one axis, the middle fills the rest. */
+  function nineSlice(g, img, sl, x, y, w, h) {
+    var l = sl[0], t = sl[1], r = sl[2], b = sl[3];
+    var iw = img.width, ih = img.height;
+    var sw = iw - l - r, sh = ih - t - b;      // source middle
+    var dw = w - l - r, dh = h - t - b;        // destination middle
+
+    g.drawImage(img, 0, 0, l, t, x, y, l, t);
+    g.drawImage(img, iw - r, 0, r, t, x + w - r, y, r, t);
+    g.drawImage(img, 0, ih - b, l, b, x, y + h - b, l, b);
+    g.drawImage(img, iw - r, ih - b, r, b, x + w - r, y + h - b, r, b);
+
+    if (dw > 0 && sw > 0) {
+      g.drawImage(img, l, 0, sw, t, x + l, y, dw, t);
+      g.drawImage(img, l, ih - b, sw, b, x + l, y + h - b, dw, b);
+    }
+    if (dh > 0 && sh > 0) {
+      g.drawImage(img, 0, t, l, sh, x, y + t, l, dh);
+      g.drawImage(img, iw - r, t, r, sh, x + w - r, y + t, r, dh);
+    }
+    if (dw > 0 && dh > 0 && sw > 0 && sh > 0) {
+      g.drawImage(img, l, t, sw, sh, x + l, y + t, dw, dh);
+    }
+  }
+
   /* ---- dialogue box ------------------------------------------------------ */
 
   function drawBox(g, viewW, viewH, title, sub) {
     var m = 6, boxH = 38;
     var x = m, y = viewH - boxH - m, w = viewW - m * 2;
 
-    g.fillStyle = "#1c3a5e"; g.fillRect(x, y, w, boxH);
-    g.fillStyle = "#4a84c4"; g.fillRect(x + 2, y + 2, w - 4, boxH - 4);
-    g.fillStyle = "#f8f8f8"; g.fillRect(x + 3, y + 3, w - 6, boxH - 6);
-    g.fillStyle = "#dcecfa"; g.fillRect(x + 4, y + 4, w - 8, boxH - 8);
-    // clipped corners, for the softened GBA look
-    g.fillStyle = "#1c3a5e";
-    [[x, y], [x + w - 2, y], [x, y + boxH - 2], [x + w - 2, y + boxH - 2]].forEach(function (c) {
-      g.clearRect(c[0], c[1], 2, 2);
-    });
+    if (ART.box) {
+      nineSlice(g, ART.box, ART.boxSlice, x, y, w, boxH);
+    } else {
+      g.fillStyle = "#1c3a5e"; g.fillRect(x, y, w, boxH);
+      g.fillStyle = "#4a84c4"; g.fillRect(x + 2, y + 2, w - 4, boxH - 4);
+      g.fillStyle = "#f8f8f8"; g.fillRect(x + 3, y + 3, w - 6, boxH - 6);
+      g.fillStyle = "#dcecfa"; g.fillRect(x + 4, y + 4, w - 8, boxH - 8);
+      // clipped corners, for the softened GBA look
+      [[x, y], [x + w - 2, y], [x, y + boxH - 2], [x + w - 2, y + boxH - 2]].forEach(function (c) {
+        g.clearRect(c[0], c[1], 2, 2);
+      });
+    }
 
-    pixText(g, title, x + 9, y + 8, "#1c3a5e");
-    if (sub) pixText(g, sub, x + 9, y + 20, "#4a6a8a");
+    pixText(g, title, x + 9, y + 8, ART.boxText);
+    if (sub) pixText(g, sub, x + 9, y + 20, ART.boxSubText);
 
     if (Math.floor(tick / 22) % 2 === 0) {
-      g.fillStyle = "#1c3a5e";
+      g.fillStyle = ART.boxText;
       var ax = x + w - 12, ay = y + boxH - 11;
       g.fillRect(ax, ay, 6, 2); g.fillRect(ax + 1, ay + 2, 4, 2); g.fillRect(ax + 2, ay + 4, 2, 2);
     }
@@ -679,23 +738,53 @@
     SWATCHES.forEach(function (s, i) {
       if (found.indexOf(i) !== -1) return;
       var bob = Math.sin(tick / 18 + i) * 1.5;
+      var sx = s[0] * TILE, sy = s[1] * TILE;
       ctx.fillStyle = T.shadow;
-      ctx.fillRect(s[0] * TILE + 4, s[1] * TILE + 12, 8, 3);
-      ctx.fillStyle = "#ffffff";
-      ctx.fillRect(s[0] * TILE + 3, s[1] * TILE + 2 + bob, 10, 10);
-      ctx.fillStyle = s[2];
-      ctx.fillRect(s[0] * TILE + 4, s[1] * TILE + 3 + bob, 8, 8);
-      ctx.fillStyle = "rgba(255,255,255,.5)";
-      ctx.fillRect(s[0] * TILE + 4, s[1] * TILE + 3 + bob, 8, 2);
+      ctx.fillRect(sx + 4, sy + 12, 8, 3);
+
+      if (ART.swatch) {
+        // the drawing is the holder; its colour is painted in behind it, so
+        // all eight swatches can share one image
+        var f = ART.swatchFill;
+        ctx.fillStyle = s[2];
+        ctx.fillRect(sx + f[0], sy + f[1] + bob, f[2], f[3]);
+        var cw2 = ART.swatchCell[0], ch2 = ART.swatchCell[1];
+        var cols2 = Math.max(1, Math.floor(ART.swatch.width / cw2));
+        var col2 = Math.floor(tick / 14) % Math.min(cols2, ART.swatchFrames || 1);
+        ctx.drawImage(ART.swatch, col2 * cw2, 0, cw2, ch2, sx, sy + bob, cw2, ch2);
+      } else {
+        ctx.fillStyle = "#ffffff";
+        ctx.fillRect(sx + 3, sy + 2 + bob, 10, 10);
+        ctx.fillStyle = s[2];
+        ctx.fillRect(sx + 4, sy + 3 + bob, 8, 8);
+        ctx.fillStyle = "rgba(255,255,255,.5)";
+        ctx.fillRect(sx + 4, sy + 3 + bob, 8, 2);
+      }
     });
 
     ctx.fillStyle = T.shadow;
     ctx.fillRect(pigeon.x + 4, pigeon.y + 12, 7, 2);
-    ctx.fillStyle = night ? "#6d7686" : "#9aa4b2";
-    ctx.fillRect(pigeon.x + 4, pigeon.y + 6, 7, 5);
-    ctx.fillRect(pigeon.x + (pigeon.dir > 0 ? 10 : 3), pigeon.y + 4, 3, 3);
-    ctx.fillStyle = "#f6c200";
-    ctx.fillRect(pigeon.x + (pigeon.dir > 0 ? 13 : 2), pigeon.y + 5, 1, 1);
+    if (ART.pigeon) {
+      var pw2 = ART.pigeonCell[0], ph2 = ART.pigeonCell[1];
+      var pcols = Math.max(1, Math.floor(ART.pigeon.width / pw2));
+      var pcol = Math.floor(tick / 16) % Math.min(pcols, ART.pigeonFrames || 1);
+      // the sheet faces right; flip it when the bird walks the other way
+      if (pigeon.dir > 0) {
+        ctx.drawImage(ART.pigeon, pcol * pw2, 0, pw2, ph2, pigeon.x, pigeon.y, pw2, ph2);
+      } else {
+        ctx.save();
+        ctx.translate(pigeon.x + pw2, pigeon.y);
+        ctx.scale(-1, 1);
+        ctx.drawImage(ART.pigeon, pcol * pw2, 0, pw2, ph2, 0, 0, pw2, ph2);
+        ctx.restore();
+      }
+    } else {
+      ctx.fillStyle = night ? "#6d7686" : "#9aa4b2";
+      ctx.fillRect(pigeon.x + 4, pigeon.y + 6, 7, 5);
+      ctx.fillRect(pigeon.x + (pigeon.dir > 0 ? 10 : 3), pigeon.y + 4, 3, 3);
+      ctx.fillStyle = "#f6c200";
+      ctx.fillRect(pigeon.x + (pigeon.dir > 0 ? 13 : 2), pigeon.y + 5, 1, 1);
+    }
 
     // player — sprite is 24 tall, so it stands 8px above its tile
     var inTall = tileAt(player.tx, player.ty) === TALL;
