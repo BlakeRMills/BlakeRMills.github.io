@@ -1,5 +1,5 @@
 {
-  "version": "1",
+  "version": "2",
   "player": {
     "src": "assets/img/arcade/player.png",
     "cell": [
@@ -113,6 +113,7 @@
       8,
       8
     ],
+    "height": 38,
     "text": "#1c3a5e",
     "subtext": "#4a6a8a"
   }

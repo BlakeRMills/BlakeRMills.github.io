@@ -10,6 +10,45 @@ and leave the rest alone — nothing breaks part-way through.
 The PNGs currently in the repo were exported from that code-drawn art, so they
 are a starting point to paint over rather than blank canvases.
 
+## Do the sizes have to stay the same?
+
+Mostly no — but it differs per asset, because they're anchored and scaled
+differently.
+
+| Asset       | Can you change the size?                                        |
+|-------------|------------------------------------------------------------------|
+| Buildings   | **Freely.** Drawn at natural size, nothing is scaled.             |
+| Pigeon      | **Freely.** Drawn at natural size.                                |
+| Swatches    | **Freely**, but move `fill` to match.                             |
+| Character   | **Height freely**, width is best left at 16.                      |
+| Dialogue box| **Freely**, set `height` to match.                                |
+| Tiles       | **Keep them 16 x 16.**                                            |
+
+The details behind that:
+
+**Buildings** are drawn at natural size wherever `offset` puts them, so a taller
+roof or a wider overhang just works — redraw the PNG, nudge `offset`. The tile
+footprint in `PLACES` controls what you can walk through, and is separate from
+what the image looks like. Only the door tile has to line up.
+
+**The character** is anchored by its feet to the bottom of its tile, so you can
+make it as tall as you like — a 16 x 32 sprite leans further over whatever is
+behind it, which is how taller overworld sprites usually read. Width is a
+different story: a cell wider than a tile gets centred on it, which is fine for
+a cape or a wide stance, but the collision box is still one tile, so a very wide
+sprite will clip into walls. Update `cell` either way.
+
+**Tiles are the one real constraint.** Each cell is squeezed into 16 x 16 world
+pixels no matter what size you draw it, so a 32 x 32 tile gets halved and loses
+every other pixel. If you want genuinely more detail per tile, the fix isn't a
+bigger cell — it's raising `TILE` in `js/arcade.js`, which scales the whole
+world. That's a real change and it would retire the code-drawn fallbacks, since
+their offsets are all written against 16. Worth doing if you want it; just say
+so.
+
+**The dialogue box** stretches horizontally on its own, and `height` sets how
+tall it's drawn. The nine-slice `slice` inset has to stay inside your art.
+
 ## General rules
 
 - **One pixel in the file is one pixel in the world.** Don't draw at 4x and
@@ -145,7 +184,7 @@ nothing if you'd rather the colour didn't show at all.
 
 ## The dialogue box
 
-`assets/img/arcade/box.png` — currently **64 x 38**.
+`assets/img/arcade/box.png` — currently **64 x 38**, drawn `height` tall.
 
 The box stretches to the width of the screen, so it's drawn as a nine-slice:
 the four corners are left alone, the four edges stretch along one axis, and the

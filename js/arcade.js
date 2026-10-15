@@ -316,7 +316,7 @@
     buildings: {},
     pigeon: null, pigeonCell: [16, 16], pigeonFrames: 1,
     swatch: null, swatchCell: [16, 16], swatchFrames: 1, swatchFill: [4, 3, 8, 8],
-    box: null, boxSlice: [8, 8, 8, 8], boxText: "#1c3a5e", boxSubText: "#4a6a8a",
+    box: null, boxSlice: [8, 8, 8, 8], boxHeight: 38, boxText: "#1c3a5e", boxSubText: "#4a6a8a",
   };
 
   var ROW_TO_TILE = {
@@ -376,6 +376,7 @@
 
         if (m.box && m.box.src) {
           ART.boxSlice = m.box.slice || ART.boxSlice;
+          ART.boxHeight = m.box.height || ART.boxHeight;
           ART.boxText = m.box.text || ART.boxText;
           ART.boxSubText = m.box.subtext || ART.boxSubText;
           loadImage(m.box.src, function (img) { ART.box = img; });
@@ -664,7 +665,7 @@
   /* ---- dialogue box ------------------------------------------------------ */
 
   function drawBox(g, viewW, viewH, title, sub) {
-    var m = 6, boxH = 38;
+    var m = 6, boxH = ART.boxHeight;
     var x = m, y = viewH - boxH - m, w = viewW - m * 2;
 
     if (ART.box) {
@@ -839,15 +840,18 @@
       if (ri === -1) ri = 0;
       var cols = Math.max(1, Math.floor(ART.player.width / cw));
       var col = Math.min(cols - 1, player.frame % ART.playerFrames);
+      // feet sit on the bottom of the tile; anything wider than a tile is
+      // centred on it rather than hanging off to the right
+      var dx = px + Math.round((TILE - cw) / 2);
       var dy = py + TILE - ch;
       if (mirror) {
         g.save();
-        g.translate(px + cw, dy);
+        g.translate(dx + cw, dy);
         g.scale(-1, 1);
         g.drawImage(ART.player, col * cw, ri * ch, cw, ch, 0, 0, cw, ch);
         g.restore();
       } else {
-        g.drawImage(ART.player, col * cw, ri * ch, cw, ch, px, dy, cw, ch);
+        g.drawImage(ART.player, col * cw, ri * ch, cw, ch, dx, dy, cw, ch);
       }
       return;
     }
