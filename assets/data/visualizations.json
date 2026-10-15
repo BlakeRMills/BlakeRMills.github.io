@@ -1,0 +1,338 @@
+[
+ {
+  "id": "tidytuesday",
+  "label": "#TidyTuesday",
+  "items": [
+   {
+    "title": "Spiders",
+    "src": "assets/img/viz/tidytuesday/spiders.png"
+   },
+   {
+    "title": "Emmy Awards",
+    "src": "assets/img/viz/tidytuesday/emmy-awards.png"
+   },
+   {
+    "title": "Dogs of New York",
+    "src": "assets/img/viz/tidytuesday/dogs-of-new-york.png"
+   },
+   {
+    "title": "Ultimate Trail Running",
+    "src": "assets/img/viz/tidytuesday/ultimate-trail-running.png"
+   },
+   {
+    "title": "Global Seafood Production",
+    "src": "assets/img/viz/tidytuesday/global-seafood-production.png"
+   },
+   {
+    "title": "Alternative Fuel",
+    "src": "assets/img/viz/tidytuesday/alternative-fuel.png"
+   },
+   {
+    "title": "Chocolate Ratings",
+    "src": "assets/img/viz/tidytuesday/chocolate-ratings.png"
+   },
+   {
+    "title": "Lemurs",
+    "src": "assets/img/viz/tidytuesday/lemurs.png"
+   },
+   {
+    "title": "NBER Papers",
+    "src": "assets/img/viz/tidytuesday/nber-papers.png"
+   },
+   {
+    "title": "Australian Bird Baths",
+    "src": "assets/img/viz/tidytuesday/australian-bird-baths.png"
+   },
+   {
+    "title": "Big Pumpkins",
+    "src": "assets/img/viz/tidytuesday/big-pumpkins.png"
+   },
+   {
+    "title": "Drought and Wet Conditions",
+    "src": "assets/img/viz/tidytuesday/drought-and-wet-conditions.png"
+   },
+   {
+    "title": "Corporate Rainbow Washing",
+    "src": "assets/img/viz/tidytuesday/corporate-rainbow-washing.png"
+   }
+  ]
+ },
+ {
+  "id": "streets",
+  "label": "City Maps by Streets",
+  "items": [
+   {
+    "title": "New York",
+    "src": "assets/img/viz/streets/new-york.png"
+   },
+   {
+    "title": "Oslo",
+    "src": "assets/img/viz/streets/oslo.png"
+   },
+   {
+    "title": "Paris",
+    "src": "assets/img/viz/streets/paris.png"
+   },
+   {
+    "title": "Rome",
+    "src": "assets/img/viz/streets/rome.png"
+   },
+   {
+    "title": "Tehran",
+    "src": "assets/img/viz/streets/tehran.png"
+   },
+   {
+    "title": "Vienna",
+    "src": "assets/img/viz/streets/vienna.png"
+   },
+   {
+    "title": "Washington DC",
+    "src": "assets/img/viz/streets/washington-dc.png"
+   },
+   {
+    "title": "Amsterdam",
+    "src": "assets/img/viz/streets/amsterdam.png"
+   },
+   {
+    "title": "Barcelona",
+    "src": "assets/img/viz/streets/barcelona.png"
+   },
+   {
+    "title": "Bogotá",
+    "src": "assets/img/viz/streets/bogot.png"
+   },
+   {
+    "title": "Buenos Aires",
+    "src": "assets/img/viz/streets/buenos-aires.png"
+   },
+   {
+    "title": "Cairo",
+    "src": "assets/img/viz/streets/cairo.png"
+   },
+   {
+    "title": "Caracas",
+    "src": "assets/img/viz/streets/caracas.png"
+   },
+   {
+    "title": "Havana",
+    "src": "assets/img/viz/streets/havana.png"
+   },
+   {
+    "title": "Helsinki",
+    "src": "assets/img/viz/streets/helsinki.png"
+   },
+   {
+    "title": "Kolkata",
+    "src": "assets/img/viz/streets/kolkata.png"
+   },
+   {
+    "title": "London",
+    "src": "assets/img/viz/streets/london.png"
+   },
+   {
+    "title": "Mexico City",
+    "src": "assets/img/viz/streets/mexico-city.png"
+   },
+   {
+    "title": "Milan",
+    "src": "assets/img/viz/streets/milan.png"
+   },
+   {
+    "title": "Montreal",
+    "src": "assets/img/viz/streets/montreal.png"
+   },
+   {
+    "title": "Mumbai",
+    "src": "assets/img/viz/streets/mumbai.png"
+   }
+  ]
+ },
+ {
+  "id": "airbnb",
+  "label": "Staying on my Street — Costs of Airbnbs",
+  "items": [
+   {
+    "title": "New York",
+    "src": "assets/img/viz/airbnb/new-york.png"
+   },
+   {
+    "title": "Paris",
+    "src": "assets/img/viz/airbnb/paris.png"
+   },
+   {
+    "title": "Rio",
+    "src": "assets/img/viz/airbnb/rio.png"
+   },
+   {
+    "title": "Sydney",
+    "src": "assets/img/viz/airbnb/sydney.png"
+   },
+   {
+    "title": "Amsterdam",
+    "src": "assets/img/viz/airbnb/amsterdam.png"
+   },
+   {
+    "title": "Berlin",
+    "src": "assets/img/viz/airbnb/berlin.png"
+   },
+   {
+    "title": "London",
+    "src": "assets/img/viz/airbnb/london.png"
+   },
+   {
+    "title": "Milan",
+    "src": "assets/img/viz/airbnb/milan.png"
+   },
+   {
+    "title": "Munich",
+    "src": "assets/img/viz/airbnb/munich.png"
+   },
+   {
+    "title": "Mexico City",
+    "src": "assets/img/viz/airbnb/mexico-city.png"
+   }
+  ]
+ },
+ {
+  "id": "elevation",
+  "label": "City Streets by Elevation",
+  "items": [
+   {
+    "title": "New York",
+    "src": "assets/img/viz/elevation/new-york.png"
+   },
+   {
+    "title": "Paris",
+    "src": "assets/img/viz/elevation/paris.png"
+   },
+   {
+    "title": "São Paulo",
+    "src": "assets/img/viz/elevation/s-o-paulo.png"
+   },
+   {
+    "title": "Vienna",
+    "src": "assets/img/viz/elevation/vienna.png"
+   },
+   {
+    "title": "Washington DC",
+    "src": "assets/img/viz/elevation/washington-dc.png"
+   },
+   {
+    "title": "Zurich",
+    "src": "assets/img/viz/elevation/zurich.png"
+   },
+   {
+    "title": "Amsterdam",
+    "src": "assets/img/viz/elevation/amsterdam.png"
+   },
+   {
+    "title": "Berlin",
+    "src": "assets/img/viz/elevation/berlin.png"
+   },
+   {
+    "title": "Buenos Aires",
+    "src": "assets/img/viz/elevation/buenos-aires.png"
+   },
+   {
+    "title": "Caracas",
+    "src": "assets/img/viz/elevation/caracas.png"
+   },
+   {
+    "title": "Mexico City",
+    "src": "assets/img/viz/elevation/mexico-city.png"
+   },
+   {
+    "title": "London",
+    "src": "assets/img/viz/elevation/london.png"
+   },
+   {
+    "title": "Madrid",
+    "src": "assets/img/viz/elevation/madrid.png"
+   },
+   {
+    "title": "Milan",
+    "src": "assets/img/viz/elevation/milan.png"
+   },
+   {
+    "title": "Montreal",
+    "src": "assets/img/viz/elevation/montreal.png"
+   },
+   {
+    "title": "Mumbai",
+    "src": "assets/img/viz/elevation/mumbai.png"
+   }
+  ]
+ },
+ {
+  "id": "holc",
+  "label": "HOLC Redlining & Police Killings",
+  "items": [
+   {
+    "title": "New York City",
+    "src": "assets/img/viz/holc/new-york-city.png"
+   },
+   {
+    "title": "St. Louis",
+    "src": "assets/img/viz/holc/st-louis.png"
+   },
+   {
+    "title": "Chicago",
+    "src": "assets/img/viz/holc/chicago.png"
+   },
+   {
+    "title": "Detroit",
+    "src": "assets/img/viz/holc/detroit.png"
+   },
+   {
+    "title": "Los Angeles",
+    "src": "assets/img/viz/holc/los-angeles.png"
+   },
+   {
+    "title": "Baltimore",
+    "src": "assets/img/viz/holc/baltimore.png"
+   },
+   {
+    "title": "Memphis",
+    "src": "assets/img/viz/holc/memphis.png"
+   }
+  ]
+ },
+ {
+  "id": "other",
+  "label": "Other Entries",
+  "items": [
+   {
+    "title": "Lines",
+    "src": "assets/img/viz/other/lines.png"
+   },
+   {
+    "title": "Hexagons",
+    "src": "assets/img/viz/other/hexagons.png"
+   },
+   {
+    "title": "Boundaries",
+    "src": "assets/img/viz/other/boundaries.png"
+   },
+   {
+    "title": "Historic",
+    "src": "assets/img/viz/other/historic.png"
+   },
+   {
+    "title": "Natural Earth",
+    "src": "assets/img/viz/other/natural-earth.png"
+   },
+   {
+    "title": "Population",
+    "src": "assets/img/viz/other/population.png"
+   },
+   {
+    "title": "Red",
+    "src": "assets/img/viz/other/red.png"
+   },
+   {
+    "title": "Monochrome",
+    "src": "assets/img/viz/other/monochrome.png"
+   }
+  ]
+ }
+]

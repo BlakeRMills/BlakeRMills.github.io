@@ -1,0 +1,428 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Visualizations — Blake Robert Mills</title>
+<meta name="description" content="75 data visualizations by Blake Robert Mills, from #TidyTuesday and the #30DayMapChallenge, built in R.">
+<meta property="og:title" content="Visualizations — Blake Robert Mills">
+<meta property="og:description" content="75 data visualizations by Blake Robert Mills, from #TidyTuesday and the #30DayMapChallenge, built in R.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="assets/img/hero-artwork.webp">
+<meta name="theme-color" content="#14303f">
+<link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Advent+Pro:wght@400;500;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/site.css">
+<script>
+  /* set the theme before first paint so there is no flash */
+  (function(){try{var t=localStorage.getItem('brm-theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}})();
+</script>
+</head>
+<body>
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="wrap site-header__inner">
+    <a class="brand" href="index.html">Blake Robert Mills</a>
+    <nav class="nav" id="site-nav" aria-label="Main">
+      <a href="work.html" aria-current="page">My Work</a>
+      <a href="resume.html">Resume</a>
+      <a href="about.html">About</a>
+    </nav>
+    <div class="header-tools">
+      <button class="icon-btn" data-theme-toggle type="button" aria-label="Switch theme">
+        <svg class="theme-icon--moon" viewBox="0 0 24 24" aria-hidden="true"><path d="M21.64 13a1 1 0 0 0-1.05-.14 8 8 0 0 1-9.45-9.45 1 1 0 0 0-1.19-1.19A10 10 0 1 0 22 14.05a1 1 0 0 0-.36-1.05z"/></svg>
+        <svg class="theme-icon--sun" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 17a5 5 0 1 1 0-10 5 5 0 0 1 0 10zm0-12a1 1 0 0 1-1-1V2a1 1 0 0 1 2 0v2a1 1 0 0 1-1 1zm0 18a1 1 0 0 1-1-1v-2a1 1 0 0 1 2 0v2a1 1 0 0 1-1 1zM5.64 7.05 4.22 5.64a1 1 0 0 1 1.42-1.42l1.41 1.42a1 1 0 0 1-1.41 1.41zm12.72 12.72-1.41-1.41a1 1 0 0 1 1.41-1.42l1.42 1.42a1 1 0 0 1-1.42 1.41zM4 13H2a1 1 0 0 1 0-2h2a1 1 0 0 1 0 2zm18 0h-2a1 1 0 0 1 0-2h2a1 1 0 0 1 0 2zM5.64 19.78a1 1 0 0 1-1.42-1.41l1.42-1.42a1 1 0 0 1 1.41 1.42zm12.72-12.73a1 1 0 0 1-.71-1.7l1.42-1.42a1 1 0 1 1 1.41 1.42l-1.41 1.41a1 1 0 0 1-.71.29z"/></svg>
+      </button>
+      <button class="icon-btn nav-toggle" data-nav-toggle type="button" aria-label="Menu" aria-expanded="false" aria-controls="site-nav">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+<main id="main">
+<div class="wrap page-head">
+  <p class="eyebrow">Portfolio</p>
+  <h1>Visualizations</h1>
+  <p class="lede">A collection of some of my favorite data visualizations. All of
+     them were made in R, mostly with {ggplot2}, {tidyverse}, and the usual
+     spatial suspects.</p>
+</div>
+<hr class="rule">
+
+<section>
+  <div class="wrap">
+    <div style="display:flex;flex-wrap:wrap;gap:.5rem;margin-bottom:2.5rem"><a class="pill" href="#tidytuesday" style="text-decoration:none">#TidyTuesday</a> <a class="pill" href="#streets" style="text-decoration:none">City Maps by Streets</a> <a class="pill" href="#airbnb" style="text-decoration:none">Staying on my Street — Costs of Airbnbs</a> <a class="pill" href="#elevation" style="text-decoration:none">City Streets by Elevation</a> <a class="pill" href="#holc" style="text-decoration:none">HOLC Redlining &amp; Police Killings</a> <a class="pill" href="#other" style="text-decoration:none">Other Entries</a></div>
+
+    <div class="prose" style="margin-bottom:2.5rem">
+      <p>Code for the weekly plots lives in the
+        <a href="https://github.com/BlakeRMills/TidyTuesday" target="_blank" rel="noopener">TidyTuesday</a> repo,
+        and the maps in the
+        <a href="https://github.com/BlakeRMills/30DayMapChallenge" target="_blank" rel="noopener">30DayMapChallenge</a> repo.
+        The #30DayMapChallenge was started by
+        <a href="https://twitter.com/tjukanov" target="_blank" rel="noopener">Topi Tjukanov</a> —
+        one themed map a day, every November.</p>
+    </div>
+
+  <div class="group" id="tidytuesday">
+    <h3>#TidyTuesday</h3>
+    <p style="color:var(--text-soft);max-width:62ch;margin-top:-.4rem">A weekly challenge from the R for Data Science community: a new dataset every week, and whatever you can make of it.</p>
+    <div class="gallery">
+      <figure class="shot" data-lightbox>
+        <img src="assets/img/viz/tidytuesday/spiders.png" alt="Spiders" loading="lazy" decoding="async">
+        <figcaption>Spiders</figcaption>
+      </figure>
+      <figure class="shot" data-lightbox>
+        <img src="assets/img/viz/tidytuesday/emmy-awards.png" alt="Emmy Awards" loading="lazy" decoding="async">
+        <figcaption>Emmy Awards</figcaption>
+      </figure>
+      <figure class="shot" data-lightbox>
+        <img src="assets/img/viz/tidytuesday/dogs-of-new-york.png" alt="Dogs of New York" loading="lazy" decoding="async">
+        <figcaption>Dogs of New York</figcaption>
+      </figure>
+      <figure class="shot" data-lightbox>
+        <img src="assets/img/viz/tidytuesday/ultimate-trail-running.png" alt="Ultimate Trail Running" loading="lazy" decoding="async">
+        <figcaption>Ultimate Trail Running</figcaption>
+      </figure>
+      <figure class="shot" data-lightbox>
+        <img src="assets/img/viz/tidytuesday/global-seafood-production.png" alt="Global Seafood Production" loading="lazy" decoding="async">
+        <figcaption>Global Seafood Production</figcaption>
+      </figure>
+      <figure class="shot" data-lightbox>
+        <img src="assets/img/viz/tidytuesday/alternative-fuel.png" alt="Alternative Fuel" loading="lazy" decoding="async">
+        <figcaption>Alternative Fuel</figcaption>
+      </figure>
+      <figure class="shot" data-lightbox>
+        <img src="assets/img/viz/tidytuesday/chocolate-ratings.png" alt="Chocolate Ratings" loading="lazy" decoding="async">
+        <figcaption>Chocolate Ratings</figcaption>
+      </figure>
+      <figure class="shot" data-lightbox>
+        <img src="assets/img/viz/tidytuesday/lemurs.png" alt="Lemurs" loading="lazy" decoding="async">
+        <figcaption>Lemurs</figcaption>
+      </figure>
+      <figure class="shot" data-lightbox>
+        <img src="assets/img/viz/tidytuesday/nber-papers.png" alt="NBER Papers" loading="lazy" decoding="async">
+        <figcaption>NBER Papers</figcaption>
+      </figure>
+      <figure class="shot" data-lightbox>
+        <img src="assets/img/viz/tidytuesday/australian-bird-baths.png" alt="Australian Bird Baths" loading="lazy" decoding="async">
+        <figcaption>Australian Bird Baths</figcaption>
+      </figure>
+      <figure class="shot" data-lightbox>
+        <img src="assets/img/viz/tidytuesday/big-pumpkins.png" alt="Big Pumpkins" loading="lazy" decoding="async">
+        <figcaption>Big Pumpkins</figcaption>
+      </figure>
+      <figure class="shot" data-lightbox>
+        <img src="assets/img/viz/tidytuesday/drought-and-wet-conditions.png" alt="Drought and Wet Conditions" loading="lazy" decoding="async">
+        <figcaption>Drought and Wet Conditions</figcaption>
+      </figure>
+      <figure class="shot" data-lightbox>
+        <img src="assets/img/viz/tidytuesday/corporate-rainbow-washing.png" alt="Corporate Rainbow Washing" loading="lazy" decoding="async">
+        <figcaption>Corporate Rainbow Washing</figcaption>
+      </figure>
+    </div>
+  </div>
+  <div class="group" id="streets">
+    <h3>City Maps by Streets</h3>
+    <p style="color:var(--text-soft);max-width:62ch;margin-top:-.4rem">Every street in a city, drawn by type. Day one of the challenge turned into a series.</p>
+    <div class="gallery">
+      <figure class="shot shot--tall" data-lightbox>
+        <img src="assets/img/viz/streets/new-york.png" alt="New York" loading="lazy" decoding="async">
+        <figcaption>New York</figcaption>
+      </figure>
+      <figure class="shot shot--tall" data-lightbox>
+        <img src="assets/img/viz/streets/oslo.png" alt="Oslo" loading="lazy" decoding="async">
+        <figcaption>Oslo</figcaption>
+      </figure>
+      <figure class="shot shot--tall" data-lightbox>
+        <img src="assets/img/viz/streets/paris.png" alt="Paris" loading="lazy" decoding="async">
+        <figcaption>Paris</figcaption>
+      </figure>
+      <figure class="shot shot--tall" data-lightbox>
+        <img src="assets/img/viz/streets/rome.png" alt="Rome" loading="lazy" decoding="async">
+        <figcaption>Rome</figcaption>
+      </figure>
+      <figure class="shot shot--tall" data-lightbox>
+        <img src="assets/img/viz/streets/tehran.png" alt="Tehran" loading="lazy" decoding="async">
+        <figcaption>Tehran</figcaption>
+      </figure>
+      <figure class="shot shot--tall" data-lightbox>
+        <img src="assets/img/viz/streets/vienna.png" alt="Vienna" loading="lazy" decoding="async">
+        <figcaption>Vienna</figcaption>
+      </figure>
+      <figure class="shot shot--tall" data-lightbox>
+        <img src="assets/img/viz/streets/washington-dc.png" alt="Washington DC" loading="lazy" decoding="async">
+        <figcaption>Washington DC</figcaption>
+      </figure>
+      <figure class="shot shot--tall" data-lightbox>
+        <img src="assets/img/viz/streets/amsterdam.png" alt="Amsterdam" loading="lazy" decoding="async">
+        <figcaption>Amsterdam</figcaption>
+      </figure>
+      <figure class="shot shot--tall" data-lightbox>
+        <img src="assets/img/viz/streets/barcelona.png" alt="Barcelona" loading="lazy" decoding="async">
+        <figcaption>Barcelona</figcaption>
+      </figure>
+      <figure class="shot shot--tall" data-lightbox>
+        <img src="assets/img/viz/streets/bogot.png" alt="Bogotá" loading="lazy" decoding="async">
+        <figcaption>Bogotá</figcaption>
+      </figure>
+      <figure class="shot shot--tall" data-lightbox>
+        <img src="assets/img/viz/streets/buenos-aires.png" alt="Buenos Aires" loading="lazy" decoding="async">
+        <figcaption>Buenos Aires</figcaption>
+      </figure>
+      <figure class="shot shot--tall" data-lightbox>
+        <img src="assets/img/viz/streets/cairo.png" alt="Cairo" loading="lazy" decoding="async">
+        <figcaption>Cairo</figcaption>
+      </figure>
+      <figure class="shot shot--tall" data-lightbox>
+        <img src="assets/img/viz/streets/caracas.png" alt="Caracas" loading="lazy" decoding="async">
+        <figcaption>Caracas</figcaption>
+      </figure>
+      <figure class="shot shot--tall" data-lightbox>
+        <img src="assets/img/viz/streets/havana.png" alt="Havana" loading="lazy" decoding="async">
+        <figcaption>Havana</figcaption>
+      </figure>
+      <figure class="shot shot--tall" data-lightbox>
+        <img src="assets/img/viz/streets/helsinki.png" alt="Helsinki" loading="lazy" decoding="async">
+        <figcaption>Helsinki</figcaption>
+      </figure>
+      <figure class="shot shot--tall" data-lightbox>
+        <img src="assets/img/viz/streets/kolkata.png" alt="Kolkata" loading="lazy" decoding="async">
+        <figcaption>Kolkata</figcaption>
+      </figure>
+      <figure class="shot shot--tall" data-lightbox>
+        <img src="assets/img/viz/streets/london.png" alt="London" loading="lazy" decoding="async">
+        <figcaption>London</figcaption>
+      </figure>
+      <figure class="shot shot--tall" data-lightbox>
+        <img src="assets/img/viz/streets/mexico-city.png" alt="Mexico City" loading="lazy" decoding="async">
+        <figcaption>Mexico City</figcaption>
+      </figure>
+      <figure class="shot shot--tall" data-lightbox>
+        <img src="assets/img/viz/streets/milan.png" alt="Milan" loading="lazy" decoding="async">
+        <figcaption>Milan</figcaption>
+      </figure>
+      <figure class="shot shot--tall" data-lightbox>
+        <img src="assets/img/viz/streets/montreal.png" alt="Montreal" loading="lazy" decoding="async">
+        <figcaption>Montreal</figcaption>
+      </figure>
+      <figure class="shot shot--tall" data-lightbox>
+        <img src="assets/img/viz/streets/mumbai.png" alt="Mumbai" loading="lazy" decoding="async">
+        <figcaption>Mumbai</figcaption>
+      </figure>
+    </div>
+  </div>
+  <div class="group" id="airbnb">
+    <h3>Staying on my Street — Costs of Airbnbs</h3>
+    <p style="color:var(--text-soft);max-width:62ch;margin-top:-.4rem">What it costs to stay on each street, mapped block by block.</p>
+    <div class="gallery">
+      <figure class="shot shot--tall" data-lightbox>
+        <img src="assets/img/viz/airbnb/new-york.png" alt="New York" loading="lazy" decoding="async">
+        <figcaption>New York</figcaption>
+      </figure>
+      <figure class="shot shot--tall" data-lightbox>
+        <img src="assets/img/viz/airbnb/paris.png" alt="Paris" loading="lazy" decoding="async">
+        <figcaption>Paris</figcaption>
+      </figure>
+      <figure class="shot shot--tall" data-lightbox>
+        <img src="assets/img/viz/airbnb/rio.png" alt="Rio" loading="lazy" decoding="async">
+        <figcaption>Rio</figcaption>
+      </figure>
+      <figure class="shot shot--tall" data-lightbox>
+        <img src="assets/img/viz/airbnb/sydney.png" alt="Sydney" loading="lazy" decoding="async">
+        <figcaption>Sydney</figcaption>
+      </figure>
+      <figure class="shot shot--tall" data-lightbox>
+        <img src="assets/img/viz/airbnb/amsterdam.png" alt="Amsterdam" loading="lazy" decoding="async">
+        <figcaption>Amsterdam</figcaption>
+      </figure>
+      <figure class="shot shot--tall" data-lightbox>
+        <img src="assets/img/viz/airbnb/berlin.png" alt="Berlin" loading="lazy" decoding="async">
+        <figcaption>Berlin</figcaption>
+      </figure>
+      <figure class="shot shot--tall" data-lightbox>
+        <img src="assets/img/viz/airbnb/london.png" alt="London" loading="lazy" decoding="async">
+        <figcaption>London</figcaption>
+      </figure>
+      <figure class="shot shot--tall" data-lightbox>
+        <img src="assets/img/viz/airbnb/milan.png" alt="Milan" loading="lazy" decoding="async">
+        <figcaption>Milan</figcaption>
+      </figure>
+      <figure class="shot shot--tall" data-lightbox>
+        <img src="assets/img/viz/airbnb/munich.png" alt="Munich" loading="lazy" decoding="async">
+        <figcaption>Munich</figcaption>
+      </figure>
+      <figure class="shot shot--tall" data-lightbox>
+        <img src="assets/img/viz/airbnb/mexico-city.png" alt="Mexico City" loading="lazy" decoding="async">
+        <figcaption>Mexico City</figcaption>
+      </figure>
+    </div>
+  </div>
+  <div class="group" id="elevation">
+    <h3>City Streets by Elevation</h3>
+    <p style="color:var(--text-soft);max-width:62ch;margin-top:-.4rem">The same street networks, colored by how high above sea level they sit.</p>
+    <div class="gallery">
+      <figure class="shot shot--tall" data-lightbox>
+        <img src="assets/img/viz/elevation/new-york.png" alt="New York" loading="lazy" decoding="async">
+        <figcaption>New York</figcaption>
+      </figure>
+      <figure class="shot shot--tall" data-lightbox>
+        <img src="assets/img/viz/elevation/paris.png" alt="Paris" loading="lazy" decoding="async">
+        <figcaption>Paris</figcaption>
+      </figure>
+      <figure class="shot shot--tall" data-lightbox>
+        <img src="assets/img/viz/elevation/s-o-paulo.png" alt="São Paulo" loading="lazy" decoding="async">
+        <figcaption>São Paulo</figcaption>
+      </figure>
+      <figure class="shot shot--tall" data-lightbox>
+        <img src="assets/img/viz/elevation/vienna.png" alt="Vienna" loading="lazy" decoding="async">
+        <figcaption>Vienna</figcaption>
+      </figure>
+      <figure class="shot shot--tall" data-lightbox>
+        <img src="assets/img/viz/elevation/washington-dc.png" alt="Washington DC" loading="lazy" decoding="async">
+        <figcaption>Washington DC</figcaption>
+      </figure>
+      <figure class="shot shot--tall" data-lightbox>
+        <img src="assets/img/viz/elevation/zurich.png" alt="Zurich" loading="lazy" decoding="async">
+        <figcaption>Zurich</figcaption>
+      </figure>
+      <figure class="shot shot--tall" data-lightbox>
+        <img src="assets/img/viz/elevation/amsterdam.png" alt="Amsterdam" loading="lazy" decoding="async">
+        <figcaption>Amsterdam</figcaption>
+      </figure>
+      <figure class="shot shot--tall" data-lightbox>
+        <img src="assets/img/viz/elevation/berlin.png" alt="Berlin" loading="lazy" decoding="async">
+        <figcaption>Berlin</figcaption>
+      </figure>
+      <figure class="shot shot--tall" data-lightbox>
+        <img src="assets/img/viz/elevation/buenos-aires.png" alt="Buenos Aires" loading="lazy" decoding="async">
+        <figcaption>Buenos Aires</figcaption>
+      </figure>
+      <figure class="shot shot--tall" data-lightbox>
+        <img src="assets/img/viz/elevation/caracas.png" alt="Caracas" loading="lazy" decoding="async">
+        <figcaption>Caracas</figcaption>
+      </figure>
+      <figure class="shot shot--tall" data-lightbox>
+        <img src="assets/img/viz/elevation/mexico-city.png" alt="Mexico City" loading="lazy" decoding="async">
+        <figcaption>Mexico City</figcaption>
+      </figure>
+      <figure class="shot shot--tall" data-lightbox>
+        <img src="assets/img/viz/elevation/london.png" alt="London" loading="lazy" decoding="async">
+        <figcaption>London</figcaption>
+      </figure>
+      <figure class="shot shot--tall" data-lightbox>
+        <img src="assets/img/viz/elevation/madrid.png" alt="Madrid" loading="lazy" decoding="async">
+        <figcaption>Madrid</figcaption>
+      </figure>
+      <figure class="shot shot--tall" data-lightbox>
+        <img src="assets/img/viz/elevation/milan.png" alt="Milan" loading="lazy" decoding="async">
+        <figcaption>Milan</figcaption>
+      </figure>
+      <figure class="shot shot--tall" data-lightbox>
+        <img src="assets/img/viz/elevation/montreal.png" alt="Montreal" loading="lazy" decoding="async">
+        <figcaption>Montreal</figcaption>
+      </figure>
+      <figure class="shot shot--tall" data-lightbox>
+        <img src="assets/img/viz/elevation/mumbai.png" alt="Mumbai" loading="lazy" decoding="async">
+        <figcaption>Mumbai</figcaption>
+      </figure>
+    </div>
+  </div>
+  <div class="group" id="holc">
+    <h3>HOLC Redlining &amp; Police Killings</h3>
+    <p style="color:var(--text-soft);max-width:62ch;margin-top:-.4rem">1930s HOLC redlining grades laid against the locations of police killings.</p>
+    <div class="gallery">
+      <figure class="shot shot--tall" data-lightbox>
+        <img src="assets/img/viz/holc/new-york-city.png" alt="New York City" loading="lazy" decoding="async">
+        <figcaption>New York City</figcaption>
+      </figure>
+      <figure class="shot shot--tall" data-lightbox>
+        <img src="assets/img/viz/holc/st-louis.png" alt="St. Louis" loading="lazy" decoding="async">
+        <figcaption>St. Louis</figcaption>
+      </figure>
+      <figure class="shot shot--tall" data-lightbox>
+        <img src="assets/img/viz/holc/chicago.png" alt="Chicago" loading="lazy" decoding="async">
+        <figcaption>Chicago</figcaption>
+      </figure>
+      <figure class="shot shot--tall" data-lightbox>
+        <img src="assets/img/viz/holc/detroit.png" alt="Detroit" loading="lazy" decoding="async">
+        <figcaption>Detroit</figcaption>
+      </figure>
+      <figure class="shot shot--tall" data-lightbox>
+        <img src="assets/img/viz/holc/los-angeles.png" alt="Los Angeles" loading="lazy" decoding="async">
+        <figcaption>Los Angeles</figcaption>
+      </figure>
+      <figure class="shot shot--tall" data-lightbox>
+        <img src="assets/img/viz/holc/baltimore.png" alt="Baltimore" loading="lazy" decoding="async">
+        <figcaption>Baltimore</figcaption>
+      </figure>
+      <figure class="shot shot--tall" data-lightbox>
+        <img src="assets/img/viz/holc/memphis.png" alt="Memphis" loading="lazy" decoding="async">
+        <figcaption>Memphis</figcaption>
+      </figure>
+    </div>
+  </div>
+  <div class="group" id="other">
+    <h3>Other Entries</h3>
+    <p style="color:var(--text-soft);max-width:62ch;margin-top:-.4rem">The one-off prompts — lines, hexagons, boundaries, historic, natural earth, population, red, monochrome.</p>
+    <div class="gallery">
+      <figure class="shot shot--tall" data-lightbox>
+        <img src="assets/img/viz/other/lines.png" alt="Lines" loading="lazy" decoding="async">
+        <figcaption>Lines</figcaption>
+      </figure>
+      <figure class="shot shot--tall" data-lightbox>
+        <img src="assets/img/viz/other/hexagons.png" alt="Hexagons" loading="lazy" decoding="async">
+        <figcaption>Hexagons</figcaption>
+      </figure>
+      <figure class="shot shot--tall" data-lightbox>
+        <img src="assets/img/viz/other/boundaries.png" alt="Boundaries" loading="lazy" decoding="async">
+        <figcaption>Boundaries</figcaption>
+      </figure>
+      <figure class="shot shot--tall" data-lightbox>
+        <img src="assets/img/viz/other/historic.png" alt="Historic" loading="lazy" decoding="async">
+        <figcaption>Historic</figcaption>
+      </figure>
+      <figure class="shot shot--tall" data-lightbox>
+        <img src="assets/img/viz/other/natural-earth.png" alt="Natural Earth" loading="lazy" decoding="async">
+        <figcaption>Natural Earth</figcaption>
+      </figure>
+      <figure class="shot shot--tall" data-lightbox>
+        <img src="assets/img/viz/other/population.png" alt="Population" loading="lazy" decoding="async">
+        <figcaption>Population</figcaption>
+      </figure>
+      <figure class="shot shot--tall" data-lightbox>
+        <img src="assets/img/viz/other/red.png" alt="Red" loading="lazy" decoding="async">
+        <figcaption>Red</figcaption>
+      </figure>
+      <figure class="shot shot--tall" data-lightbox>
+        <img src="assets/img/viz/other/monochrome.png" alt="Monochrome" loading="lazy" decoding="async">
+        <figcaption>Monochrome</figcaption>
+      </figure>
+    </div>
+  </div>
+  </div>
+  <div class="wrap"><div class="pagenav">
+    <a href="momacolors.html"><span>Previous</span>&larr; {MoMAColors}</a>
+    <a href="writings.html" style="text-align:right"><span>Next</span>Writings &rarr;</a>
+  </div></div>
+</section>
+</main>
+<footer class="site-footer">
+  <div class="wrap">
+    <p class="site-footer__name">Blake Robert Mills</p>
+    <div class="social">
+      <a href="https://twitter.com/BlakeRobMills" aria-label="Twitter" rel="me noopener" target="_blank"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg></a>
+      <a href="https://www.linkedin.com/in/blakermills/" aria-label="LinkedIn" rel="me noopener" target="_blank"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg></a>
+      <a href="https://github.com/BlakeRMills" aria-label="GitHub" rel="me noopener" target="_blank"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg></a>
+      <a href="https://www.behance.net/blakerobertmills" aria-label="Behance" rel="me noopener" target="_blank"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M22 7h-7V5h7v2zm1.726 10c-.442 1.297-2.029 3-5.101 3-3.074 0-5.564-1.729-5.564-5.675 0-3.91 2.325-5.92 5.466-5.92 3.082 0 4.964 1.782 5.375 4.426.078.506.109 1.188.095 2.14H15.97c.13 3.211 3.483 3.312 4.588 2.029h3.168zm-7.686-4h4.965c-.105-1.547-1.136-2.219-2.477-2.219-1.466 0-2.277.768-2.488 2.219zm-9.574 6.988H0V4.021h6.953c5.476.081 5.58 5.444 2.72 6.906 3.461 1.26 3.577 9.061-3.207 9.061zM3 11h3.584c2.508 0 2.906-3-.312-3H3v3zm3.391 3H3v3.016h3.341c3.055 0 2.868-3.016.05-3.016z"/></svg></a>
+    </div>
+    <p class="site-footer__meta">
+      <a href="mailto:brm2143@columbia.edu">brm2143@columbia.edu</a> &nbsp;|&nbsp; New York, NY
+    </p>
+    <p class="site-footer__fine">All images and graphics created by me.</p>
+  </div>
+</footer>
+<script src="js/site.js"></script>
+</body>
+</html>
