@@ -1,10 +1,15 @@
 # Deploying to GitHub Pages
 
-The repo is committed and `origin` is set to
-`https://github.com/BlakeRMills/BlakeRMills.github.io.git`.
-Nothing has been pushed yet.
+Steps 1-3 are done. The site is live for review at
+<https://blakermills.github.io> and builds from `main` at the repo root.
 
-## 1. Create the empty repo on GitHub
+Remaining: step 4 (DNS) and step 5 (cancelling Squarespace).
+
+Auth note: this machine uses the GitHub CLI at `~/.local/bin/gh` for git
+credentials. Homebrew couldn't install it (the Xcode Command Line Tools on this
+Mac are too old to build its dependencies), so it's the prebuilt binary instead.
+
+## 1. Create the empty repo on GitHub  ✅ done
 
 Go to <https://github.com/new> and create:
 
@@ -17,7 +22,7 @@ Go to <https://github.com/new> and create:
 > rather use a different name, change it here first:
 > `git remote set-url origin https://github.com/BlakeRMills/<name>.git`
 
-## 2. Push
+## 2. Push  ✅ done
 
 ```bash
 cd ~/Documents/blakerobertmills-site
@@ -33,7 +38,7 @@ Git will prompt for credentials. There's no saved GitHub login on this machine y
 
 macOS will save it to the keychain, so this is a one-time step.
 
-## 3. Turn on Pages
+## 3. Turn on Pages  ✅ done (auto-enabled for a user site)
 
 Repo → **Settings → Pages**:
 
@@ -47,6 +52,24 @@ thing before touching DNS.
 ## 4. Point the domain at GitHub
 
 **Do this last, and only once step 3 looks right.**
+
+### 4a. Put the CNAME file back
+
+The custom domain is currently switched off so the site could be reviewed at
+<https://blakermills.github.io> before DNS moved. Turn it back on first:
+
+```bash
+cd ~/Documents/blakerobertmills-site
+git mv CNAME.disabled CNAME
+git commit -m "Restore custom domain"
+git push
+```
+
+That sets the custom domain back to `www.blakerobertmills.com` automatically.
+Until DNS moves, the site will 404 — that's expected, and it's why this step
+comes immediately before the DNS change rather than earlier.
+
+### 4b. Change the DNS
 
 Your domain is registered with **Squarespace Domains**, and DNS is served from
 Google's nameservers (`ns-cloud-c*.googledomains.com`) — leftovers from Google
