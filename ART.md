@@ -50,11 +50,11 @@ means a more zoomed-in camera and less of the map on screen at once:
 
 | density | tile is | met.png is | smallest window shows |
 |---------|---------|------------|------------------------|
-| 2 *(now)* | 32 x 32 | 332 x 200 | ~28 tiles across |
-| 3 | 48 x 48 | 498 x 300 | ~19 tiles across |
-| 4 | 64 x 64 | 664 x 400 | ~14 tiles across |
-| 6 | 96 x 96 | 996 x 600 | ~9 tiles across |
-| 8 | 128 x 128 | 1328 x 800 | ~7 tiles across |
+| 2 *(now)* | 32 x 32 | 364 x 200 | ~28 tiles across |
+| 3 | 48 x 48 | 546 x 300 | ~19 tiles across |
+| 4 | 64 x 64 | 728 x 400 | ~14 tiles across |
+| 6 | 96 x 96 | 1092 x 600 | ~9 tiles across |
+| 8 | 128 x 128 | 1456 x 800 | ~7 tiles across |
 
 Below about 12 tiles across the world starts feeling cramped — you can't see a
 whole building and its surroundings at once. **3 or 4 is the sensible ceiling**;
@@ -149,8 +149,8 @@ set in `PLACES` in `js/arcade.js`:
 
 | file       | building       | tiles  | image     |
 |------------|----------------|--------|-----------|
-| `met.png`  | The Met        | 10 x 6 | 332 x 200 |
-| `moma.png` | MoMA           | 10 x 6 | 332 x 200 |
+| `met.png`  | The Met        | 11 x 6 | 364 x 200 |
+| `moma.png` | MoMA           | 11 x 6 | 364 x 200 |
 | `gal.png`  | The Gallery    | 8 x 5  | 268 x 168 |
 | `stu.png`  | The Studio     | 8 x 5  | 268 x 168 |
 | `news.png` | The Newsstand  | 7 x 4  | 236 x 136 |
@@ -167,6 +167,11 @@ of these, whatever the density.
 (`x + floor(w/2)`), and that's the tile you walk onto to enter the page. Draw
 the door there or the building will read wrong, even though the collision will
 still work.
+
+Note that an **even** tile width has no middle column, so the door lands one
+column right of centre and a symmetrical facade can't be centred on it. The two
+museums are 11 wide for exactly this reason. If you're drawing something
+symmetrical, give it an odd width.
 
 By default the name board is assumed to be part of your drawing. To keep the
 code-drawn board on top of your art, set `"label": true` for that building.

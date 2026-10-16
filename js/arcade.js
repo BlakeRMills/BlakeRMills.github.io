@@ -152,10 +152,12 @@
   /* ---- the world -------------------------------------------------------- */
 
   var PLACES = [
+    // 11 wide, not 10, so the door lands on the middle column and a
+    // symmetrical facade can actually be centred on it
     { id:"met",  name:"THE MET",       sub:"{MetBrewer}",    href:"metbrewer.html",
-      x:3,  y:2,  w:10, h:6, roof:"#d8502f" },
+      x:3,  y:2,  w:11, h:6, roof:"#d8502f" },
     { id:"moma", name:"MoMA",          sub:"{MoMAColors}",   href:"momacolors.html",
-      x:27, y:2,  w:10, h:6, roof:"#3f6fc0" },
+      x:27, y:2,  w:11, h:6, roof:"#3f6fc0" },
     { id:"gal",  name:"THE GALLERY",   sub:"Visualizations", href:"visualizations.html",
       x:2,  y:12, w:8,  h:5, roof:"#2f9a7a" },
     { id:"stu",  name:"THE STUDIO",    sub:"Designs",        href:"designs.html",
