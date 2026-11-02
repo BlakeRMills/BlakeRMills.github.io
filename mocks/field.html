@@ -8,55 +8,86 @@
 <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Advent+Pro:wght@200;300;600;700&family=Poppins:wght@300;400&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Advent+Pro:wght@200;300;600;700&family=Poppins:wght@300;400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
   :root{
-    --ink:#0a1016; --paper:#f6f2ea; --accent:#e07c37;
+    --ink:#0a1016; --paper:#f6f2ea; --accent:#e07c37; --line:rgba(246,242,234,.18);
+    --veil:.12;
     --display:"Advent Pro",sans-serif; --body:"Poppins",system-ui,sans-serif; --mono:"IBM Plex Mono",monospace;
   }
   *,*::before,*::after{box-sizing:border-box}
   body{margin:0; background:var(--ink); color:var(--paper); font-family:var(--body); -webkit-font-smoothing:antialiased}
   a{color:inherit}
+
   #field{position:fixed; inset:0; z-index:0; display:block; width:100%; height:100%}
+  /* Two scrims. The radial one keeps the centre of the hero readable; the flat
+     one deepens as you scroll, so the waves recede behind the reading content
+     instead of fighting it. */
   .veil{position:fixed; inset:0; z-index:1; pointer-events:none;
-    background:radial-gradient(130% 95% at 42% 42%, rgba(10,16,22,.55), rgba(10,16,22,.88) 62%, rgba(10,16,22,.96))}
+    background:radial-gradient(140% 105% at 50% 44%, rgba(10,16,22,.10), rgba(10,16,22,.42) 55%, rgba(10,16,22,.68))}
+  .veil2{position:fixed; inset:0; z-index:1; pointer-events:none;
+    background:var(--ink); opacity:var(--veil); transition:opacity .2s linear}
   .content{position:relative; z-index:2}
 
   .bar{
     position:fixed; inset:0 0 auto 0; z-index:10; display:flex; align-items:center; gap:1.2rem;
     padding:1rem clamp(1.5rem,4vw,2.5rem); font-family:var(--mono);
     font-size:.72rem; letter-spacing:.16em; text-transform:uppercase;
+    text-shadow:0 1px 10px rgba(6,10,14,.85), 0 0 24px rgba(6,10,14,.6);
   }
   .bar nav{display:flex; gap:1.2rem; margin-left:auto}
   .bar a{text-decoration:none; opacity:.7} .bar a:hover{opacity:1; color:var(--accent)}
 
   .wrap{width:min(1100px,100% - 3rem); margin-inline:auto}
-  .panel{min-height:100svh; display:flex; align-items:center}
+  .panel{min-height:100svh; display:flex; align-items:center; padding-block:4.5rem 5.5rem}
   .fade{opacity:0; transform:translateY(22px); transition:opacity .9s ease, transform .9s cubic-bezier(.2,.7,.3,1)}
   .fade.in{opacity:1; transform:none}
 
+  /* ---- the name, centred, lifting away as the field takes over ---- */
+  .hero{min-height:100svh; display:grid; place-items:center; text-align:center}
+  .hero-type{will-change:transform,opacity; padding:0 1rem}
   h1{
     font-family:var(--display); font-weight:700; text-transform:uppercase; margin:0;
-    font-size:clamp(3rem,13vw,11.5rem); line-height:.82; letter-spacing:-.02em;
-    text-shadow:0 6px 50px rgba(6,10,14,.75);
+    font-size:clamp(3rem,13.5vw,12rem); line-height:.82; letter-spacing:-.02em;
+    text-shadow:0 2px 14px rgba(6,10,14,.55), 0 10px 44px rgba(6,10,14,.72), 0 0 90px rgba(6,10,14,.6);
   }
   h1 span{display:block}
   h1 .thin{font-weight:200; color:var(--accent)}
   .kicker{font-family:var(--mono); font-size:clamp(.66rem,1.3vw,.82rem); letter-spacing:.34em;
-    text-transform:uppercase; opacity:.75; margin:0 0 2rem}
+    text-transform:uppercase; opacity:.9; margin:1.7rem 0 0;
+    text-shadow:0 2px 16px rgba(6,10,14,.8)}
+
   .lead{font-size:clamp(1.3rem,3vw,2.3rem); line-height:1.32; font-weight:300; max-width:20ch; margin:0 0 1.6rem; text-shadow:0 4px 30px rgba(6,10,14,.7)}
   .lead em{font-style:normal; color:var(--accent)}
-  .body-sm{opacity:.78; max-width:44ch; line-height:1.75; margin:0 0 1.8rem}
+  .body-sm{opacity:.84; max-width:44ch; line-height:1.75; margin:0 0 1.8rem;
+    text-shadow:0 1px 12px rgba(6,10,14,.8)}
 
   h2{font-family:var(--display); font-weight:600; text-transform:uppercase;
-    font-size:clamp(1.9rem,6vw,4.4rem); line-height:.92; margin:0 0 2.4rem}
+    font-size:clamp(1.9rem,6vw,4.4rem); line-height:.92; margin:0 0 2.4rem;
+    text-shadow:0 4px 34px rgba(6,10,14,.75)}
 
-  .links{display:grid; gap:1px; background:rgba(246,242,234,.18); border:1px solid rgba(246,242,234,.18); max-width:620px}
+  /* The Wall's one real advantage was that it showed the volume of the work.
+     A tight block of actual pieces next to the index says the same thing
+     without turning the page into a gallery. */
+  .workgrid{display:grid; gap:clamp(1.6rem,4vw,3rem); align-items:start;
+    grid-template-columns:minmax(0,1fr) minmax(0,1.05fr)}
+  @media(max-width:900px){.workgrid{grid-template-columns:1fr}}
+  .workgrid .links{max-width:none}
+  .proof{display:grid; grid-template-columns:repeat(4,1fr); gap:3px;
+    text-decoration:none; border:1px solid var(--line); padding:3px; background:rgba(10,16,22,.55)}
+  .proof img{width:100%; aspect-ratio:1; object-fit:cover; display:block;
+    background:rgba(246,242,234,.04); transition:opacity .3s}
+  .proof:hover img{opacity:.72}
+  .proof:hover img:hover{opacity:1}
+  .tally{font-family:var(--mono); font-size:.68rem; letter-spacing:.14em; text-transform:uppercase;
+    opacity:.55; margin:.8rem 0 0; text-shadow:0 1px 10px rgba(6,10,14,.9)}
+
+  .links{display:grid; gap:1px; background:var(--line); border:1px solid var(--line); max-width:620px}
   .links a{
-    background:var(--ink); padding:1.1rem 1.3rem; text-decoration:none; display:flex; align-items:baseline; gap:1rem;
-    transition:background .3s;
+    background:rgba(10,16,22,.82); padding:1.1rem 1.3rem; text-decoration:none;
+    display:flex; align-items:baseline; gap:1rem; transition:background .3s;
   }
-  .links a:hover{background:rgba(246,242,234,.07)}
+  .links a:hover{background:rgba(246,242,234,.08)}
   .links .n{font-family:var(--mono); font-size:.68rem; letter-spacing:.16em; opacity:.5}
   .links .t{font-family:var(--display); font-size:1.35rem; font-weight:600}
   .links .d{margin-left:auto; font-family:var(--mono); font-size:.68rem; letter-spacing:.12em; opacity:.5}
@@ -66,17 +97,48 @@
     background:var(--accent); color:var(--ink); border:1.5px solid var(--accent); transition:.25s}
   .btn:hover{background:transparent; color:var(--accent)}
 
-  .hint{position:fixed; left:clamp(1.5rem,4vw,2.5rem); bottom:1.4rem; z-index:10;
-    font-family:var(--mono); font-size:.68rem; letter-spacing:.12em; opacity:.5}
-  .pal{position:fixed; right:clamp(1.5rem,4vw,2.5rem); bottom:1.4rem; z-index:10;
-    font-family:var(--mono); font-size:.68rem; letter-spacing:.12em; opacity:.5}
+  /* ---- palette credit: the art is drawn in one of his own palettes, and it
+         only changes when you ask it to ---- */
+  .palbar{
+    position:fixed; z-index:11; left:50%; transform:translateX(-50%); bottom:1.1rem;
+    display:flex; align-items:center; gap:.85rem; padding:.5rem .55rem .5rem .9rem;
+    border:1px solid var(--line); border-radius:99px;
+    background:rgba(10,16,22,.72); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px);
+    font-family:var(--mono); font-size:.68rem; letter-spacing:.12em; text-transform:uppercase;
+    max-width:calc(100% - 2rem);
+  }
+  .palbar .pkg{opacity:.45}
+  .palbar .nm{text-decoration:none; border-bottom:1px solid transparent}
+  .palbar .nm:hover{color:var(--accent); border-bottom-color:var(--accent)}
+  .chips{display:flex; gap:2px}
+  .chips i{display:block; width:13px; height:13px; border-radius:2px}
+  .palbar button{
+    font:inherit; text-transform:inherit; letter-spacing:inherit; cursor:pointer;
+    border:1px solid var(--line); background:transparent; color:var(--paper);
+    border-radius:99px; padding:.4rem .8rem; transition:.2s;
+  }
+  .palbar button:hover{border-color:var(--accent); color:var(--accent)}
+  @media(max-width:620px){
+    .palbar{gap:.6rem; padding:.45rem .45rem .45rem .7rem; font-size:.62rem}
+    .palbar .pkg{display:none}
+    .chips i{width:10px; height:10px}
+  }
 
-  @media(prefers-reduced-motion:reduce){ .fade{opacity:1; transform:none; transition:none} }
+  .hint{position:fixed; left:clamp(1.5rem,4vw,2.5rem); bottom:1.5rem; z-index:10;
+    font-family:var(--mono); font-size:.68rem; letter-spacing:.12em; opacity:.6;
+    text-shadow:0 1px 10px rgba(6,10,14,.9); transition:opacity .4s}
+  @media(max-width:860px){.hint{display:none}}
+
+  @media(prefers-reduced-motion:reduce){
+    .fade{opacity:1; transform:none; transition:none}
+    .hero-type{transform:none !important; opacity:1 !important}
+  }
 </style>
 </head>
 <body>
 
 <canvas id="field" aria-hidden="true"></canvas>
+<div class="veil2"></div>
 <div class="veil"></div>
 
 <div class="bar">
@@ -85,9 +147,9 @@
 </div>
 
 <div class="content">
-  <section class="panel"><div class="wrap">
-    <p class="kicker fade">Statistics · Civic Tech · Urban Studies</p>
-    <h1 class="fade"><span>Blake</span><span>Robert</span><span class="thin">Mills</span></h1>
+  <section class="hero"><div class="hero-type" data-herotype>
+    <h1><span>Blake</span><span>Robert</span><span class="thin">Mills</span></h1>
+    <p class="kicker">Statistics · Civic Tech · Urban Studies</p>
   </div></section>
 
   <section class="panel"><div class="wrap fade">
@@ -98,6 +160,7 @@
 
   <section class="panel"><div class="wrap fade">
     <h2>The work</h2>
+    <div class="workgrid">
     <div class="links">
       <a href="../metbrewer.html"><span class="n">01</span><span class="t">{MetBrewer}</span><span class="d">56 palettes</span></a>
       <a href="../momacolors.html"><span class="n">02</span><span class="t">{MoMAColors}</span><span class="d">35 palettes</span></a>
@@ -106,131 +169,285 @@
       <a href="../writings.html"><span class="n">05</span><span class="t">Writings</span><span class="d">Published</span></a>
       <a href="../resume.html"><span class="n">06</span><span class="t">Resume</span><span class="d">PDF</span></a>
     </div>
+    <div>
+      <a class="proof" href="../visualizations.html" data-proof aria-label="All visualizations"></a>
+      <p class="tally" data-tally>&nbsp;</p>
+    </div>
+    </div>
   </div></section>
 </div>
 
-<div class="hint">Move your cursor · scroll</div>
-<div class="pal" data-pal>—</div>
+<div class="hint" data-hint>Scroll</div>
+
+<div class="palbar">
+  <span class="pkg" data-pkg>MoMAColors</span>
+  <a class="nm" data-nm href="../momacolors.html">Panton</a>
+  <span class="chips" data-chips aria-hidden="true"></span>
+  <button type="button" data-shuffle>Shuffle</button>
+</div>
 
 <script>
 (function(){
-  const cv = document.getElementById("field");
-  const ctx = cv.getContext("2d");
-  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
-  let W=0, H=0, dpr=1;
-  let palettes = [], pal = ["#e76254","#ef8a47","#f7aa58","#ffd06f","#aadce0","#72bcd5","#528fad","#376795","#1e466e"];
-  let palName = "Hiroshige";
-  const pointer = {x:-9999, y:-9999, tx:-9999, ty:-9999};
-  let t = 0, scrollN = 0;
+  var cv = document.getElementById("field");
+  var ctx = cv.getContext("2d");
+  var reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  var herotype = document.querySelector("[data-herotype]");
+  var hint = document.querySelector("[data-hint]");
+  var W = 0, H = 0, dpr = 1;
+
+  /* ---------- colour helpers ---------- */
+  function rgb(h){
+    h = h.replace("#","");
+    if (h.length === 3) h = h[0]+h[0]+h[1]+h[1]+h[2]+h[2];
+    return [parseInt(h.slice(0,2),16), parseInt(h.slice(2,4),16), parseInt(h.slice(4,6),16)];
+  }
+  function hex(c){
+    return "#" + c.map(function(v){
+      var s = Math.max(0, Math.min(255, Math.round(v))).toString(16);
+      return s.length < 2 ? "0"+s : s;
+    }).join("");
+  }
+  function lum(h){
+    return rgb(h).map(function(v){
+      v /= 255; return v <= .03928 ? v/12.92 : Math.pow((v+.055)/1.055, 2.4);
+    }).reduce(function(a,v,i){ return a + v * [.2126,.7152,.0722][i]; }, 0);
+  }
+  function ratio(a,b){
+    var x = lum(a), y = lum(b);
+    return (Math.max(x,y) + .05) / (Math.min(x,y) + .05);
+  }
+  function mix(a,b,t){
+    var x = rgb(a), y = rgb(b);
+    return hex([0,1,2].map(function(i){ return x[i] + (y[i]-x[i]) * t; }));
+  }
+  function sat(h){
+    var c = rgb(h), mx = Math.max.apply(null,c), mn = Math.min.apply(null,c);
+    return mx === 0 ? 0 : (mx - mn) / mx;
+  }
+
+  /* ---------- palette state ---------- */
+  var DEFAULT_NAME = "Panton";
+  var FALLBACK = {
+    pkg: "MoMAColors", name: "Panton",
+    colors: ["#e84a00","#bb1d2c","#9b0c43","#661f66","#2c1f62","#006289","#004759"]
+  };
+  var all = [];
+  var pal = FALLBACK;
+  var bandCols = [], ground = "#0a1016", baseVeil = .12;
+
+  function sortByLum(cs){
+    return cs.slice().sort(function(a,b){ return lum(a) - lum(b); });
+  }
+
+  /* Panton's grounds are saturated, not black — but text has to sit on this, so
+     take the palette's darkest colour and pull it most of the way to ink. The
+     hue survives; the contrast is borrowed. */
+  function applyPalette(p){
+    pal = p;
+    var ordered = sortByLum(p.colors);           // dark -> light, so the nesting reads as a gradient
+
+    // The page's type is a fixed cream, so the ground has to stay dark whatever
+    // the palette is. Pull the darkest colour toward ink until it clears the
+    // text by a wide margin — the hue survives, the contrast is borrowed.
+    ground = mix(ordered[0], "#070b10", .55);
+    for (var g = 0; g < 20 && ratio(ground, "#f6f2ea") < 8; g++){
+      ground = mix(ground, "#070b10", .18);
+    }
+
+    // A pale palette puts near-white bands behind the name; lean on the flat
+    // scrim in that case rather than desaturating the artwork.
+    var meanLum = p.colors.reduce(function(a,c){ return a + lum(c); }, 0) / p.colors.length;
+    baseVeil = Math.min(.48, .12 + Math.max(0, meanLum - .45) * 1.4);
+    document.documentElement.style.setProperty("--veil", baseVeil.toFixed(3));
+
+    var n = Math.min(6, ordered.length);
+    bandCols = [];
+    for (var i = 0; i < n; i++){
+      // widest band first; sample the whole range even from a 9-colour palette
+      bandCols.push(ordered[Math.round(i * (ordered.length - 1) / (n - 1))]);
+    }
+
+    // accent: the colour that pops hardest off the page ink and still has chroma
+    var ink = "#0a1016", best = ordered[ordered.length-1], score = -1;
+    p.colors.forEach(function(c){
+      var r = ratio(c, ink);
+      if (r < 3.4) return;
+      var s = sat(c) * 1.7 + Math.min(r, 9) / 9;
+      if (s > score){ score = s; best = c; }
+    });
+    document.documentElement.style.setProperty("--accent", best);
+
+    document.querySelector("[data-pkg]").textContent = p.pkg;
+    var nm = document.querySelector("[data-nm]");
+    nm.textContent = p.name;
+    nm.href = "../" + (p.pkg === "MoMAColors" ? "momacolors" : "metbrewer") + ".html";
+    document.querySelector("[data-chips]").innerHTML = ordered.map(function(c){
+      return '<i style="background:' + c + '"></i>';
+    }).join("");
+
+    onScroll();
+    if (reduce) draw();
+  }
+  applyPalette(FALLBACK);
+
+  function shuffle(){
+    if (!all.length) return;
+    var p;
+    do { p = all[Math.floor(Math.random() * all.length)]; } while (all.length > 1 && p.name === pal.name);
+    applyPalette(p);
+  }
+  document.querySelector("[data-shuffle]").addEventListener("click", shuffle);
+
+  fetch("../assets/data/palettes.json").then(function(r){ return r.json(); }).then(function(d){
+    Object.keys(d).forEach(function(pkg){
+      Object.keys(d[pkg]).forEach(function(name){
+        var p = d[pkg][name];
+        if (p.colors.length >= 6) all.push({ pkg: pkg, name: name, colors: p.colors });
+      });
+    });
+    var want = new URLSearchParams(location.search).get("pal") || DEFAULT_NAME;
+    var pick = all.filter(function(p){ return p.name.toLowerCase() === want.toLowerCase(); })[0];
+    if (pick) applyPalette(pick);
+    else if (all.length) applyPalette(all[Math.floor(Math.random() * all.length)]);
+  }).catch(function(){ /* keep the fallback */ });
+
+  /* ---------- the field ---------- */
+  var pointer = { x:-9999, y:-9999, tx:-9999, ty:-9999 };
+  var scrollPx = 0, scrollN = 0, idle = 0;
 
   function resize(){
     dpr = Math.min(2, devicePixelRatio || 1);
     W = cv.width  = Math.floor(innerWidth  * dpr);
     H = cv.height = Math.floor(innerHeight * dpr);
+    ctx.lineJoin = "round";
+    ctx.lineCap  = "round";
   }
   resize();
-  addEventListener("resize", resize);
+  addEventListener("resize", function(){ resize(); if (reduce) draw(); });
 
-  fetch("../assets/data/palettes.json").then(r=>r.json()).then(d=>{
-    Object.keys(d).forEach(pkg=>Object.keys(d[pkg]).forEach(name=>{
-      const p = d[pkg][name];
-      if (p.colors.length >= 7) palettes.push({name, pkg, colors:p.colors});
-    }));
-    if (palettes.length){
-      const p = palettes[Math.floor(Math.random()*palettes.length)];
-      pal = p.colors; palName = p.name;
-      document.querySelector("[data-pal]").textContent = p.pkg + " · " + p.name;
+  /* A steep sine: tanh flattens the crests and straightens the sides, which is
+     what separates Panton's curve from a plain wave. */
+  function squine(u, steep, k){
+    return Math.tanh(steep * Math.sin(u * Math.PI * 2)) / k;
+  }
+
+  function rowPath(cy, amp, lambda, phase, steep){
+    var p = new Path2D(), k = Math.tanh(steep);
+    var step = Math.max(3, 7 * dpr);
+    var first = true;
+    for (var x = -lambda; x <= W + lambda; x += step){
+      var a = amp;
+      if (pointer.x > -9000){
+        var dx = (x - pointer.x) / (lambda * .62);
+        var dy = (cy - pointer.y) / (lambda * .42);
+        a *= 1 + .34 * Math.exp(-(dx*dx + dy*dy));
+      }
+      var y = cy + squine((x + phase) / lambda, steep, k) * a;
+      if (first){ p.moveTo(x, y); first = false; } else { p.lineTo(x, y); }
     }
-  });
+    return p;
+  }
 
-  /* Bands of nested arcs — the same gesture as the artwork in the site header,
-     but the phase drifts with time and scroll, and the cursor pushes it. */
   function draw(){
     ctx.setTransform(1,0,0,1,0,0);
-    ctx.fillStyle = "#0a1016";
+    ctx.fillStyle = ground;
     ctx.fillRect(0,0,W,H);
+    if (!bandCols.length) return;
 
-    const bands = 7;
-    const bandH = H / bands;
-    const rings = 7;
-    const colSpacing = bandH * 1.5;
+    var css = H / dpr;
+    var rows   = Math.max(4, Math.min(7, Math.round(css / 185)));
+    var pitch  = H / rows;
+    var lambda = Math.max(240 * dpr, W / 4.4);
+    var total  = pitch * .50;                                   // the full band stack
+    var breathe = 1 + .13 * Math.sin(scrollN * Math.PI);        // one slow swell down the page
+    var amp    = pitch * .37 * breathe;
+    var n      = bandCols.length;
 
-    for (let b = 0; b < bands; b++){
-      const y0 = b * bandH;
-      ctx.save();
-      ctx.beginPath(); ctx.rect(0, y0, W, bandH); ctx.clip();
+    for (var r = 0; r < rows; r++){
+      var dir   = r % 2 ? -1 : 1;
+      var cy    = pitch * (r + .5);
+      var phase = dir * (scrollPx * dpr * .40 + idle) + r * lambda * .19;
+      var path  = rowPath(cy, amp, lambda, phase, 2.2);
 
-      const dir = b % 2 === 0 ? 1 : -1;
-      const phase = (t * 0.06 * dir + scrollN * 220 * dir + b * 40) % colSpacing;
-      const cy = y0 + bandH * (b % 2 === 0 ? 0.92 : 0.08);
-
-      for (let cx = -colSpacing + phase; cx < W + colSpacing; cx += colSpacing){
-        // cursor pushes the arcs it passes over
-        let swell = 1;
-        if (pointer.x > -9000){
-          const dx = (cx - pointer.x) / (bandH * 2.2);
-          const dy = (cy - pointer.y) / (bandH * 2.2);
-          swell = 1 + 0.42 * Math.exp(-(dx*dx + dy*dy));
-        }
-        const base = bandH * 1.5 * swell;
-        for (let k = rings; k >= 1; k--){
-          const r = base * (k / rings);
-          ctx.beginPath();
-          ctx.arc(cx, cy, r, 0, Math.PI * 2);
-          ctx.fillStyle = pal[(k + b) % pal.length];
-          ctx.fill();
-        }
+      for (var i = 0; i < n; i++){
+        ctx.lineWidth   = total * (1 - i / n);
+        ctx.strokeStyle = bandCols[i];
+        ctx.stroke(path);
       }
-      ctx.restore();
     }
   }
 
   function frame(){
-    t += 1;
-    pointer.x += (pointer.tx - pointer.x) * 0.08;
-    pointer.y += (pointer.ty - pointer.y) * 0.08;
+    idle += .12;                                   // barely moving when you aren't
+    pointer.x += (pointer.tx - pointer.x) * .07;
+    pointer.y += (pointer.ty - pointer.y) * .07;
     draw();
     requestAnimationFrame(frame);
   }
 
-  addEventListener("pointermove", e=>{
+  addEventListener("pointermove", function(e){
     pointer.tx = e.clientX * dpr; pointer.ty = e.clientY * dpr;
     if (pointer.x < -9000){ pointer.x = pointer.tx; pointer.y = pointer.ty; }
-  }, {passive:true});
-  addEventListener("pointerleave", ()=>{ pointer.tx = -9999; pointer.ty = -9999; });
+  }, { passive:true });
+  addEventListener("pointerleave", function(){ pointer.tx = -9999; pointer.ty = -9999; });
 
-  addEventListener("scroll", ()=>{
-    const max = document.body.scrollHeight - innerHeight;
-    scrollN = max > 0 ? scrollY / max : 0;
+  /* ---------- scroll: drives the waves, lifts the name, deepens the scrim ---------- */
+  var queued = false;
+
+  function onScroll(){
+    scrollPx = scrollY;
+    var max = document.body.scrollHeight - innerHeight;
+    scrollN = max > 0 ? Math.min(1, scrollY / max) : 0;
+
+    var t = Math.min(1, scrollY / innerHeight);
+    herotype.style.transform = "translate3d(0," + (-scrollY * .3).toFixed(1) + "px,0) scale(" + (1 - t * .07).toFixed(3) + ")";
+    herotype.style.opacity = String(1 - t);
+    document.documentElement.style.setProperty("--veil", Math.min(.9, baseVeil + t * .58).toFixed(3));
+    hint.style.opacity = t > .1 ? "0" : "";
     if (reduce) draw();
-  }, {passive:true});
+    queued = false;
+  }
+  addEventListener("scroll", function(){
+    if (!queued){ queued = true; requestAnimationFrame(onScroll); }
+  }, { passive:true });
 
   if (reduce) { draw(); } else { frame(); }
-
 
   /* Reveal helper. The observer alone isn't enough: if layout shifts while the
      webfonts load, an element can be reported as not intersecting and then
      never re-checked, leaving it invisible forever. So also sweep what is
      already on screen, at init, on load, and once fonts settle. */
   function wireReveal(sel, cls, threshold){
-    const els = [...document.querySelectorAll(sel)];
+    var els = [].slice.call(document.querySelectorAll(sel));
     if (!els.length) return;
-    const show = el => el.classList.add(cls);
-    const io = new IntersectionObserver(es=>{
-      es.forEach(e=>{ if(e.isIntersecting){ show(e.target); io.unobserve(e.target); } });
-    }, {threshold});
-    els.forEach(el=>io.observe(el));
-    const sweep = () => els.forEach(el=>{
-      const r = el.getBoundingClientRect();
-      if (r.top < innerHeight * 0.95 && r.bottom > 0) show(el);
-    });
+    var show = function(el){ el.classList.add(cls); };
+    var io = new IntersectionObserver(function(es){
+      es.forEach(function(e){ if (e.isIntersecting){ show(e.target); io.unobserve(e.target); } });
+    }, { threshold: threshold });
+    els.forEach(function(el){ io.observe(el); });
+    var sweep = function(){
+      els.forEach(function(el){
+        var r = el.getBoundingClientRect();
+        if (r.top < innerHeight * .95 && r.bottom > 0) show(el);
+      });
+    };
     sweep();
-    addEventListener("load", sweep, {once:true});
+    addEventListener("load", sweep, { once:true });
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(sweep);
-    return sweep;
   }
-
   wireReveal(".fade", "in", .18);
+
+  /* a sample of the actual pieces, so the index isn't the only evidence */
+  fetch("../assets/data/visualizations.json").then(function(r){ return r.json(); }).then(function(d){
+    var all = d.reduce(function(a,g){ return a.concat(g.items); }, []);
+    var pick = all.slice().sort(function(){ return Math.random() - .5; }).slice(0, 12);
+    document.querySelector("[data-proof]").innerHTML = pick.map(function(it){
+      return '<img src="' + it.src.replace("assets/img/viz/","../assets/img/viz-thumb/").replace(/\.png$/,".webp") +
+             '" alt="" loading="lazy" decoding="async">';
+    }).join("");
+    document.querySelector("[data-tally]").textContent =
+      all.length + " visualizations · " + d.length + " series";
+  }).catch(function(){});
 })();
 </script>
 </body>
