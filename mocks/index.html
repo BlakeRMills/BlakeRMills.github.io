@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Homepage mocks — Blake Robert Mills</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Advent+Pro:wght@300;600;700&family=Poppins:wght@300;400&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  :root{--ink:#11181f;--paper:#f5f1ea;--accent:#e07c37;--line:rgba(245,241,234,.16);
+    --display:"Advent Pro",sans-serif;--body:"Poppins",sans-serif;--mono:"IBM Plex Mono",monospace}
+  *,*::before,*::after{box-sizing:border-box}
+  body{margin:0;background:var(--ink);color:var(--paper);font-family:var(--body);-webkit-font-smoothing:antialiased}
+  .wrap{width:min(1000px,100% - 3rem);margin-inline:auto;padding:4rem 0 6rem}
+  h1{font-family:var(--display);font-weight:700;text-transform:uppercase;font-size:clamp(2.2rem,7vw,4.4rem);
+    line-height:.9;margin:0 0 .6rem}
+  .sub{font-family:var(--mono);font-size:.74rem;letter-spacing:.2em;text-transform:uppercase;opacity:.6;margin:0 0 3rem}
+  .list{display:grid;gap:1px;background:var(--line);border:1px solid var(--line)}
+  a.m{background:var(--ink);padding:1.6rem;text-decoration:none;color:inherit;display:grid;gap:.4rem;transition:background .3s}
+  a.m:hover{background:rgba(245,241,234,.06)}
+  a.m .n{font-family:var(--mono);font-size:.68rem;letter-spacing:.18em;opacity:.5}
+  a.m h2{font-family:var(--display);font-size:clamp(1.4rem,3vw,2rem);font-weight:600;margin:.2rem 0}
+  a.m p{margin:0;opacity:.72;line-height:1.65;max-width:62ch}
+  a.m .tags{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.7rem}
+  a.m .tags span{font-family:var(--mono);font-size:.62rem;letter-spacing:.12em;text-transform:uppercase;
+    border:1px solid var(--line);padding:.25rem .6rem;border-radius:99px;opacity:.8}
+  .back{font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;opacity:.6;
+    text-decoration:none;display:inline-block;margin-top:2.5rem}
+  .back:hover{color:var(--accent)}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>Homepage mocks</h1>
+  <p class="sub">Three directions · click through each · nothing here is live</p>
+
+  <div class="list">
+    <a class="m" href="recolour.html">
+      <span class="n">Mock 01</span>
+      <h2>Recolour</h2>
+      <p>The page takes its colour scheme from your own palettes, read live from <code>palettes.json</code>.
+         Scrolling hands off to a new palette and the whole page recolours, alternating pale and dark grounds.
+         Shuffle to reroll the current section.</p>
+      <span class="tags"><span>Palette-driven</span><span>Scroll recolour</span><span>Shuffle</span><span>No new assets</span></span>
+    </a>
+    <a class="m" href="wall.html">
+      <span class="n">Mock 02</span>
+      <h2>The Wall</h2>
+      <p>Your 75 plots and maps tiled as a full-bleed wall behind the name, drifting on scroll.
+         Below, a masonry archive with series filters and a running index. Nothing is cropped.</p>
+      <span class="tags"><span>Archive</span><span>Parallax</span><span>Filters</span><span>Needs thumbnails</span></span>
+    </a>
+    <a class="m" href="field.html">
+      <span class="n">Mock 03</span>
+      <h2>Field</h2>
+      <p>A living version of the arc artwork from your header — bands of nested arcs that drift, respond to
+         the cursor and shift with scroll, with the content fading through over the top.</p>
+      <span class="tags"><span>Generative</span><span>Cursor-reactive</span><span>Minimal copy</span><span>Canvas</span></span>
+    </a>
+  </div>
+
+  <a class="back" href="../index.html">← Current homepage</a>
+</div>
+</body>
+</html>

@@ -1,0 +1,237 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mock 3 · Field — Blake Robert Mills</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Advent+Pro:wght@200;300;600;700&family=Poppins:wght@300;400&family=IBM+Plex+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0a1016; --paper:#f6f2ea; --accent:#e07c37;
+    --display:"Advent Pro",sans-serif; --body:"Poppins",system-ui,sans-serif; --mono:"IBM Plex Mono",monospace;
+  }
+  *,*::before,*::after{box-sizing:border-box}
+  body{margin:0; background:var(--ink); color:var(--paper); font-family:var(--body); -webkit-font-smoothing:antialiased}
+  a{color:inherit}
+  #field{position:fixed; inset:0; z-index:0; display:block; width:100%; height:100%}
+  .veil{position:fixed; inset:0; z-index:1; pointer-events:none;
+    background:radial-gradient(130% 95% at 42% 42%, rgba(10,16,22,.55), rgba(10,16,22,.88) 62%, rgba(10,16,22,.96))}
+  .content{position:relative; z-index:2}
+
+  .bar{
+    position:fixed; inset:0 0 auto 0; z-index:10; display:flex; align-items:center; gap:1.2rem;
+    padding:1rem clamp(1.5rem,4vw,2.5rem); font-family:var(--mono);
+    font-size:.72rem; letter-spacing:.16em; text-transform:uppercase;
+  }
+  .bar nav{display:flex; gap:1.2rem; margin-left:auto}
+  .bar a{text-decoration:none; opacity:.7} .bar a:hover{opacity:1; color:var(--accent)}
+
+  .wrap{width:min(1100px,100% - 3rem); margin-inline:auto}
+  .panel{min-height:100svh; display:flex; align-items:center}
+  .fade{opacity:0; transform:translateY(22px); transition:opacity .9s ease, transform .9s cubic-bezier(.2,.7,.3,1)}
+  .fade.in{opacity:1; transform:none}
+
+  h1{
+    font-family:var(--display); font-weight:700; text-transform:uppercase; margin:0;
+    font-size:clamp(3rem,13vw,11.5rem); line-height:.82; letter-spacing:-.02em;
+    text-shadow:0 6px 50px rgba(6,10,14,.75);
+  }
+  h1 span{display:block}
+  h1 .thin{font-weight:200; color:var(--accent)}
+  .kicker{font-family:var(--mono); font-size:clamp(.66rem,1.3vw,.82rem); letter-spacing:.34em;
+    text-transform:uppercase; opacity:.75; margin:0 0 2rem}
+  .lead{font-size:clamp(1.3rem,3vw,2.3rem); line-height:1.32; font-weight:300; max-width:20ch; margin:0 0 1.6rem; text-shadow:0 4px 30px rgba(6,10,14,.7)}
+  .lead em{font-style:normal; color:var(--accent)}
+  .body-sm{opacity:.78; max-width:44ch; line-height:1.75; margin:0 0 1.8rem}
+
+  h2{font-family:var(--display); font-weight:600; text-transform:uppercase;
+    font-size:clamp(1.9rem,6vw,4.4rem); line-height:.92; margin:0 0 2.4rem}
+
+  .links{display:grid; gap:1px; background:rgba(246,242,234,.18); border:1px solid rgba(246,242,234,.18); max-width:620px}
+  .links a{
+    background:var(--ink); padding:1.1rem 1.3rem; text-decoration:none; display:flex; align-items:baseline; gap:1rem;
+    transition:background .3s;
+  }
+  .links a:hover{background:rgba(246,242,234,.07)}
+  .links .n{font-family:var(--mono); font-size:.68rem; letter-spacing:.16em; opacity:.5}
+  .links .t{font-family:var(--display); font-size:1.35rem; font-weight:600}
+  .links .d{margin-left:auto; font-family:var(--mono); font-size:.68rem; letter-spacing:.12em; opacity:.5}
+
+  .btn{display:inline-flex; font-family:var(--display); font-weight:600; letter-spacing:.12em; text-transform:uppercase;
+    padding:.85rem 1.7rem; border-radius:99px; text-decoration:none;
+    background:var(--accent); color:var(--ink); border:1.5px solid var(--accent); transition:.25s}
+  .btn:hover{background:transparent; color:var(--accent)}
+
+  .hint{position:fixed; left:clamp(1.5rem,4vw,2.5rem); bottom:1.4rem; z-index:10;
+    font-family:var(--mono); font-size:.68rem; letter-spacing:.12em; opacity:.5}
+  .pal{position:fixed; right:clamp(1.5rem,4vw,2.5rem); bottom:1.4rem; z-index:10;
+    font-family:var(--mono); font-size:.68rem; letter-spacing:.12em; opacity:.5}
+
+  @media(prefers-reduced-motion:reduce){ .fade{opacity:1; transform:none; transition:none} }
+</style>
+</head>
+<body>
+
+<canvas id="field" aria-hidden="true"></canvas>
+<div class="veil"></div>
+
+<div class="bar">
+  <strong style="font-family:var(--display);letter-spacing:.06em">BRM</strong>
+  <nav><a href="../work.html">Work</a><a href="../about.html">About</a><a href="../resume.html">Resume</a></nav>
+</div>
+
+<div class="content">
+  <section class="panel"><div class="wrap">
+    <p class="kicker fade">Statistics · Civic Tech · Urban Studies</p>
+    <h1 class="fade"><span>Blake</span><span>Robert</span><span class="thin">Mills</span></h1>
+  </div></section>
+
+  <section class="panel"><div class="wrap fade">
+    <p class="lead">I work where <em>data, design and cities</em> meet.</p>
+    <p class="body-sm">Data scientist in government innovation and public interest technology. I build colour palettes for the R community, map the places people live, and write about what the numbers turn up.</p>
+    <a class="btn" href="mailto:brm2143@columbia.edu">Get in touch</a>
+  </div></section>
+
+  <section class="panel"><div class="wrap fade">
+    <h2>The work</h2>
+    <div class="links">
+      <a href="../metbrewer.html"><span class="n">01</span><span class="t">{MetBrewer}</span><span class="d">56 palettes</span></a>
+      <a href="../momacolors.html"><span class="n">02</span><span class="t">{MoMAColors}</span><span class="d">35 palettes</span></a>
+      <a href="../visualizations.html"><span class="n">03</span><span class="t">Visualizations</span><span class="d">75 pieces</span></a>
+      <a href="../designs.html"><span class="n">04</span><span class="t">Designs</span><span class="d">Illustration</span></a>
+      <a href="../writings.html"><span class="n">05</span><span class="t">Writings</span><span class="d">Published</span></a>
+      <a href="../resume.html"><span class="n">06</span><span class="t">Resume</span><span class="d">PDF</span></a>
+    </div>
+  </div></section>
+</div>
+
+<div class="hint">Move your cursor · scroll</div>
+<div class="pal" data-pal>—</div>
+
+<script>
+(function(){
+  const cv = document.getElementById("field");
+  const ctx = cv.getContext("2d");
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let W=0, H=0, dpr=1;
+  let palettes = [], pal = ["#e76254","#ef8a47","#f7aa58","#ffd06f","#aadce0","#72bcd5","#528fad","#376795","#1e466e"];
+  let palName = "Hiroshige";
+  const pointer = {x:-9999, y:-9999, tx:-9999, ty:-9999};
+  let t = 0, scrollN = 0;
+
+  function resize(){
+    dpr = Math.min(2, devicePixelRatio || 1);
+    W = cv.width  = Math.floor(innerWidth  * dpr);
+    H = cv.height = Math.floor(innerHeight * dpr);
+  }
+  resize();
+  addEventListener("resize", resize);
+
+  fetch("../assets/data/palettes.json").then(r=>r.json()).then(d=>{
+    Object.keys(d).forEach(pkg=>Object.keys(d[pkg]).forEach(name=>{
+      const p = d[pkg][name];
+      if (p.colors.length >= 7) palettes.push({name, pkg, colors:p.colors});
+    }));
+    if (palettes.length){
+      const p = palettes[Math.floor(Math.random()*palettes.length)];
+      pal = p.colors; palName = p.name;
+      document.querySelector("[data-pal]").textContent = p.pkg + " · " + p.name;
+    }
+  });
+
+  /* Bands of nested arcs — the same gesture as the artwork in the site header,
+     but the phase drifts with time and scroll, and the cursor pushes it. */
+  function draw(){
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.fillStyle = "#0a1016";
+    ctx.fillRect(0,0,W,H);
+
+    const bands = 7;
+    const bandH = H / bands;
+    const rings = 7;
+    const colSpacing = bandH * 1.5;
+
+    for (let b = 0; b < bands; b++){
+      const y0 = b * bandH;
+      ctx.save();
+      ctx.beginPath(); ctx.rect(0, y0, W, bandH); ctx.clip();
+
+      const dir = b % 2 === 0 ? 1 : -1;
+      const phase = (t * 0.06 * dir + scrollN * 220 * dir + b * 40) % colSpacing;
+      const cy = y0 + bandH * (b % 2 === 0 ? 0.92 : 0.08);
+
+      for (let cx = -colSpacing + phase; cx < W + colSpacing; cx += colSpacing){
+        // cursor pushes the arcs it passes over
+        let swell = 1;
+        if (pointer.x > -9000){
+          const dx = (cx - pointer.x) / (bandH * 2.2);
+          const dy = (cy - pointer.y) / (bandH * 2.2);
+          swell = 1 + 0.42 * Math.exp(-(dx*dx + dy*dy));
+        }
+        const base = bandH * 1.5 * swell;
+        for (let k = rings; k >= 1; k--){
+          const r = base * (k / rings);
+          ctx.beginPath();
+          ctx.arc(cx, cy, r, 0, Math.PI * 2);
+          ctx.fillStyle = pal[(k + b) % pal.length];
+          ctx.fill();
+        }
+      }
+      ctx.restore();
+    }
+  }
+
+  function frame(){
+    t += 1;
+    pointer.x += (pointer.tx - pointer.x) * 0.08;
+    pointer.y += (pointer.ty - pointer.y) * 0.08;
+    draw();
+    requestAnimationFrame(frame);
+  }
+
+  addEventListener("pointermove", e=>{
+    pointer.tx = e.clientX * dpr; pointer.ty = e.clientY * dpr;
+    if (pointer.x < -9000){ pointer.x = pointer.tx; pointer.y = pointer.ty; }
+  }, {passive:true});
+  addEventListener("pointerleave", ()=>{ pointer.tx = -9999; pointer.ty = -9999; });
+
+  addEventListener("scroll", ()=>{
+    const max = document.body.scrollHeight - innerHeight;
+    scrollN = max > 0 ? scrollY / max : 0;
+    if (reduce) draw();
+  }, {passive:true});
+
+  if (reduce) { draw(); } else { frame(); }
+
+
+  /* Reveal helper. The observer alone isn't enough: if layout shifts while the
+     webfonts load, an element can be reported as not intersecting and then
+     never re-checked, leaving it invisible forever. So also sweep what is
+     already on screen, at init, on load, and once fonts settle. */
+  function wireReveal(sel, cls, threshold){
+    const els = [...document.querySelectorAll(sel)];
+    if (!els.length) return;
+    const show = el => el.classList.add(cls);
+    const io = new IntersectionObserver(es=>{
+      es.forEach(e=>{ if(e.isIntersecting){ show(e.target); io.unobserve(e.target); } });
+    }, {threshold});
+    els.forEach(el=>io.observe(el));
+    const sweep = () => els.forEach(el=>{
+      const r = el.getBoundingClientRect();
+      if (r.top < innerHeight * 0.95 && r.bottom > 0) show(el);
+    });
+    sweep();
+    addEventListener("load", sweep, {once:true});
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(sweep);
+    return sweep;
+  }
+
+  wireReveal(".fade", "in", .18);
+})();
+</script>
+</body>
+</html>

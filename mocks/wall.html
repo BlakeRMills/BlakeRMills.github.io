@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mock 2 · The Wall — Blake Robert Mills</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Advent+Pro:wght@300;600;700&family=Poppins:wght@300;400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0d1117; --ink2:#141b22; --paper:#f4f1ea; --accent:#e0633a; --line:rgba(244,241,234,.16);
+    --display:"Advent Pro",sans-serif; --body:"Poppins",system-ui,sans-serif; --mono:"IBM Plex Mono",monospace;
+  }
+  *,*::before,*::after{box-sizing:border-box}
+  body{margin:0; background:var(--ink); color:var(--paper); font-family:var(--body); -webkit-font-smoothing:antialiased}
+  a{color:inherit}
+  .wrap{width:min(1400px,100% - 3rem); margin-inline:auto}
+
+  .bar{
+    position:fixed; inset:0 0 auto 0; z-index:40; display:flex; align-items:center; gap:1.2rem;
+    padding:1rem clamp(1.5rem,4vw,2.5rem); font-family:var(--mono);
+    font-size:.72rem; letter-spacing:.16em; text-transform:uppercase;
+    background:linear-gradient(180deg, rgba(13,17,23,.92), transparent);
+  }
+  .bar nav{display:flex; gap:1.2rem; margin-left:auto}
+  .bar a{text-decoration:none; opacity:.7} .bar a:hover{opacity:1; color:var(--accent)}
+
+  /* ---- hero: the wall itself ---- */
+  .hero{position:relative; height:100svh; overflow:hidden; display:grid; place-items:center}
+  .mosaic{
+    position:absolute; inset:-12% -4%; display:grid; gap:4px;
+    grid-template-columns:repeat(auto-fill,minmax(110px,1fr)); align-content:start;
+    will-change:transform;
+  }
+  .mosaic img{width:100%; aspect-ratio:1; object-fit:cover; display:block; opacity:.85; filter:saturate(1.05)}
+  .scrim{position:absolute; inset:0; background:
+    radial-gradient(125% 95% at 50% 45%, rgba(13,17,23,.30) 0%, rgba(13,17,23,.78) 52%, rgba(13,17,23,.96) 100%)}
+  .hero-type{position:relative; z-index:3; text-align:center; padding:0 1.5rem; will-change:transform,opacity}
+  .hero-type h1{
+    font-family:var(--display); font-weight:700; text-transform:uppercase; margin:0;
+    font-size:clamp(2.8rem,12.5vw,11rem); line-height:.84; letter-spacing:-.02em;
+    text-shadow:0 8px 60px rgba(0,0,0,.6);
+  }
+  .hero-type h1 span{display:block}
+  .hero-type .thin{font-weight:300; color:var(--accent)}
+  .hero-type p{
+    font-family:var(--mono); font-size:clamp(.66rem,1.4vw,.84rem); letter-spacing:.34em;
+    text-transform:uppercase; margin:1.6rem 0 0; opacity:.8;
+  }
+  .count{
+    position:absolute; left:clamp(1.5rem,4vw,2.5rem); bottom:1.5rem; z-index:3;
+    font-family:var(--mono); font-size:.72rem; letter-spacing:.14em; opacity:.6;
+  }
+  .scrolltip{
+    position:absolute; right:clamp(1.5rem,4vw,2.5rem); bottom:1.5rem; z-index:3;
+    font-family:var(--mono); font-size:.72rem; letter-spacing:.14em; opacity:.6;
+  }
+
+  /* ---- index ---- */
+  .intro{padding:clamp(5rem,12vw,9rem) 0 clamp(2rem,5vw,4rem)}
+  .intro p{font-size:clamp(1.2rem,2.4vw,1.9rem); line-height:1.4; font-weight:300; max-width:24ch; margin:0}
+  .intro p em{font-style:normal; color:var(--accent)}
+  .intro .meta{font-family:var(--mono); font-size:.72rem; letter-spacing:.18em;
+    text-transform:uppercase; opacity:.55; margin:0 0 1.8rem}
+
+  .filters{
+    position:sticky; top:52px; z-index:30; display:flex; gap:.4rem; flex-wrap:wrap; align-items:center;
+    padding:1rem 0 1.1rem; background:var(--ink); box-shadow:0 12px 18px -10px var(--ink);
+  }
+  .filters button{
+    font-family:var(--mono); font-size:.68rem; letter-spacing:.12em; text-transform:uppercase;
+    padding:.45rem .85rem; border-radius:99px; cursor:pointer;
+    background:transparent; color:var(--paper); border:1px solid var(--line);
+  }
+  .filters button:hover{border-color:var(--accent); color:var(--accent)}
+  .filters button[aria-pressed="true"]{background:var(--accent); border-color:var(--accent); color:var(--ink)}
+  .filters .tally{margin-left:auto; font-family:var(--mono); font-size:.7rem; letter-spacing:.14em; opacity:.55}
+
+  .grid{padding-bottom:6rem}
+  /* Multi-column masonry: his plots are a mix of portrait and landscape, so a
+     fixed aspect either crops them or leaves them floating in dead space. */
+  .masonry{column-count:5; column-gap:3px; margin-bottom:1rem}
+  @media(max-width:1180px){.masonry{column-count:4}}
+  @media(max-width:860px){.masonry{column-count:3}}
+  @media(max-width:560px){.masonry{column-count:2}}
+  .cell{
+    position:relative; display:block; break-inside:avoid; margin:0 0 3px;
+    background:var(--ink2); overflow:hidden; cursor:pointer;
+    opacity:0; transform:translateY(18px); transition:opacity .55s ease, transform .55s cubic-bezier(.2,.7,.3,1);
+  }
+  .cell.in{opacity:1; transform:none}
+  .cell img{width:100%; height:auto; display:block; transition:transform .4s}
+  .cell:hover img{transform:scale(1.03)}
+  .cell figcaption{
+    position:absolute; inset:auto 0 0 0; padding:.6rem .7rem;
+    background:linear-gradient(180deg,transparent,rgba(13,17,23,.94));
+    font-family:var(--mono); font-size:.66rem; letter-spacing:.1em; text-transform:uppercase;
+    display:flex; justify-content:space-between; gap:.6rem;
+    transform:translateY(100%); transition:transform .28s ease;
+  }
+  .cell:hover figcaption, .cell:focus-visible figcaption{transform:none}
+  .cell figcaption b{font-weight:500}
+  .cell figcaption i{font-style:normal; color:var(--accent)}
+
+  .groupline{
+    display:flex; align-items:baseline; gap:1rem; padding:2.6rem 0 .8rem;
+    border-bottom:1px solid var(--line); margin-bottom:.6rem;
+  }
+  .groupline h2{font-family:var(--display); font-weight:600; text-transform:uppercase;
+    font-size:clamp(1.3rem,3vw,2.2rem); margin:0; letter-spacing:.01em}
+  .groupline span{font-family:var(--mono); font-size:.7rem; letter-spacing:.14em; opacity:.5; margin-left:auto}
+
+  footer{border-top:1px solid var(--line); padding:3rem 0 5rem;
+    font-family:var(--mono); font-size:.72rem; letter-spacing:.14em; text-transform:uppercase; opacity:.6}
+  .foot{display:flex; justify-content:space-between; flex-wrap:wrap; gap:1rem}
+
+  @media(prefers-reduced-motion:reduce){
+    .cell{opacity:1; transform:none; transition:none}
+    .mosaic,.hero-type{transform:none !important}
+  }
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <strong style="font-family:var(--display);letter-spacing:.06em">BRM</strong>
+  <nav><a href="../work.html">Work</a><a href="../about.html">About</a><a href="../resume.html">Resume</a></nav>
+</div>
+
+<section class="hero">
+  <div class="mosaic" data-mosaic aria-hidden="true"></div>
+  <div class="scrim"></div>
+  <div class="hero-type" data-herotype>
+    <h1><span>Blake</span><span>Robert</span><span class="thin">Mills</span></h1>
+    <p>Statistics · Civic Tech · Urban Studies</p>
+  </div>
+  <div class="count" data-count>—</div>
+  <div class="scrolltip">Scroll ↓</div>
+</section>
+
+<main class="wrap">
+  <div class="intro">
+    <p class="meta">Hi, I'm Blake</p>
+    <p>Data scientist in <em>government innovation</em> and public interest tech.</p>
+  </div>
+
+  <div class="filters" data-filters></div>
+  <div class="grid" data-grid></div>
+</main>
+
+<footer class="wrap"><div class="foot"><span>New York, NY</span><span>Mock 2 — The Wall</span></div></footer>
+
+<script>
+(function(){
+  const thumb = s => s.replace("assets/img/viz/","../assets/img/viz-thumb/").replace(/\.png$/,".webp");
+  const full  = s => "../" + s;
+
+  /* Reveal helper. The observer alone isn't enough: if layout shifts while the
+     webfonts load, an element can be reported as not intersecting and then
+     never re-checked, leaving it invisible forever. So also sweep what is
+     already on screen, at init, on load, and once fonts settle. */
+  function wireReveal(sel, cls, threshold){
+    const els = [...document.querySelectorAll(sel)];
+    if (!els.length) return;
+    const show = el => el.classList.add(cls);
+    const io = new IntersectionObserver(es=>{
+      es.forEach(e=>{ if(e.isIntersecting){ show(e.target); io.unobserve(e.target); } });
+    }, {threshold});
+    els.forEach(el=>io.observe(el));
+    const sweep = () => els.forEach(el=>{
+      const r = el.getBoundingClientRect();
+      if (r.top < innerHeight * 0.95 && r.bottom > 0) show(el);
+    });
+    sweep();
+    addEventListener("load", sweep, {once:true});
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(sweep);
+    return sweep;
+  }
+
+  const grid = document.querySelector("[data-grid]");
+  const filters = document.querySelector("[data-filters]");
+  const mosaic = document.querySelector("[data-mosaic]");
+  const countEl = document.querySelector("[data-count]");
+  let GROUPS = [], active = "all";
+
+  fetch("../assets/data/visualizations.json").then(r=>r.json()).then(d=>{
+    GROUPS = d;
+    const all = d.flatMap(g=>g.items);
+    countEl.textContent = all.length + " pieces · " + d.length + " series";
+
+    // hero wall — enough tiles to fill, shuffled so it reads as a wall not a list
+    const shuffled = all.slice().sort(()=>Math.random()-.5);
+    // overfill: the grid is auto-fill, so a wide viewport needs more tiles than
+    // there are pieces. Repeat the shuffled set rather than leave a hole.
+    const cols = Math.ceil((innerWidth * 1.08) / 114);
+    const rows = Math.ceil((innerHeight * 1.24) / 114);
+    const need = cols * rows;
+    const tiles = [];
+    while (tiles.length < need) tiles.push(...shuffled);
+    mosaic.innerHTML = tiles.slice(0, need).map((it,i)=>
+      '<img src="'+thumb(it.src)+'" alt="" loading="'+(i<40?'eager':'lazy')+'" decoding="async">').join("");
+
+    filters.innerHTML =
+      '<button type="button" data-f="all" aria-pressed="true">All</button>' +
+      d.map(g=>'<button type="button" data-f="'+g.id+'" aria-pressed="false">'+g.label.replace(/^#/,"")+'</button>').join("") +
+      '<span class="tally" data-tally></span>';
+    render();
+  });
+
+  function render(){
+    const shown = GROUPS.filter(g=>active==="all"||g.id===active);
+    let n = 0, total = 0;
+    const html = shown.map(g=>{
+      total += g.items.length;
+      return '<div class="groupline"><h2>'+g.label+'</h2><span>'+g.items.length+' pieces</span></div>' +
+        '<div class="masonry">' +
+        g.items.map(it=>{
+          n++;
+          const idx = String(n).padStart(3,"0");
+          return '<figure class="cell" tabindex="0" data-href="'+full(it.src)+'">'+
+            '<img src="'+thumb(it.src)+'" alt="'+it.title+'" loading="lazy" decoding="async">'+
+            '<figcaption><b>'+it.title+'</b><i>'+idx+'</i></figcaption></figure>';
+        }).join("") + '</div>';
+    }).join("");
+    grid.innerHTML = html;
+    document.querySelector("[data-tally]").textContent = total + " shown";
+
+    grid.querySelectorAll(".cell").forEach((c,i)=>{
+      c.style.transitionDelay = (i % 8) * 40 + "ms";
+      c.addEventListener("click", ()=>window.open(c.dataset.href,"_blank","noopener"));
+      c.addEventListener("keydown", e=>{ if(e.key==="Enter") window.open(c.dataset.href,"_blank","noopener"); });
+    });
+    wireReveal(".cell", "in", .08);
+  }
+
+  filters.addEventListener("click", e=>{
+    const b = e.target.closest("button[data-f]"); if(!b) return;
+    active = b.dataset.f;
+    filters.querySelectorAll("button").forEach(x=>x.setAttribute("aria-pressed", String(x===b)));
+    render();
+  });
+
+  // hero parallax: the wall drifts slower than the type, which lifts away
+  const herotype = document.querySelector("[data-herotype]");
+  let ticking = false;
+  function onScroll(){
+    if (ticking) return; ticking = true;
+    requestAnimationFrame(()=>{
+      const y = window.scrollY, vh = innerHeight;
+      if (y < vh * 1.2){
+        mosaic.style.transform = "translate3d(0," + (y * 0.18).toFixed(1) + "px,0)";
+        const t = Math.min(1, y / (vh * 0.75));
+        herotype.style.transform = "translate3d(0," + (-y * 0.32).toFixed(1) + "px,0) scale(" + (1 - t * 0.08).toFixed(3) + ")";
+        herotype.style.opacity = String(1 - t);
+      }
+      ticking = false;
+    });
+  }
+  if (!matchMedia("(prefers-reduced-motion: reduce)").matches)
+    addEventListener("scroll", onScroll, {passive:true});
+})();
+</script>
+</body>
+</html>
