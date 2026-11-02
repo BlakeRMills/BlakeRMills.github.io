@@ -195,6 +195,10 @@
   var hint = document.querySelector("[data-hint]");
   var W = 0, H = 0, dpr = 1;
 
+  /* The original field, kept as the default; ?wave=panton draws the tangent-arc
+     ribbons instead, so the two can be compared without swapping files. */
+  var MODE = new URLSearchParams(location.search).get("wave") === "panton" ? "panton" : "arcs";
+
   /* Every number that shapes the field. Each length is a fraction of the
      wavelength, so the proportions hold at any viewport size. */
   var WAVE = {
@@ -271,6 +275,7 @@
     // scrim in that case rather than desaturating the artwork.
     var meanLum = p.colors.reduce(function(a,c){ return a + lum(c); }, 0) / p.colors.length;
     baseVeil = Math.min(.48, .12 + Math.max(0, meanLum - .45) * 1.4);
+    if (MODE === "arcs") baseVeil = Math.max(baseVeil, .34);
     document.documentElement.style.setProperty("--veil", baseVeil.toFixed(3));
 
     var n = Math.min(6, ordered.length);
@@ -412,7 +417,7 @@
     }
   }
 
-  function draw(){
+  function drawPanton(){
     ctx.setTransform(1,0,0,1,0,0);
     ctx.fillStyle = ground;
     ctx.fillRect(0,0,W,H);
@@ -435,6 +440,52 @@
     for (var r = -1; r < rows; r++){
       paintRibbon(offsets(pitch * r + amp, lambda, phase, band, n, vscale), n);
     }
+  }
+
+  /* Bands of nested arcs — the same gesture as the artwork in the site header,
+     but the phase drifts with time and scroll, and the cursor pushes it. */
+  function drawArcs(){
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.fillStyle = ground;
+    ctx.fillRect(0,0,W,H);
+
+    var cols = pal.colors;
+    var bands = 7;
+    var bandH = H / bands;
+    var rings = 7;
+    var colSpacing = bandH * 1.5;
+
+    for (var b = 0; b < bands; b++){
+      var y0 = b * bandH;
+      ctx.save();
+      ctx.beginPath(); ctx.rect(0, y0, W, bandH); ctx.clip();
+
+      var dir = b % 2 === 0 ? 1 : -1;
+      var phase = (idle * .5 * dir + scrollN * 220 * dir + b * 40) % colSpacing;
+      var cy = y0 + bandH * (b % 2 === 0 ? .92 : .08);
+
+      for (var cx = -colSpacing + phase; cx < W + colSpacing; cx += colSpacing){
+        // cursor pushes the arcs it passes over
+        var swell = 1;
+        if (pointer.x > -9000){
+          var dx = (cx - pointer.x) / (bandH * 2.2);
+          var dy = (cy - pointer.y) / (bandH * 2.2);
+          swell = 1 + .42 * Math.exp(-(dx*dx + dy*dy));
+        }
+        var base = bandH * 1.5 * swell;
+        for (var k = rings; k >= 1; k--){
+          ctx.beginPath();
+          ctx.arc(cx, cy, base * (k / rings), 0, Math.PI * 2);
+          ctx.fillStyle = cols[(k + b) % cols.length];
+          ctx.fill();
+        }
+      }
+      ctx.restore();
+    }
+  }
+
+  function draw(){
+    if (MODE === "panton") drawPanton(); else drawArcs();
   }
 
   function frame(){
@@ -462,7 +513,8 @@
     var t = Math.min(1, scrollY / innerHeight);
     herotype.style.transform = "translate3d(0," + (-scrollY * .3).toFixed(1) + "px,0) scale(" + (1 - t * .07).toFixed(3) + ")";
     herotype.style.opacity = String(1 - t);
-    document.documentElement.style.setProperty("--veil", Math.min(.9, baseVeil + t * .58).toFixed(3));
+    var ceiling = MODE === "arcs" ? .80 : .90;
+    document.documentElement.style.setProperty("--veil", Math.min(ceiling, baseVeil + t * .58).toFixed(3));
     hint.style.opacity = t > .1 ? "0" : "";
     if (reduce) draw();
     queued = false;
