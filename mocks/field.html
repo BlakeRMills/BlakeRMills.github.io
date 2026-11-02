@@ -325,8 +325,21 @@
   resize();
   addEventListener("resize", function(){ resize(); if (reduce) draw(); });
 
-  /* A steep sine: tanh flattens the crests and straightens the sides, which is
-     what separates Panton's curve from a plain wave. */
+  /* Every number that shapes the field, in one place. */
+  var WAVE = {
+    rowPx:   215,   // target row height, CSS px
+    rowsMin: 3,
+    rowsMax: 6,
+    lambda:  3.2,   // wavelengths across the viewport
+    amp:     .50,   // peak amplitude, as a fraction of row pitch
+    stack:   .54,   // thickness of the band stack, same fraction
+    round:   .9,    // tanh steepness: lower is rounder, a pure sine at 0
+    gain:    .40    // px of lateral travel per px scrolled
+  };
+
+  /* Panton's curve is round, so this stays close to a plain sine. tanh only
+     fills it out very slightly; push `round` up and it squares off into
+     flat crests and straight sides, which is the wrong gesture. */
   function squine(u, steep, k){
     return Math.tanh(steep * Math.sin(u * Math.PI * 2)) / k;
   }
@@ -355,19 +368,24 @@
     if (!bandCols.length) return;
 
     var css = H / dpr;
-    var rows   = Math.max(4, Math.min(7, Math.round(css / 185)));
+    var rows   = Math.max(WAVE.rowsMin, Math.min(WAVE.rowsMax, Math.round(css / WAVE.rowPx)));
     var pitch  = H / rows;
-    var lambda = Math.max(240 * dpr, W / 4.4);
-    var total  = pitch * .50;                                   // the full band stack
+    var lambda = Math.max(260 * dpr, W / WAVE.lambda);
+    var total  = pitch * WAVE.stack;                            // the full band stack
     var breathe = 1 + .13 * Math.sin(scrollN * Math.PI);        // one slow swell down the page
-    var amp    = pitch * .37 * breathe;
+    var amp    = pitch * WAVE.amp * breathe;
     var n      = bandCols.length;
 
+    /* Rows share a phase. In both textiles every row is the same curve moved
+       straight down, and that is what lets the loops run this deep without
+       neighbours crossing: the vertical gap between two stacks is a constant
+       pitch - total, whatever the amplitude. Alternating the direction looked
+       livelier but broke the nesting the moment the loops got big. */
+    var phase = scrollPx * dpr * WAVE.gain + idle;
+
     for (var r = 0; r < rows; r++){
-      var dir   = r % 2 ? -1 : 1;
       var cy    = pitch * (r + .5);
-      var phase = dir * (scrollPx * dpr * .40 + idle) + r * lambda * .19;
-      var path  = rowPath(cy, amp, lambda, phase, 2.2);
+      var path  = rowPath(cy, amp, lambda, phase, WAVE.round);
 
       for (var i = 0; i < n; i++){
         ctx.lineWidth   = total * (1 - i / n);
