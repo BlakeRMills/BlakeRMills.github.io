@@ -195,6 +195,18 @@
   var hint = document.querySelector("[data-hint]");
   var W = 0, H = 0, dpr = 1;
 
+  /* Every number that shapes the field. Each length is a fraction of the
+     wavelength, so the proportions hold at any viewport size. */
+  var WAVE = {
+    lambda:   2.3,   // wavelengths across the viewport
+    amp:      .25,   // peak amplitude; .25 is a true semicircle
+    band:     .038,  // thickness of one lane; n * band must stay under .25
+    rowStep:  .82,   // row pitch, as a fraction of a ribbon's full height;
+                     // under 1 the rows overlap, which is what the textile does
+    gain:     .40,   // px of lateral travel per px scrolled
+    groundAt: .17    // which colour seeds the ground, 0 = darkest, 1 = lightest
+  };
+
   /* ---------- colour helpers ---------- */
   function rgb(h){
     h = h.replace("#","");
@@ -249,7 +261,8 @@
     // The page's type is a fixed cream, so the ground has to stay dark whatever
     // the palette is. Pull the darkest colour toward ink until it clears the
     // text by a wide margin — the hue survives, the contrast is borrowed.
-    ground = mix(ordered[0], "#070b10", .55);
+    var gi = Math.round(WAVE.groundAt * (ordered.length - 1));
+    ground = mix(ordered[gi], "#070b10", .34);
     for (var g = 0; g < 20 && ratio(ground, "#f6f2ea") < 8; g++){
       ground = mix(ground, "#070b10", .18);
     }
@@ -263,7 +276,7 @@
     var n = Math.min(6, ordered.length);
     bandCols = [];
     for (var i = 0; i < n; i++){
-      // widest band first; sample the whole range even from a 9-colour palette
+      // top lane first; sample the whole range even from an 11-colour palette
       bandCols.push(ordered[Math.round(i * (ordered.length - 1) / (n - 1))]);
     }
 
@@ -325,73 +338,102 @@
   resize();
   addEventListener("resize", function(){ resize(); if (reduce) draw(); });
 
-  /* Every number that shapes the field, in one place. */
-  var WAVE = {
-    rowPx:   215,   // target row height, CSS px
-    rowsMin: 3,
-    rowsMax: 6,
-    lambda:  3.2,   // wavelengths across the viewport
-    amp:     .50,   // peak amplitude, as a fraction of row pitch
-    stack:   .54,   // thickness of the band stack, same fraction
-    round:   .9,    // tanh steepness: lower is rounder, a pure sine at 0
-    gain:    .40    // px of lateral travel per px scrolled
-  };
+  /* The curve is a chain of tangent semicircles, not a sine.
 
-  /* Panton's curve is round, so this stays close to a plain sine. tanh only
-     fills it out very slightly; push `round` up and it squares off into
-     flat crests and straight sides, which is the wrong gesture. */
-  function squine(u, steep, k){
-    return Math.tanh(steep * Math.sin(u * Math.PI * 2)) / k;
+     This matters more than it sounds. Panton's lanes are thick AND his loops
+     are deep, and a sine cannot carry both: its curvature piles up at the
+     extremes, so the minimum radius at a crest is only about a tenth of the
+     wavelength, and a lane stack any thicker than that folds back through
+     itself. Semicircles of radius lambda/4, alternating up and down, give the
+     same amplitude with a radius of a quarter of the wavelength — two and a
+     half times the room — and they meet with vertical tangents, which is where
+     the near-vertical sides between his arches come from.
+
+     The ribbon is a one-sided stack: every lane boundary is the curve pushed
+     further along its own normal, which for arcs just means a smaller radius
+     on the humps and a larger one in the troughs. So teal runs along the whole
+     top edge and orange along the whole bottom, the humps narrow as you go
+     inward, and the innermost lane pinches almost to a point at each crest. At
+     the joins the lanes stack horizontally rather than vertically, because the
+     curve is vertical there. */
+  function offsets(cy, lambda, phase, band, n, vscale){
+    var R = lambda / 4, hp = lambda / 2;
+    var lanes = [];
+    for (var j = 0; j <= n; j++) lanes.push([]);
+
+    var jFrom = Math.floor((-lambda + phase) / hp + .5);
+    var jTo   = Math.ceil(((W + lambda) + phase) / hp + .5);
+    /* 18 chords per semicircle leaves a sagitta well under a pixel at any
+       radius this draws at, and each lane is filled over the full boundary
+       twice, so the count matters. */
+    var arcSteps = 18;
+
+    for (var ji = jFrom; ji <= jTo; ji++){
+      var xc = ji * hp;
+      var up = ((ji % 2) + 2) % 2 === 0 ? 1 : -1;   // +1 bulges up, -1 bulges down
+
+      for (var q = 0; q <= arcSteps; q++){
+        // step by angle, not by x: stepping by x starves the near-vertical joins
+        var th = -Math.PI / 2 + Math.PI * q / arcSteps;
+        var dx = R * Math.sin(th);
+        var hh = R * Math.cos(th);
+        var x  = xc + dx - phase;
+
+        var vs = vscale;
+        if (pointer.x > -9000){
+          var ddx = (x - pointer.x) / (lambda * .55);
+          var ddy = (cy - pointer.y) / (lambda * .40);
+          vs *= 1 + .26 * Math.exp(-(ddx*ddx + ddy*ddy));
+        }
+
+        for (var j = 0; j <= n; j++){
+          var rr = (up > 0 ? R - j * band : R + j * band) / R;
+          lanes[j].push(xc + dx * rr - phase, cy - up * hh * rr * vs);
+        }
+      }
+    }
+    return lanes;
   }
 
-  function rowPath(cy, amp, lambda, phase, steep){
-    var p = new Path2D(), k = Math.tanh(steep);
-    var step = Math.max(3, 7 * dpr);
-    var first = true;
-    for (var x = -lambda; x <= W + lambda; x += step){
-      var a = amp;
-      if (pointer.x > -9000){
-        var dx = (x - pointer.x) / (lambda * .62);
-        var dy = (cy - pointer.y) / (lambda * .42);
-        a *= 1 + .34 * Math.exp(-(dx*dx + dy*dy));
-      }
-      var y = cy + squine((x + phase) / lambda, steep, k) * a;
-      if (first){ p.moveTo(x, y); first = false; } else { p.lineTo(x, y); }
+  /* Painted outer lane first, each filled all the way down to the innermost
+     boundary, so a later fill always covers the one before it and no seam can
+     show between lanes. */
+  function paintRibbon(lanes, n){
+    var inner = lanes[n];
+    for (var i = 0; i < n; i++){
+      var o = lanes[i], q;
+      var pth = new Path2D();
+      pth.moveTo(o[0], o[1]);
+      for (q = 2; q < o.length; q += 2) pth.lineTo(o[q], o[q+1]);
+      for (q = inner.length - 2; q >= 0; q -= 2) pth.lineTo(inner[q], inner[q+1]);
+      pth.closePath();
+      ctx.fillStyle = bandCols[i];
+      ctx.fill(pth);
     }
-    return p;
   }
 
   function draw(){
     ctx.setTransform(1,0,0,1,0,0);
     ctx.fillStyle = ground;
     ctx.fillRect(0,0,W,H);
-    if (!bandCols.length) return;
+    var n = bandCols.length;
+    if (!n) return;
 
-    var css = H / dpr;
-    var rows   = Math.max(WAVE.rowsMin, Math.min(WAVE.rowsMax, Math.round(css / WAVE.rowPx)));
-    var pitch  = H / rows;
-    var lambda = Math.max(260 * dpr, W / WAVE.lambda);
-    var total  = pitch * WAVE.stack;                            // the full band stack
-    var breathe = 1 + .13 * Math.sin(scrollN * Math.PI);        // one slow swell down the page
-    var amp    = pitch * WAVE.amp * breathe;
-    var n      = bandCols.length;
+    var lambda  = Math.max(300 * dpr, W / WAVE.lambda);
+    var band    = lambda * WAVE.band;
+    var breathe = 1 + .10 * Math.sin(scrollN * Math.PI);   // one slow swell down the page
+    var vscale  = (WAVE.amp / .25) * breathe;              // .25 is the true circle
+    var amp     = lambda * .25 * vscale;
+    var height  = 2 * amp + band * n;                      // a ribbon's full vertical reach
+    var pitch   = height * WAVE.rowStep;
+    var rows    = Math.ceil(H / pitch) + 2;
+    var phase   = scrollPx * dpr * WAVE.gain + idle;
 
-    /* Rows share a phase. In both textiles every row is the same curve moved
-       straight down, and that is what lets the loops run this deep without
-       neighbours crossing: the vertical gap between two stacks is a constant
-       pitch - total, whatever the amplitude. Alternating the direction looked
-       livelier but broke the nesting the moment the loops got big. */
-    var phase = scrollPx * dpr * WAVE.gain + idle;
-
-    for (var r = 0; r < rows; r++){
-      var cy    = pitch * (r + .5);
-      var path  = rowPath(cy, amp, lambda, phase, WAVE.round);
-
-      for (var i = 0; i < n; i++){
-        ctx.lineWidth   = total * (1 - i / n);
-        ctx.strokeStyle = bandCols[i];
-        ctx.stroke(path);
-      }
+    /* Rows share a phase and a direction: in the textile every row is the same
+       curve moved straight down. Drawing top to bottom means each row laps over
+       the one above exactly as the printed panels do. */
+    for (var r = -1; r < rows; r++){
+      paintRibbon(offsets(pitch * r + amp, lambda, phase, band, n, vscale), n);
     }
   }
 
