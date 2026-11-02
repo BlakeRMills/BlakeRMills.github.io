@@ -9,18 +9,24 @@
 <meta property="og:description" content="Data scientist working in government innovation, public interest technology, and civic tech. Creator of the MetBrewer and MoMAColors R packages.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="assets/img/hero-artwork.webp">
-<meta name="theme-color" content="#14303f">
+<meta name="theme-color" content="#1e466e">
 <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Advent+Pro:wght@400;500;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Advent+Pro:wght@300;400;500;600;700&family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/site.css">
+<link rel="stylesheet" href="css/home.css">
 <script>
   /* set the theme before first paint so there is no flash */
-  (function(){try{var t=localStorage.getItem('brm-theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}})();
+  (function(){
+    /* mark that scripting is on, so the scroll-reveal styles only hide content
+       we can actually bring back; without this the page is blank without JS */
+    document.documentElement.classList.add('js');
+    try{var t=localStorage.getItem('brm-theme');if(t)document.documentElement.setAttribute('data-theme',t);}catch(e){}
+  })();
 </script>
 </head>
-<body>
+<body class="home">
 <a class="skip-link" href="#main">Skip to content</a>
 <header class="site-header">
   <div class="wrap site-header__inner">
@@ -45,80 +51,111 @@
   </div>
 </header>
 <main id="main">
-<section class="hero" style="padding:0">
-  <img class="hero__art" src="assets/img/hero-artwork.webp" alt="" width="2500" height="2073" fetchpriority="high">
-  <div class="hero__overlay">
-    <h1 class="hero__title">Blake Robert Mills</h1>
-    <p class="hero__tagline">Statistics, Civic Tech, and Urban Studies</p>
-  </div>
-</section>
-<hr class="rule">
 
-<section>
-  <div class="wrap intro">
-    <div class="intro__text">
-      <p class="eyebrow">Hi, I'm Blake</p>
-      <h2>I work where data, design, and cities meet.</h2>
-      <p>I'm a data scientist working in government innovation, public interest
-         technology, and civic tech. I'm a lover of data visualization, design,
-         and all things New York.</p>
-      <p>I build color palettes for the R community, make maps and charts about
-         the places people live, and write about what the numbers turn up.</p>
-      <div class="btn-row">
-        <a class="btn" href="work.html">See my work</a>
-        <a class="btn btn--ghost" href="mailto:brm2143@columbia.edu">Email me</a>
+  <section class="home-hero" data-pal-slot="0">
+    <div class="wrap">
+      <p class="home-kicker">Statistics · Civic Tech · Urban Studies</p>
+      <h1 class="home-title"><span>Blake</span><span>Robert</span><span class="is-thin">Mills</span></h1>
+      <hr class="home-rule">
+      <div class="home-swatches" data-swatches aria-label="Current colour palette">
+        <button type="button" style="background:#e76254"><b>#E76254</b></button>
+        <button type="button" style="background:#ef8a47"><b>#EF8A47</b></button>
+        <button type="button" style="background:#f7aa58"><b>#F7AA58</b></button>
+        <button type="button" style="background:#ffd06f"><b>#FFD06F</b></button>
+        <button type="button" style="background:#aadce0"><b>#AADCE0</b></button>
+        <button type="button" style="background:#72bcd5"><b>#72BCD5</b></button>
+        <button type="button" style="background:#528fad"><b>#528FAD</b></button>
+        <button type="button" style="background:#376795"><b>#376795</b></button>
+        <button type="button" style="background:#1e466e"><b>#1E466E</b></button>
+      </div>
+      <div class="home-strip-meta">
+        <span data-pal-name>MetBrewer · Hiroshige</span>
+        <span data-pal-count>10 colours · colourblind friendly</span>
+        <span class="spacer"></span>
+        <button class="home-shuffle" type="button" data-shuffle>Shuffle palette</button>
       </div>
     </div>
-    <img class="intro__portrait" src="assets/img/blake-portrait.webp"
-         alt="Blake Robert Mills" width="889" height="899" loading="lazy">
-  </div>
-</section>
+  </section>
 
-<section style="background:var(--surface-alt);border-block:1px solid var(--line)">
-  <div class="wrap">
-    <div class="section-head">
-      <p class="eyebrow">Selected work</p>
-      <h2>Packages, plots, and places</h2>
+  <section class="home-section" data-pal-slot="1">
+    <div class="wrap">
+      <div class="home-two home-reveal">
+        <div>
+          <p class="home-kicker">Hi, I'm Blake</p>
+          <p class="home-lead">I'm a data scientist working in <em>government innovation</em>, public interest technology, and civic tech.</p>
+          <p class="home-body">I build colour palettes for the R community, make maps and charts about the places people live, and write about what the numbers turn up. Formally trained in statistics, data management and machine learning — self-taught in data visualization, design, and mixology.</p>
+          <div class="home-cta">
+            <a class="btn" href="work.html">See the work</a>
+            <a class="btn btn--ghost" href="mailto:brm2143@columbia.edu">Email me</a>
+          </div>
+        </div>
+        <img class="home-portrait" src="assets/img/blake-portrait.webp" alt="Blake Robert Mills" width="889" height="899" loading="lazy" decoding="async">
+      </div>
+
+      <dl class="home-stats home-reveal" style="margin-top:clamp(3rem,8vw,5rem)">
+        <div class="home-stat"><dt>Palettes published</dt><dd>91</dd></div>
+        <div class="home-stat"><dt>Colours chosen</dt><dd>674</dd></div>
+        <div class="home-stat"><dt>Plots &amp; maps</dt><dd>75</dd></div>
+        <div class="home-stat"><dt>R packages</dt><dd>2</dd></div>
+      </dl>
     </div>
-    <div class="card-grid">
-      <a class="card" href="metbrewer.html">
-        <div class="card__swatches"><span style="background:#e76254"></span><span style="background:#ef8a47"></span><span style="background:#f7aa58"></span><span style="background:#ffd06f"></span><span style="background:#ffe6b7"></span><span style="background:#aadce0"></span><span style="background:#72bcd5"></span><span style="background:#528fad"></span><span style="background:#376795"></span><span style="background:#1e466e"></span></div>
-        <h3>{MetBrewer}</h3>
-        <p>An R package of color palettes drawn from works in the Metropolitan
-           Museum of Art.</p>
-        <p class="card__meta">56 palettes</p>
-      </a>
-      <a class="card" href="momacolors.html">
-        <div class="card__swatches"><span style="background:#ff0066"></span><span style="background:#328c97"></span><span style="background:#d1aac2"></span><span style="background:#a5506d"></span><span style="background:#b3e0bf"></span><span style="background:#2a9d3d"></span><span style="background:#edf181"></span><span style="background:#db7003"></span><span style="background:#fba600"></span><span style="background:#f8c1a6"></span><span style="background:#a30000"></span><span style="background:#ff3200"></span><span style="background:#011a51"></span><span style="background:#97d1d9"></span><span style="background:#916c37"></span></div>
-        <h3>{MoMAColors}</h3>
-        <p>Palettes inspired by the collection of the Museum of Modern Art.</p>
-        <p class="card__meta">35 palettes</p>
-      </a>
-      <a class="card" href="visualizations.html">
-        <h3>Visualizations</h3>
-        <p>#TidyTuesday charts and #30DayMapChallenge maps, built in R with
-           {ggplot2} and friends.</p>
-        <p class="card__meta">75 pieces</p>
-      </a>
-      <a class="card" href="designs.html">
-        <h3>Designs</h3>
-        <p>Illustration and graphic work made away from the plot window.</p>
-        <p class="card__meta">Portraits &amp; stickers</p>
-      </a>
-      <a class="card" href="writings.html">
-        <h3>Writings</h3>
-        <p>Articles and reports on energy, congress, public health — plus the
-           odd interview.</p>
-        <p class="card__meta">Published work</p>
-      </a>
-      <a class="card" href="resume.html">
-        <h3>Resume</h3>
-        <p>Where I've worked, what I'm looking for, and how to get in touch.</p>
-        <p class="card__meta">Currently open to work</p>
-      </a>
+  </section>
+
+  <section class="home-section" data-pal-slot="2">
+    <div class="wrap">
+      <h2 class="home-h2 home-reveal">Packages,<br>plots &amp; places</h2>
+      <div class="home-work home-reveal">
+        <a class="home-card" href="metbrewer.html">
+          <span class="num">01</span>
+          <h3>{MetBrewer}</h3>
+          <p>56 colour palettes drawn from works in the Metropolitan Museum of Art.</p>
+          <span class="home-chips" data-chips="MetBrewer/Hiroshige"></span>
+        </a>
+        <a class="home-card" href="momacolors.html">
+          <span class="num">02</span>
+          <h3>{MoMAColors}</h3>
+          <p>35 palettes inspired by the collection of the Museum of Modern Art.</p>
+          <span class="home-chips" data-chips="MoMAColors/Warhol"></span>
+        </a>
+        <a class="home-card" href="visualizations.html">
+          <span class="num">03</span>
+          <h3>Visualizations</h3>
+          <p>75 plots and maps — street networks, elevation, redlining, Airbnb costs.</p>
+          <span class="home-chips" data-chips="MetBrewer/Hokusai1"></span>
+        </a>
+        <a class="home-card" href="designs.html">
+          <span class="num">04</span>
+          <h3>Designs</h3>
+          <p>Illustration and graphic work made away from the plot window.</p>
+          <span class="home-chips" data-chips="MoMAColors/Picasso"></span>
+        </a>
+        <a class="home-card" href="writings.html">
+          <span class="num">05</span>
+          <h3>Writings</h3>
+          <p>Energy use, congressional sentiment, public health — and one interview.</p>
+          <span class="home-chips" data-chips="MetBrewer/Demuth"></span>
+        </a>
+        <a class="home-card" href="resume.html">
+          <span class="num">06</span>
+          <h3>Resume</h3>
+          <p>Where I've worked, and what I'm looking for next.</p>
+          <span class="home-chips" data-chips="MoMAColors/Levine1"></span>
+        </a>
+      </div>
     </div>
-  </div>
-</section>
+  </section>
+
+  <section class="home-section" data-pal-slot="3">
+    <div class="wrap home-reveal">
+      <h2 class="home-h2">Let's talk</h2>
+      <p class="home-body">Open to speaking engagements and job opportunities. I also tutor in data visualization, R, and machine learning.</p>
+      <div class="home-cta">
+        <a class="btn" href="mailto:brm2143@columbia.edu">brm2143@columbia.edu</a>
+        <a class="btn btn--ghost" href="https://github.com/BlakeRMills" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </div>
+  </section>
+
 </main>
 <footer class="site-footer">
   <div class="wrap">
@@ -137,5 +174,6 @@
 </footer>
 <script src="js/site.js"></script>
 <script src="js/arcade.js"></script>
+<script src="js/palette-home.js"></script>
 </body>
 </html>

@@ -28,15 +28,39 @@ resume.html             summary + embedded PDF
 404.html                not found
 
 css/site.css            the whole design system
+css/home.css            homepage only — the "Recolour" layout
 js/site.js              theme toggle, mobile nav, lightbox, clipboard
 js/palettes.js          palette browser
 js/arcade.js            arcade mode
+js/palette-home.js      homepage palette engine
 assets/img/             all images, pulled off Squarespace's CDN
 assets/data/            palettes.json, visualizations.json
 tools/parse_palettes.py regenerates palettes.json from the R sources
 assets/img/arcade/      arcade artwork (see ART.md)
 CNAME                   custom domain for GitHub Pages
 ```
+
+## The homepage
+
+The homepage takes its colour scheme from one of the 91 palettes, read live
+from `palettes.json`, and hands off to a different palette per section as you
+scroll. `js/palette-home.js` rewrites the same custom properties `site.css`
+already uses, so the shared header, footer and buttons recolour with the page
+rather than being restyled.
+
+Two things worth knowing if you change it:
+
+- **Contrast is computed, not chosen.** Body text has to clear 4.5:1 against
+  whatever ground a palette produces and the accent 3:1. Where a palette can't
+  manage it, the ground is nudged toward white or black — keeping its hue —
+  until it can, and `--text-soft`'s alpha is solved for rather than fixed. All
+  140 palette/polarity combinations pass; a fixed alpha failed 88 of them.
+- **The page ships fully styled.** `home.css` carries a real palette
+  ({MetBrewer} Hiroshige) as its defaults, so the homepage is designed before
+  any JavaScript runs and stays that way if none does. Transitions only switch
+  on after the first palette lands, so there's no crossfade out of the defaults.
+
+Earlier explorations of other directions are in `mocks/`.
 
 ## Arcade mode
 

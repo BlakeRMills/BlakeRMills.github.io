@@ -1,0 +1,167 @@
+/* ==========================================================================
+   Homepage — "Recolour"
+   Layers over site.css. The palette engine (js/palette-home.js) rewrites the
+   same custom properties site.css already uses, so the shared header, footer
+   and buttons recolour along with the page rather than being restyled here.
+
+   The defaults below are a real palette ({MetBrewer} Hiroshige), so the page
+   is fully designed before any JavaScript runs — and stays that way if none
+   ever does. `:root:root` is deliberate: it matches the specificity of
+   site.css's dark-mode block and wins by being later.
+   ========================================================================== */
+
+:root:root {
+  --paper:       #1e466e;
+  --surface:     #376795;
+  --surface-alt: #528fad;
+  --line:        rgba(255,246,235,.26);
+  --text:        #fff6eb;
+  --text-soft:   rgba(255,246,235,.78);
+  --accent:      #ffd06f;
+  --accent-text: #ffd06f;
+  --footer-bg:   #163a5c;
+  --footer-text: #fff6eb;
+  --mono: ui-monospace, "SF Mono", SFMono-Regular, Menlo, monospace;
+}
+
+/* The recolour itself. Two things matter here:
+   - the header must ease at the same rate as the body, or it snaps to the new
+     palette while the page is still crossfading and the two disagree;
+   - transitions only switch on once the first palette has landed (.is-ready),
+     so the page doesn't visibly crossfade out of its baked-in defaults while
+     palettes.json is still in flight. */
+body.home.is-ready,
+body.home.is-ready .site-header,
+body.home.is-ready .site-footer,
+body.home.is-ready .home-card,
+body.home.is-ready .home-stat,
+body.home.is-ready .home-swatches > button {
+  transition: background-color .85s cubic-bezier(.4,0,.2,1),
+              color .85s cubic-bezier(.4,0,.2,1),
+              border-color .85s cubic-bezier(.4,0,.2,1);
+}
+
+body.home { background: var(--paper); }
+
+/* ------------------------------------------------------------------ hero */
+
+.home-hero {
+  min-height: calc(100svh - 62px);
+  display: flex; flex-direction: column; justify-content: center;
+  padding-block: clamp(3rem, 9vw, 6rem) clamp(2rem, 5vw, 3rem);
+}
+.home-kicker {
+  font-family: var(--mono); font-size: clamp(.68rem, 1.25vw, .82rem);
+  letter-spacing: .3em; text-transform: uppercase;
+  color: var(--text-soft); margin: 0 0 clamp(1.4rem, 4vw, 2.4rem);
+}
+.home-title {
+  font-family: var(--display); font-weight: 700; text-transform: uppercase;
+  font-size: clamp(3rem, 14vw, 12rem); line-height: .82; letter-spacing: -.02em;
+  margin: 0; color: var(--text);
+}
+.home-title span { display: block; }
+.home-title .is-thin { font-weight: 300; color: var(--accent-text); }
+
+.home-rule { height: 2px; background: var(--text); opacity: .85; border: 0; margin: clamp(2rem,5vw,3rem) 0 1rem; }
+
+/* A hairline so the strip still reads as a block when one of its swatches is
+   the same colour as the page ground — which it is, on a pale palette. */
+.home-swatches {
+  display: flex; height: clamp(52px, 7vw, 86px);
+  border-radius: 3px; overflow: hidden;
+  box-shadow: inset 0 0 0 1px var(--line);
+}
+.home-swatches > button {
+  flex: 1; position: relative; border: 0; padding: 0; cursor: pointer;
+  font: inherit; color: inherit; transition: flex-grow .3s ease;
+}
+.home-swatches > button:hover,
+.home-swatches > button:focus-visible { flex-grow: 1.45; }
+.home-swatches b {
+  position: absolute; left: .4rem; bottom: .3rem;
+  font-family: var(--mono); font-size: .58rem; font-weight: 500; letter-spacing: .01em;
+  opacity: 0; transition: opacity .2s; white-space: nowrap;
+}
+.home-swatches > button:hover b,
+.home-swatches > button:focus-visible b { opacity: .95; }
+
+.home-strip-meta {
+  display: flex; flex-wrap: wrap; gap: .4rem 1.2rem; margin-top: .7rem;
+  font-family: var(--mono); font-size: .7rem; letter-spacing: .12em;
+  text-transform: uppercase; color: var(--text-soft);
+}
+.home-strip-meta .spacer { margin-left: auto; }
+.home-shuffle {
+  font: inherit; font-family: var(--mono); font-size: .7rem; letter-spacing: .12em;
+  text-transform: uppercase; cursor: pointer; padding: .3rem .8rem; border-radius: 99px;
+  background: transparent; color: var(--accent-text);
+  border: 1px solid color-mix(in srgb, var(--accent) 55%, transparent);
+}
+.home-shuffle:hover { background: var(--accent); color: var(--paper); border-color: var(--accent); }
+
+/* ----------------------------------------------------------------- blocks */
+
+.home-section { padding-block: clamp(4rem, 11vw, 8rem); }
+/* Only hide these when scripting is on — otherwise there is nothing to reveal
+   them and the page reads as empty. */
+.js .home-reveal { opacity: 0; transform: translateY(24px); transition: opacity .7s ease, transform .7s cubic-bezier(.2,.7,.3,1); }
+.js .home-reveal.is-in { opacity: 1; transform: none; }
+
+.home-two { display: grid; gap: clamp(2rem, 6vw, 4.5rem); align-items: center; }
+@media (min-width: 900px) { .home-two { grid-template-columns: 1.1fr .9fr; } }
+.home-lead {
+  font-size: clamp(1.25rem, 2.7vw, 2.1rem); line-height: 1.32; font-weight: 300;
+  margin: 0 0 1.3rem; color: var(--text);
+}
+.home-lead em { font-style: normal; color: var(--accent-text); }
+.home-body { color: var(--text-soft); max-width: 46ch; line-height: 1.75; margin: 0 0 1.8rem; }
+.home-portrait {
+  width: 100%; max-width: 420px; justify-self: center; border-radius: 3px;
+  filter: grayscale(1) contrast(1.06); mix-blend-mode: luminosity;
+}
+
+.home-h2 {
+  font-family: var(--display); font-weight: 700; text-transform: uppercase;
+  font-size: clamp(2rem, 6.5vw, 5rem); line-height: .9; letter-spacing: -.01em;
+  margin: 0 0 clamp(2rem, 5vw, 3rem); color: var(--text);
+}
+
+/* numbers */
+.home-stats { display: grid; gap: 1px; background: var(--line); border: 1px solid var(--line); }
+@media (min-width: 640px) { .home-stats { grid-template-columns: repeat(4, 1fr); } }
+.home-stat { background: var(--paper); padding: clamp(1.2rem, 3vw, 2rem); }
+.home-stat dt {
+  font-family: var(--mono); font-size: .68rem; letter-spacing: .16em;
+  text-transform: uppercase; color: var(--text-soft); margin: 0 0 .5rem;
+}
+.home-stat dd {
+  font-family: var(--display); font-weight: 700; font-size: clamp(2rem, 5vw, 3.4rem);
+  line-height: 1; margin: 0; color: var(--accent-text);
+}
+
+/* work */
+.home-work { display: grid; gap: 1px; background: var(--line); border: 1px solid var(--line); }
+@media (min-width: 760px) { .home-work { grid-template-columns: repeat(3, 1fr); } }
+.home-card {
+  background: var(--paper); padding: clamp(1.3rem, 3vw, 2rem);
+  display: flex; flex-direction: column; min-height: 230px;
+  text-decoration: none; color: inherit;
+}
+.home-card:hover { background: color-mix(in srgb, var(--text) 9%, var(--paper)); color: inherit; }
+.home-card .num { font-family: var(--mono); font-size: .68rem; letter-spacing: .18em; color: var(--text-soft); }
+.home-card h3 {
+  font-family: var(--display); font-weight: 600; font-size: clamp(1.25rem, 2.4vw, 1.8rem);
+  margin: .7rem 0 .45rem; color: var(--text);
+}
+.home-card p { color: var(--text-soft); font-size: .93rem; line-height: 1.6; margin: 0 0 1.2rem; }
+.home-chips { display: flex; height: 6px; border-radius: 99px; overflow: hidden; margin-top: auto; }
+.home-chips i { flex: 1; }
+
+.home-cta { display: flex; flex-wrap: wrap; gap: .9rem; align-items: center; }
+
+@media (prefers-reduced-motion: reduce) {
+  body.home, body.home *, .home-reveal { transition: none !important; }
+  .js .home-reveal { opacity: 1; transform: none; }
+  .home-swatches > button:hover { flex-grow: 1; }
+}
