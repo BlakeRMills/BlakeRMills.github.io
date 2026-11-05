@@ -118,6 +118,17 @@
     border-radius:99px; padding:.4rem .8rem; transition:.2s;
   }
   .palbar button:hover{border-color:var(--accent); color:var(--accent)}
+  .palbar select{
+    font:inherit; text-transform:inherit; letter-spacing:inherit; cursor:pointer;
+    border:1px solid var(--line); background:rgba(10,16,22,.6); color:var(--paper);
+    border-radius:99px; padding:.4rem 1.6rem .4rem .8rem; transition:.2s;
+    -webkit-appearance:none; appearance:none;
+    background-image:linear-gradient(45deg,transparent 50%,currentColor 50%),linear-gradient(135deg,currentColor 50%,transparent 50%);
+    background-position:right 1rem center,right .75rem center;
+    background-size:4px 4px,4px 4px; background-repeat:no-repeat;
+  }
+  .palbar select:hover{border-color:var(--accent); color:var(--accent)}
+  .palbar select option{background:#0a1016; color:#f6f2ea}
   @media(max-width:620px){
     .palbar{gap:.6rem; padding:.45rem .45rem .45rem .7rem; font-size:.62rem}
     .palbar .pkg{display:none}
@@ -184,6 +195,7 @@
   <a class="nm" data-nm href="../momacolors.html">Panton</a>
   <span class="chips" data-chips aria-hidden="true"></span>
   <button type="button" data-shuffle>Shuffle</button>
+  <select data-art aria-label="Background artwork"></select>
 </div>
 
 <script>
@@ -195,9 +207,52 @@
   var hint = document.querySelector("[data-hint]");
   var W = 0, H = 0, dpr = 1;
 
-  /* The original field, kept as the default; ?wave=panton draws the tangent-arc
-     ribbons instead, so the two can be compared without swapping files. */
-  var MODE = new URLSearchParams(location.search).get("wave") === "panton" ? "panton" : "arcs";
+  /* Five backgrounds behind the same page, so they can be compared without
+     swapping files. Each carries its own scrim settings, because they differ
+     enormously in how much of the frame they cover and how bright they sit:
+     the same ramp that quietens a sparse one turns a dense one to mud.
+       base  under the name
+       ramp  added across the first screen of scroll
+       cap   as dark as it ever gets */
+  var ART = {
+    arcs:    { label: "Arcs \u00b7 original",      base: .34, ramp: .46, cap: .80 },
+    panton:  { label: "Panton \u00b7 wave",        base: .12, ramp: .58, cap: .90 },
+    homage:  { label: "Albers \u00b7 homage",      base: .30, ramp: .48, cap: .84 },
+    constel: { label: "Albers \u00b7 constellation", base: .10, ramp: .42, cap: .70 },
+    glory:   { label: "Tiepolo \u00b7 glorification", base: .18, ramp: .48, cap: .82 }
+  };
+  var qs = new URLSearchParams(location.search);
+  var MODE = qs.get("art") || (qs.get("wave") === "panton" ? "panton" : "") || "arcs";
+  if (!ART[MODE]) MODE = "arcs";
+
+  var artSel = document.querySelector("[data-art]");
+  artSel.innerHTML = Object.keys(ART).map(function(k){
+    return '<option value="' + k + '"' + (k === MODE ? " selected" : "") + ">" + ART[k].label + "</option>";
+  }).join("");
+  artSel.addEventListener("change", function(){
+    MODE = ART[artSel.value] ? artSel.value : "arcs";
+    var u = new URL(location.href);
+    u.searchParams.set("art", MODE);
+    u.searchParams.delete("wave");
+    history.replaceState(null, "", u);
+    applyPalette(pal);            // re-derives the scrim for the new artwork
+    draw();
+  });
+
+  /* A small deterministic generator, so a layout that is scattered on purpose
+     is still the same scatter on every frame and every reload. */
+  function rng(seed){
+    var x = seed >>> 0;
+    return function(){
+      x ^= x << 13; x >>>= 0;
+      x ^= x >> 17;
+      x ^= x << 5;  x >>>= 0;
+      return x / 4294967296;
+    };
+  }
+  function hash2(a, b){
+    return ((a * 73856093) ^ (b * 19349663) ^ 0x9e3779b9) >>> 0;
+  }
 
   /* Every number that shapes the field. Each length is a fraction of the
      wavelength, so the proportions hold at any viewport size. */
@@ -274,8 +329,7 @@
     // A pale palette puts near-white bands behind the name; lean on the flat
     // scrim in that case rather than desaturating the artwork.
     var meanLum = p.colors.reduce(function(a,c){ return a + lum(c); }, 0) / p.colors.length;
-    baseVeil = Math.min(.48, .12 + Math.max(0, meanLum - .45) * 1.4);
-    if (MODE === "arcs") baseVeil = Math.max(baseVeil, .34);
+    baseVeil = Math.max(ART[MODE].base, Math.min(.48, .12 + Math.max(0, meanLum - .45) * 1.4));
     document.documentElement.style.setProperty("--veil", baseVeil.toFixed(3));
 
     var n = Math.min(6, ordered.length);
@@ -484,8 +538,269 @@
     }
   }
 
+  /* ---------- Josef Albers · Homage to the Square ---------- */
+  /* Albers' format is four squares on a ten-unit field, each centred left to
+     right but sitting low: the margin below a square is half the margin at its
+     sides, which leaves three times as much room above as below. That
+     displacement is the picture. Centre them and the whole thing dies — the
+     colours stop pressing on each other and you get a bullseye.
+
+     The palette is sampled at a stride rather than in order, so neighbouring
+     squares are far apart in the ramp. Adjacent steps of a sequential palette
+     are nearly the same colour, and the point of a Homage is what two colours
+     do to each other across an edge. */
+  var HOMAGE_W = [1, .78, .56, .34];
+
+  function homageTile(x, y, S, seed, swell){
+    var cols = pal.colors, n = cols.length;
+    var base = seed % n;
+    var stride = 1 + ((seed >> 9) % Math.max(1, n - 2));
+    for (var k = 0; k < 4; k++){
+      var w = k ? HOMAGE_W[k] * (1 + swell * .08) : HOMAGE_W[k];
+      var side = (1 - w) / 2;
+      var below = side / 2;
+      ctx.fillStyle = cols[(base + k * stride) % n];
+      ctx.fillRect(x + side * S, y + (1 - below - w) * S, w * S, w * S);
+    }
+  }
+
+  function drawHomage(){
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.fillStyle = ground;
+    ctx.fillRect(0,0,W,H);
+
+    var S = Math.max(190 * dpr, Math.min(W, H) / 2.7);
+    var step = S * 1.15;
+    var nx = Math.ceil(W / step) + 1;
+    var ny = Math.ceil(H / step) + 2;
+    var x0 = (W - nx * step) / 2 + (step - S) / 2;
+    var drift = ((scrollPx * dpr * .20 + idle * .25) % step + step) % step;
+
+    for (var r = -1; r < ny; r++){
+      for (var c = 0; c < nx; c++){
+        var tx = x0 + c * step;
+        var ty = r * step - drift;
+        var swell = 0;
+        if (pointer.x > -9000){
+          var dx = (tx + S / 2 - pointer.x) / (S * .95);
+          var dy = (ty + S / 2 - pointer.y) / (S * .95);
+          swell = Math.exp(-(dx * dx + dy * dy));
+        }
+        homageTile(tx, ty, S, hash2(r + 97, c + 31), swell);
+      }
+    }
+  }
+
+  /* ---------- Josef Albers · Structural Constellations ---------- */
+  /* Parallelograms on three isometric axes, stroked and never filled. The
+     engravings read as solids that cannot exist precisely because the bars
+     just cross: with no filled face, no edge ever says which bar is in front,
+     so the eye keeps re-reading the junction. Shade one face and the illusion
+     collapses into an ordinary box, which is why the stroke stays uniform and
+     the ground shows straight through. */
+  var ISO = [[.8660, -.5], [.8660, .5], [0, 1]];
+
+  function beam(x, y, ai, bi, len, wid){
+    var A = ISO[ai], B = ISO[bi];
+    var q = new Path2D();
+    q.moveTo(x, y);
+    q.lineTo(x + A[0] * len, y + A[1] * len);
+    q.lineTo(x + A[0] * len + B[0] * wid, y + A[1] * len + B[1] * wid);
+    q.lineTo(x + B[0] * wid, y + B[1] * wid);
+    q.closePath();
+    ctx.stroke(q);
+  }
+
+  function drawConstellation(){
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.fillStyle = ground;
+    ctx.fillRect(0,0,W,H);
+
+    var ordered = sortByLum(pal.colors);
+    var ink = ordered[ordered.length - 1];
+    var alt = ordered[Math.max(0, ordered.length - 3)];
+
+    var T = Math.max(300 * dpr, Math.min(W, H) / 1.9);
+    var unit = T / 9;
+    ctx.lineWidth = Math.max(1.1 * dpr, unit * .055);
+    ctx.lineJoin = "miter";
+
+    // the lattice slides along one of its own axes, so the drift never cuts
+    // across the geometry
+    var d  = scrollPx * dpr * .26 + idle * .30;
+    var ox = ((d * .8660) % T + T) % T;
+    var oy = ((d * .5) % T + T) % T;
+    var nx = Math.ceil(W / T) + 2;
+    var ny = Math.ceil(H / T) + 2;
+
+    for (var r = -1; r < ny; r++){
+      for (var c = -1; c < nx; c++){
+        var R = rng(hash2(r + 11, c + 7) || 1);
+        var bx = c * T + ox, by = r * T + oy;
+        var count = 5 + Math.floor(R() * 3);
+        for (var i = 0; i < count; i++){
+          var px = bx + R() * T * .76;
+          var py = by + R() * T * .76;
+          var ai = Math.floor(R() * 3);
+          var bi = (ai + 1 + Math.floor(R() * 2)) % 3;
+          ctx.strokeStyle = R() < .24 ? alt : ink;
+          beam(px, py, ai, bi, unit * (2 + R() * 4), unit * (1 + R() * 2.2));
+        }
+      }
+    }
+    ctx.lineJoin = "round";
+  }
+
+  /* ---------- Tiepolo · The Glorification of the Barbaro Family ---------- */
+  /* A ceiling read from below. The light sits high and the middle is left
+     open — the whole composition is a hole in the roof — with the cloud mass
+     pushed out to the edges and everything receding upward. Layers scale up
+     and fade as you scroll, so scrolling reads as rising into it rather than
+     panning across it.
+
+     Each puff is drawn twice: a dark pass offset down and right, then the lit
+     pass above it. That one offset is all the volume there is. A single flat
+     blob reads as fog, not cloud. */
+  function rgba(h, a){
+    var c = rgb(h);
+    return "rgba(" + c[0] + "," + c[1] + "," + c[2] + "," + a.toFixed(3) + ")";
+  }
+
+  /* An irregular closed silhouette, smoothed through the midpoints of a ring of
+     noisy radii. Stacked radial gradients were the obvious way to build cloud
+     and it was wrong twice over: a radial gradient reads as a disc however
+     many you overlap, and it has no up or down, so nothing ever looked lit.
+     A real shape taking a vertical gradient — bright along the top, falling to
+     the ground colour underneath — is what reads as mass catching light from
+     above. */
+  function cloudPath(cx, cy, rx, ry, R){
+    var N = 16, pts = [];
+    var p1 = R() * 6.283, p2 = R() * 6.283, p3 = R() * 6.283;
+    for (var i = 0; i < N; i++){
+      var t = i / N * 6.283;
+      var k = 1 + .24 * Math.sin(3 * t + p1) + .15 * Math.sin(5 * t + p2) + .09 * Math.sin(8 * t + p3);
+      pts.push([cx + Math.cos(t) * rx * k, cy + Math.sin(t) * ry * k]);
+    }
+    ctx.beginPath();
+    var last = pts[N - 1], first = pts[0];
+    ctx.moveTo((last[0] + first[0]) / 2, (last[1] + first[1]) / 2);
+    for (i = 0; i < N; i++){
+      var a = pts[i], b = pts[(i + 1) % N];
+      ctx.quadraticCurveTo(a[0], a[1], (a[0] + b[0]) / 2, (a[1] + b[1]) / 2);
+    }
+    ctx.closePath();
+  }
+
+  function drawGlory(){
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.filter = "none";
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = ground;
+    ctx.fillRect(0,0,W,H);
+
+    var ordered = sortByLum(pal.colors);
+    var deep  = ordered[0];
+    var mid   = ordered[Math.floor(ordered.length / 2)];
+    var warm  = ordered[Math.max(0, ordered.length - 2)];
+    var light = ordered[ordered.length - 1];
+    var lx = W * .5, ly = H * .24;
+    var unit = Math.min(W, H);
+
+    // the opening
+    var sky = ctx.createRadialGradient(lx, ly, 0, lx, ly, Math.max(W, H) * .72);
+    sky.addColorStop(0,   rgba(light, .55));
+    sky.addColorStop(.13, rgba(light, .28));
+    sky.addColorStop(.38, rgba(mid,   .17));
+    sky.addColorStop(1,   rgba(deep,    0));
+    ctx.fillStyle = sky;
+    ctx.fillRect(0,0,W,H);
+
+    /* Light thrown off the apex. A glorification is organised around where the
+       light comes from, and a bloom on its own just looks like a lens. */
+    var spin = idle * .00035 + scrollPx * dpr * .00012;
+    var rays = 11, reach = Math.max(W, H) * 1.15;
+    for (var k = 0; k < rays; k++){
+      var a0 = (k / rays) * 6.283 + spin;
+      var wdt = .052 + (k % 3) * .018;
+      var rg = ctx.createLinearGradient(lx, ly, lx + Math.cos(a0) * reach, ly + Math.sin(a0) * reach);
+      rg.addColorStop(0,   rgba(light, .17));
+      rg.addColorStop(.35, rgba(warm,  .07));
+      rg.addColorStop(1,   rgba(warm,    0));
+      ctx.fillStyle = rg;
+      ctx.beginPath();
+      ctx.moveTo(lx, ly);
+      ctx.lineTo(lx + Math.cos(a0 - wdt) * reach, ly + Math.sin(a0 - wdt) * reach);
+      ctx.lineTo(lx + Math.cos(a0 + wdt) * reach, ly + Math.sin(a0 + wdt) * reach);
+      ctx.closePath();
+      ctx.fill();
+    }
+
+    /* Three layers rising and recycling, so scrolling reads as going up into
+       it rather than across it. Clouds stay out on a ring: the middle of a
+       ceiling like this is the opening, and it is where the name sits. */
+    var layers = 3, per = 7;
+    var prog = scrollPx * dpr * .00030 + idle * .0009;
+
+    for (var L = 0; L < layers; L++){
+      var z = (((L / layers) + prog) % 1 + 1) % 1;
+      var scale = .42 + z * 1.4;
+      var fade = Math.min(1, z / .18) * Math.min(1, (1 - z) / .24);
+      if (fade <= .01) continue;
+
+      var R = rng(hash2(L + 3, 17) || 1);
+      for (var i = 0; i < per; i++){
+        var ang = (i / per) * 6.283 + R() * .5;
+        var rad = (.62 + R() * .24) * scale;
+        var cx = lx + Math.cos(ang) * rad * W * .74;
+        var cy = ly + Math.sin(ang) * rad * H * .9;
+        var rx = (.17 + R() * .11) * unit * scale;
+        var ry = rx * (.52 + R() * .16);          // clouds run wider than they are tall
+        var a  = fade * (.62 + R() * .22);
+        var seed = R() * 1000;
+
+        if (cx < -rx * 2 || cx > W + rx * 2 || cy < -ry * 3 || cy > H + ry * 3) continue;
+
+        // the mass sitting under its own lit top
+        ctx.save();
+        ctx.globalAlpha = a * .62;
+        ctx.filter = "blur(" + (ry * .20).toFixed(1) + "px)";
+        cloudPath(cx + rx * .05, cy + ry * .34, rx * .96, ry * .9, rng(seed | 1));
+        ctx.fillStyle = deep;
+        ctx.fill();
+        ctx.restore();
+
+        ctx.save();
+        ctx.globalAlpha = a;
+        ctx.filter = "blur(" + (ry * .11).toFixed(1) + "px)";
+        var g = ctx.createLinearGradient(0, cy - ry * 1.3, 0, cy + ry * 1.25);
+        g.addColorStop(0,   rgba(light, 1));
+        g.addColorStop(.34, rgba(warm,  1));
+        g.addColorStop(.68, rgba(mid,   1));
+        g.addColorStop(1,   rgba(deep,  1));
+        cloudPath(cx, cy, rx, ry, rng(seed | 1));
+        ctx.fillStyle = g;
+        ctx.fill();
+        ctx.restore();
+      }
+    }
+
+    ctx.filter = "none";
+    ctx.globalAlpha = 1;
+
+    // the opening again, over the mass, so the apex stays the brightest thing
+    var bloom = ctx.createRadialGradient(lx, ly, 0, lx, ly, unit * .5);
+    bloom.addColorStop(0, rgba(light, .32));
+    bloom.addColorStop(1, rgba(light, 0));
+    ctx.fillStyle = bloom;
+    ctx.fillRect(0,0,W,H);
+  }
+
   function draw(){
-    if (MODE === "panton") drawPanton(); else drawArcs();
+    if (MODE === "panton") drawPanton();
+    else if (MODE === "homage") drawHomage();
+    else if (MODE === "constel") drawConstellation();
+    else if (MODE === "glory") drawGlory();
+    else drawArcs();
   }
 
   function frame(){
@@ -513,8 +828,8 @@
     var t = Math.min(1, scrollY / innerHeight);
     herotype.style.transform = "translate3d(0," + (-scrollY * .3).toFixed(1) + "px,0) scale(" + (1 - t * .07).toFixed(3) + ")";
     herotype.style.opacity = String(1 - t);
-    var ceiling = MODE === "arcs" ? .80 : .90;
-    document.documentElement.style.setProperty("--veil", Math.min(ceiling, baseVeil + t * .58).toFixed(3));
+    document.documentElement.style.setProperty("--veil",
+      Math.min(ART[MODE].cap, baseVeil + t * ART[MODE].ramp).toFixed(3));
     hint.style.opacity = t > .1 ? "0" : "";
     if (reduce) draw();
     queued = false;
