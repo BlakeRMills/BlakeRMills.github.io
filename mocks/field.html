@@ -219,13 +219,26 @@
     panton:  { label: "Panton \u00b7 wave",        base: .12, ramp: .58, cap: .90 },
     homage:  { label: "Albers \u00b7 homage",      base: .30, ramp: .48, cap: .84 },
     constel: { label: "Albers \u00b7 constellation", base: .10, ramp: .42, cap: .70 },
-    glory:   { label: "Tiepolo \u00b7 glorification", base: .18, ramp: .48, cap: .82 }
+    glory:   { label: "Tiepolo \u00b7 glorification", base: .30, ramp: .44, cap: .82, own: true }
   };
+  /* The one background that does not run on his packages. Those palettes are
+     built to separate categories, so every one of them is even — and a ceiling
+     is the opposite of even: almost white at the opening, and nearly black at
+     the corners, with the whole range spent on the way out. This is that
+     range, centre first. */
+  var TIEPOLO = {
+    ramp: ["#fffdf4","#fbe3ad","#f0b183","#d4836c","#8f6186","#54528c","#2e3872","#171e4a","#0a0e2c"],
+    glow: "#fffdf6",
+    gold: "#f2c57c",
+    pit:  "#06081a"
+  };
+
   var qs = new URLSearchParams(location.search);
   var MODE = qs.get("art") || (qs.get("wave") === "panton" ? "panton" : "") || "arcs";
   if (!ART[MODE]) MODE = "arcs";
 
   var artSel = document.querySelector("[data-art]");
+  var shuffleBtn = document.querySelector("[data-shuffle]");
   artSel.innerHTML = Object.keys(ART).map(function(k){
     return '<option value="' + k + '"' + (k === MODE ? " selected" : "") + ">" + ART[k].label + "</option>";
   }).join("");
@@ -357,6 +370,25 @@
       return '<i style="background:' + c + '"></i>';
     }).join("");
 
+    if (ART[MODE].own){
+      ground = TIEPOLO.pit;
+      document.documentElement.style.setProperty("--accent", TIEPOLO.gold);
+      document.querySelector("[data-pkg]").textContent = "Own palette";
+      nm.textContent = "Barbaro";
+      nm.removeAttribute("href");
+      document.querySelector("[data-chips]").innerHTML =
+        TIEPOLO.ramp.slice().reverse().map(function(c){
+          return '<i style="background:' + c + '"></i>';
+        }).join("");
+      shuffleBtn.disabled = true;
+      shuffleBtn.style.opacity = ".4";
+      shuffleBtn.style.cursor = "default";
+    } else {
+      shuffleBtn.disabled = false;
+      shuffleBtn.style.opacity = "";
+      shuffleBtn.style.cursor = "";
+    }
+
     onScroll();
     if (reduce) draw();
   }
@@ -368,7 +400,7 @@
     do { p = all[Math.floor(Math.random() * all.length)]; } while (all.length > 1 && p.name === pal.name);
     applyPalette(p);
   }
-  document.querySelector("[data-shuffle]").addEventListener("click", shuffle);
+  shuffleBtn.addEventListener("click", shuffle);
 
   fetch("../assets/data/palettes.json").then(function(r){ return r.json(); }).then(function(d){
     Object.keys(d).forEach(function(pkg){
@@ -666,27 +698,32 @@
     return "rgba(" + c[0] + "," + c[1] + "," + c[2] + "," + a.toFixed(3) + ")";
   }
 
-  /* An irregular closed silhouette, smoothed through the midpoints of a ring of
-     noisy radii. Stacked radial gradients were the obvious way to build cloud
-     and it was wrong twice over: a radial gradient reads as a disc however
-     many you overlap, and it has no up or down, so nothing ever looked lit.
-     A real shape taking a vertical gradient — bright along the top, falling to
-     the ground colour underneath — is what reads as mass catching light from
-     above. */
-  function cloudPath(cx, cy, rx, ry, R){
-    var N = 16, pts = [];
-    var p1 = R() * 6.283, p2 = R() * 6.283, p3 = R() * 6.283;
-    for (var i = 0; i < N; i++){
-      var t = i / N * 6.283;
-      var k = 1 + .24 * Math.sin(3 * t + p1) + .15 * Math.sin(5 * t + p2) + .09 * Math.sin(8 * t + p3);
-      pts.push([cx + Math.cos(t) * rx * k, cy + Math.sin(t) * ry * k]);
-    }
-    ctx.beginPath();
-    var last = pts[N - 1], first = pts[0];
-    ctx.moveTo((last[0] + first[0]) / 2, (last[1] + first[1]) / 2);
-    for (i = 0; i < N; i++){
-      var a = pts[i], b = pts[(i + 1) % N];
-      ctx.quadraticCurveTo(a[0], a[1], (a[0] + b[0]) / 2, (a[1] + b[1]) / 2);
+  /* ---------- Tiepolo · The Glorification of the Barbaro Family ---------- */
+  /* Not an attempt at cloud. Two earlier passes chased painted cloud with
+     stacked radial gradients and then with lit silhouettes, and both landed
+     somewhere between fog and bokeh — the softer it got, the less it read.
+
+     So: hard edges and flat fills. A ceiling like this is really one device,
+     a hole in the roof, and it works by making you read distance without any
+     shading at all. Each shelf is the whole frame minus a scalloped opening,
+     filled flat, painted far to near; what you see of any shelf is the band
+     between its own opening and the next one's. Eight of them stacked give a
+     throat receding to the light, and the only cue is that the openings get
+     bigger and the colour gets colder. */
+  function scallop(cx, cy, rx, ry, lobes, phase){
+    var N = Math.max(96, lobes * 12);
+    for (var i = 0; i <= N; i++){
+      var t = i / N * 6.283185;
+      // |cos| to a fractional power: round bumps meeting in a cusp, which is
+      // the shorthand every painted cloud edge uses
+      var b = Math.pow(Math.abs(Math.cos(lobes * t / 2 + phase)), .55);
+      // a slow second harmonic on top, or every bump is the same bump and the
+      // whole thing turns into a daisy
+      var b2 = .5 + .5 * Math.cos(3 * t + phase * 2.3);
+      var k = .87 + .15 * b - .07 * b2;
+      var x = cx + Math.cos(t) * rx * k;
+      var y = cy + Math.sin(t) * ry * k;
+      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
     }
     ctx.closePath();
   }
@@ -695,104 +732,130 @@
     ctx.setTransform(1,0,0,1,0,0);
     ctx.filter = "none";
     ctx.globalAlpha = 1;
-    ctx.fillStyle = ground;
-    ctx.fillRect(0,0,W,H);
 
-    var ordered = sortByLum(pal.colors);
-    var deep  = ordered[0];
-    var mid   = ordered[Math.floor(ordered.length / 2)];
-    var warm  = ordered[Math.max(0, ordered.length - 2)];
-    var light = ordered[ordered.length - 1];
-    var lx = W * .5, ly = H * .24;
-    var unit = Math.min(W, H);
+    var ramp = TIEPOLO.ramp, nr = ramp.length;
+    var lx = W * .42, ly = H * .20;
+    var diag = Math.sqrt(W * W + H * H);
 
-    // the opening
-    var sky = ctx.createRadialGradient(lx, ly, 0, lx, ly, Math.max(W, H) * .72);
-    sky.addColorStop(0,   rgba(light, .55));
-    sky.addColorStop(.13, rgba(light, .28));
-    sky.addColorStop(.38, rgba(mid,   .17));
-    sky.addColorStop(1,   rgba(deep,    0));
+    var sky = ctx.createRadialGradient(lx, ly, 0, lx, ly, diag * .62);
+    sky.addColorStop(0,   TIEPOLO.glow);
+    sky.addColorStop(.08, ramp[1]);
+    sky.addColorStop(.26, ramp[3]);
+    sky.addColorStop(.58, ramp[6]);
+    sky.addColorStop(1,   TIEPOLO.pit);
     ctx.fillStyle = sky;
     ctx.fillRect(0,0,W,H);
 
-    /* Light thrown off the apex. A glorification is organised around where the
-       light comes from, and a bloom on its own just looks like a lens. */
-    var spin = idle * .00035 + scrollPx * dpr * .00012;
-    var rays = 11, reach = Math.max(W, H) * 1.15;
+    /* Hard wedges, no falloff. A soft bloom on its own just looks like a lens;
+       the thing that says the light is divine is that it is cut into rays. */
+    var spin = idle * .00038 + scrollPx * dpr * .00010;
+    var rays = 15;
+    ctx.save();
+    ctx.globalAlpha = .17;
+    ctx.fillStyle = TIEPOLO.glow;
     for (var k = 0; k < rays; k++){
-      var a0 = (k / rays) * 6.283 + spin;
-      var wdt = .052 + (k % 3) * .018;
-      var rg = ctx.createLinearGradient(lx, ly, lx + Math.cos(a0) * reach, ly + Math.sin(a0) * reach);
-      rg.addColorStop(0,   rgba(light, .17));
-      rg.addColorStop(.35, rgba(warm,  .07));
-      rg.addColorStop(1,   rgba(warm,    0));
-      ctx.fillStyle = rg;
+      var a0 = k / rays * 6.283185 + spin;
+      var wd = .026 + ((k * 7) % 5) * .013;
       ctx.beginPath();
       ctx.moveTo(lx, ly);
-      ctx.lineTo(lx + Math.cos(a0 - wdt) * reach, ly + Math.sin(a0 - wdt) * reach);
-      ctx.lineTo(lx + Math.cos(a0 + wdt) * reach, ly + Math.sin(a0 + wdt) * reach);
+      ctx.lineTo(lx + Math.cos(a0 - wd) * diag, ly + Math.sin(a0 - wd) * diag);
+      ctx.lineTo(lx + Math.cos(a0 + wd) * diag, ly + Math.sin(a0 + wd) * diag);
       ctx.closePath();
       ctx.fill();
     }
+    ctx.restore();
 
-    /* Three layers rising and recycling, so scrolling reads as going up into
-       it rather than across it. Clouds stay out on a ring: the middle of a
-       ceiling like this is the opening, and it is where the name sits. */
-    var layers = 3, per = 7;
-    var prog = scrollPx * dpr * .00030 + idle * .0009;
+    /* Banks of cloud sweeping out from the light, not rings around it.
+       Concentric openings were the first idea and they always read as a
+       rosette however much the centres were jittered — rotational symmetry
+       survives almost any amount of noise. Uneven anchors around an off-centre
+       apex break it, and that asymmetric diagonal sweep is what these ceilings
+       are actually composed on.
 
-    for (var L = 0; L < layers; L++){
-      var z = (((L / layers) + prog) % 1 + 1) % 1;
-      var scale = .42 + z * 1.4;
-      var fade = Math.min(1, z / .18) * Math.min(1, (1 - z) / .24);
+       Masses scale and travel outward as you scroll, so you rise through them,
+       and they are drawn far to near so the near ones cut the far ones off. */
+    var ANCH = [-2.62, -2.05, -1.22, -0.42, 0.48, 1.36, 2.38];
+    var LAYERS = 4, perLayer = 5;
+    var prog = scrollPx * dpr * .00032 + idle * .00085;
+    var unit = Math.min(W, H);
+
+    var banks = [];
+    for (var L = 0; L < LAYERS; L++){
+      banks.push({ z: (((L / LAYERS) + prog) % 1 + 1) % 1, L: L });
+    }
+    banks.sort(function(a, b){ return a.z - b.z; });
+
+    for (var bi = 0; bi < banks.length; bi++){
+      var z = banks[bi].z;
+      var scale = .34 + z * 1.7;
+      var fade = Math.min(1, z / .14) * Math.min(1, (1 - z) / .20);
       if (fade <= .01) continue;
 
-      var R = rng(hash2(L + 3, 17) || 1);
-      for (var i = 0; i < per; i++){
-        var ang = (i / per) * 6.283 + R() * .5;
-        var rad = (.62 + R() * .24) * scale;
-        var cx = lx + Math.cos(ang) * rad * W * .74;
-        var cy = ly + Math.sin(ang) * rad * H * .9;
-        var rx = (.17 + R() * .11) * unit * scale;
-        var ry = rx * (.52 + R() * .16);          // clouds run wider than they are tall
-        var a  = fade * (.62 + R() * .22);
-        var seed = R() * 1000;
+      var f = Math.pow(z, .62) * (nr - 1);
+      var lo = Math.floor(f);
+      var col = mix(ramp[lo], ramp[Math.min(nr - 1, lo + 1)], f - lo);
+      var lit = ramp[Math.max(0, lo - 2)];
 
-        if (cx < -rx * 2 || cx > W + rx * 2 || cy < -ry * 3 || cy > H + ry * 3) continue;
+      var R = rng(hash2(banks[bi].L + 5, 23) || 1);
+      for (var i = 0; i < perLayer; i++){
+        var ang = ANCH[(i * 2 + banks[bi].L) % ANCH.length] + (R() - .5) * .34;
+        var dist = (.50 + R() * .30) * scale;
+        var cx = lx + Math.cos(ang) * dist * W * .80;
+        var cy = ly + Math.sin(ang) * dist * H * .98;
+        var rr = (.26 + R() * .17) * unit * scale;
+        var ry = rr * (.62 + R() * .20);
+        var lobes = 9 + Math.floor(R() * 5);
+        var ph = R() * 6.283185;
 
-        // the mass sitting under its own lit top
+        if (cx < -rr * 1.6 || cx > W + rr * 1.6 || cy < -ry * 1.8 || cy > H + ry * 2.4) continue;
+
         ctx.save();
-        ctx.globalAlpha = a * .62;
-        ctx.filter = "blur(" + (ry * .20).toFixed(1) + "px)";
-        cloudPath(cx + rx * .05, cy + ry * .34, rx * .96, ry * .9, rng(seed | 1));
-        ctx.fillStyle = deep;
+        ctx.globalAlpha = fade;
+
+        /* A lighter copy, nudged toward the apex, with the flat one laid over
+           it: what survives is a lit rim on the side facing the light. Cheaper
+           than shading and it keeps every edge hard. */
+        var dx = lx - cx, dy = ly - cy;
+        var dl = Math.sqrt(dx * dx + dy * dy) || 1;
+        var rim = rr * .055;
+        ctx.beginPath();
+        scallop(cx + dx / dl * rim, cy + dy / dl * rim, rr, ry, lobes, ph);
+        ctx.fillStyle = lit;
         ctx.fill();
-        ctx.restore();
 
-        ctx.save();
-        ctx.globalAlpha = a;
-        ctx.filter = "blur(" + (ry * .11).toFixed(1) + "px)";
-        var g = ctx.createLinearGradient(0, cy - ry * 1.3, 0, cy + ry * 1.25);
-        g.addColorStop(0,   rgba(light, 1));
-        g.addColorStop(.34, rgba(warm,  1));
-        g.addColorStop(.68, rgba(mid,   1));
-        g.addColorStop(1,   rgba(deep,  1));
-        cloudPath(cx, cy, rx, ry, rng(seed | 1));
-        ctx.fillStyle = g;
+        ctx.beginPath();
+        scallop(cx, cy, rr, ry, lobes, ph);
+        ctx.fillStyle = col;
         ctx.fill();
         ctx.restore();
       }
     }
 
-    ctx.filter = "none";
-    ctx.globalAlpha = 1;
+    ctx.save();
+    ctx.globalAlpha = .085;
+    ctx.fillStyle = TIEPOLO.glow;
+    for (k = 0; k < rays; k++){
+      var a1 = k / rays * 6.283185 + spin;
+      var w1 = .020 + ((k * 7) % 5) * .011;
+      ctx.beginPath();
+      ctx.moveTo(lx, ly);
+      ctx.lineTo(lx + Math.cos(a1 - w1) * diag, ly + Math.sin(a1 - w1) * diag);
+      ctx.lineTo(lx + Math.cos(a1 + w1) * diag, ly + Math.sin(a1 + w1) * diag);
+      ctx.closePath();
+      ctx.fill();
+    }
+    ctx.restore();
 
-    // the opening again, over the mass, so the apex stays the brightest thing
-    var bloom = ctx.createRadialGradient(lx, ly, 0, lx, ly, unit * .5);
-    bloom.addColorStop(0, rgba(light, .32));
-    bloom.addColorStop(1, rgba(light, 0));
+    var bloom = ctx.createRadialGradient(lx, ly, 0, lx, ly, Math.min(W, H) * .42);
+    bloom.addColorStop(0, rgba(TIEPOLO.glow, .26));
+    bloom.addColorStop(1, rgba(TIEPOLO.glow, 0));
     ctx.fillStyle = bloom;
     ctx.fillRect(0,0,W,H);
+  }
+
+  function rgba(h, a){
+    var c = rgb(h);
+    return "rgba(" + c[0] + "," + c[1] + "," + c[2] + "," + a.toFixed(3) + ")";
   }
 
   function draw(){
