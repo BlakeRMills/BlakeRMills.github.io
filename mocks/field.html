@@ -108,6 +108,7 @@
     max-width:calc(100% - 2rem);
   }
   .palbar .pkg{opacity:.45}
+  .palbar .pkg, .palbar .nm{white-space:nowrap}
   .palbar .nm{text-decoration:none; border-bottom:1px solid transparent}
   .palbar .nm:hover{color:var(--accent); border-bottom-color:var(--accent)}
   .chips{display:flex; gap:2px}
@@ -130,9 +131,13 @@
   .palbar select:hover{border-color:var(--accent); color:var(--accent)}
   .palbar select option{background:#0a1016; color:#f6f2ea}
   @media(max-width:620px){
-    .palbar{gap:.6rem; padding:.45rem .45rem .45rem .7rem; font-size:.62rem}
-    .palbar .pkg{display:none}
-    .chips i{width:10px; height:10px}
+    /* with the picker in here too the bar no longer fits a phone, and nowrap
+       means it cannot spill onto a second line; the swatches are the one part
+       that is purely decorative, so they go */
+    .palbar{gap:.5rem; padding:.45rem .45rem .45rem .7rem; font-size:.62rem}
+    .palbar .pkg, .chips{display:none}
+    .palbar select{max-width:44vw; padding:.4rem 1.3rem .4rem .7rem}
+    .palbar button{padding:.4rem .7rem}
   }
 
   .hint{position:fixed; left:clamp(1.5rem,4vw,2.5rem); bottom:1.5rem; z-index:10;
@@ -219,7 +224,7 @@
     panton:  { label: "Panton \u00b7 wave",        base: .12, ramp: .58, cap: .90 },
     homage:  { label: "Albers \u00b7 homage",      base: .30, ramp: .48, cap: .84 },
     constel: { label: "Albers \u00b7 constellation", base: .10, ramp: .42, cap: .70 },
-    glory:   { label: "Tiepolo \u00b7 glorification", base: .30, ramp: .44, cap: .82, own: true }
+    glory:   { label: "Tiepolo \u00b7 glorification", base: .06, ramp: .70, cap: .84, own: true }
   };
   /* The one background that does not run on his packages. Those palettes are
      built to separate categories, so every one of them is even — and a ceiling
@@ -227,10 +232,14 @@
      the corners, with the whole range spent on the way out. This is that
      range, centre first. */
   var TIEPOLO = {
-    ramp: ["#fffdf4","#fbe3ad","#f0b183","#d4836c","#8f6186","#54528c","#2e3872","#171e4a","#0a0e2c"],
-    glow: "#fffdf6",
-    gold: "#f2c57c",
-    pit:  "#06081a"
+    /* Sampled off the scan rather than invented. The ceiling in your head is
+       vivid; a 1750 oil under two and a half centuries of varnish is not, and
+       the honest range is this quiet. */
+    ramp: ["#b7ae99","#b59a7b","#8c9a93","#b08c68","#a07c5d","#855e44","#704535","#282a2b"],
+    gold: "#c89a63",   // its warmest mid, lifted just enough to hold as link colour
+    pit:  "#14120f",
+    src:  "../assets/img/art/tiepolo-barbaro.webp?v=1",
+    href: "https://www.metmuseum.org/art/collection/search/437798"
   };
 
   var qs = new URLSearchParams(location.search);
@@ -366,6 +375,8 @@
     var nm = document.querySelector("[data-nm]");
     nm.textContent = p.name;
     nm.href = "../" + (p.pkg === "MoMAColors" ? "momacolors" : "metbrewer") + ".html";
+    nm.removeAttribute("target");
+    nm.removeAttribute("rel");
     document.querySelector("[data-chips]").innerHTML = ordered.map(function(c){
       return '<i style="background:' + c + '"></i>';
     }).join("");
@@ -373,9 +384,11 @@
     if (ART[MODE].own){
       ground = TIEPOLO.pit;
       document.documentElement.style.setProperty("--accent", TIEPOLO.gold);
-      document.querySelector("[data-pkg]").textContent = "Own palette";
-      nm.textContent = "Barbaro";
-      nm.removeAttribute("href");
+      document.querySelector("[data-pkg]").textContent = "Tiepolo \u00b7 ca. 1750";
+      nm.textContent = "The Met";
+      nm.href = TIEPOLO.href;
+      nm.target = "_blank";
+      nm.rel = "noopener";
       document.querySelector("[data-chips]").innerHTML =
         TIEPOLO.ramp.slice().reverse().map(function(c){
           return '<i style="background:' + c + '"></i>';
@@ -684,172 +697,61 @@
   }
 
   /* ---------- Tiepolo · The Glorification of the Barbaro Family ---------- */
-  /* A ceiling read from below. The light sits high and the middle is left
-     open — the whole composition is a hole in the roof — with the cloud mass
-     pushed out to the edges and everything receding upward. Layers scale up
-     and fade as you scroll, so scrolling reads as rising into it rather than
-     panning across it.
+  /* The painting itself, not a drawing of it. Three passes tried to generate
+     something painterly — stacked radial gradients, lit silhouettes, then flat
+     scalloped banks — and the flat one was the only honest result, because
+     canvas 2D makes vector shapes and vector shapes do not become oil by being
+     blurred. Brushwork, canvas weave and craquelure are not effects that can
+     be added; they are a photograph of a surface. So the work moves from
+     drawing to framing: pick where to stand under it, and move.
 
-     Each puff is drawn twice: a dark pass offset down and right, then the lit
-     pass above it. That one offset is all the volume there is. A single flat
-     blob reads as fog, not cloud. */
-  function rgba(h, a){
-    var c = rgb(h);
-    return "rgba(" + c[0] + "," + c[1] + "," + c[2] + "," + a.toFixed(3) + ")";
-  }
+     Met object 437798, CC0 Open Access. Credits in assets/img/art/CREDITS.md,
+     and the bar links the museum while this mode is up. */
+  var tiepolo = null, tiepoloState = 0;        // 0 idle, 1 loading, 2 ready, 3 failed
 
-  /* ---------- Tiepolo · The Glorification of the Barbaro Family ---------- */
-  /* Not an attempt at cloud. Two earlier passes chased painted cloud with
-     stacked radial gradients and then with lit silhouettes, and both landed
-     somewhere between fog and bokeh — the softer it got, the less it read.
-
-     So: hard edges and flat fills. A ceiling like this is really one device,
-     a hole in the roof, and it works by making you read distance without any
-     shading at all. Each shelf is the whole frame minus a scalloped opening,
-     filled flat, painted far to near; what you see of any shelf is the band
-     between its own opening and the next one's. Eight of them stacked give a
-     throat receding to the light, and the only cue is that the openings get
-     bigger and the colour gets colder. */
-  function scallop(cx, cy, rx, ry, lobes, phase){
-    var N = Math.max(96, lobes * 12);
-    for (var i = 0; i <= N; i++){
-      var t = i / N * 6.283185;
-      // |cos| to a fractional power: round bumps meeting in a cusp, which is
-      // the shorthand every painted cloud edge uses
-      var b = Math.pow(Math.abs(Math.cos(lobes * t / 2 + phase)), .55);
-      // a slow second harmonic on top, or every bump is the same bump and the
-      // whole thing turns into a daisy
-      var b2 = .5 + .5 * Math.cos(3 * t + phase * 2.3);
-      var k = .87 + .15 * b - .07 * b2;
-      var x = cx + Math.cos(t) * rx * k;
-      var y = cy + Math.sin(t) * ry * k;
-      if (i === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
-    }
-    ctx.closePath();
+  function ensureTiepolo(){
+    if (tiepoloState) return;
+    tiepoloState = 1;
+    var im = new Image();
+    im.onload = function(){ tiepolo = im; tiepoloState = 2; draw(); };
+    im.onerror = function(){ tiepoloState = 3; };
+    im.src = TIEPOLO.src;
   }
 
   function drawGlory(){
+    ensureTiepolo();
     ctx.setTransform(1,0,0,1,0,0);
     ctx.filter = "none";
     ctx.globalAlpha = 1;
-
-    var ramp = TIEPOLO.ramp, nr = ramp.length;
-    var lx = W * .42, ly = H * .20;
-    var diag = Math.sqrt(W * W + H * H);
-
-    var sky = ctx.createRadialGradient(lx, ly, 0, lx, ly, diag * .62);
-    sky.addColorStop(0,   TIEPOLO.glow);
-    sky.addColorStop(.08, ramp[1]);
-    sky.addColorStop(.26, ramp[3]);
-    sky.addColorStop(.58, ramp[6]);
-    sky.addColorStop(1,   TIEPOLO.pit);
-    ctx.fillStyle = sky;
+    ctx.fillStyle = ground;
     ctx.fillRect(0,0,W,H);
+    if (tiepoloState !== 2) return;            // its own ground until the file lands
 
-    /* Hard wedges, no falloff. A soft bloom on its own just looks like a lens;
-       the thing that says the light is divine is that it is cut into rays. */
-    var spin = idle * .00038 + scrollPx * dpr * .00010;
-    var rays = 15;
-    ctx.save();
-    ctx.globalAlpha = .17;
-    ctx.fillStyle = TIEPOLO.glow;
-    for (var k = 0; k < rays; k++){
-      var a0 = k / rays * 6.283185 + spin;
-      var wd = .026 + ((k * 7) % 5) * .013;
-      ctx.beginPath();
-      ctx.moveTo(lx, ly);
-      ctx.lineTo(lx + Math.cos(a0 - wd) * diag, ly + Math.sin(a0 - wd) * diag);
-      ctx.lineTo(lx + Math.cos(a0 + wd) * diag, ly + Math.sin(a0 + wd) * diag);
-      ctx.closePath();
-      ctx.fill();
-    }
-    ctx.restore();
+    var iw = tiepolo.naturalWidth, ih = tiepolo.naturalHeight;
 
-    /* Banks of cloud sweeping out from the light, not rings around it.
-       Concentric openings were the first idea and they always read as a
-       rosette however much the centres were jittered — rotational symmetry
-       survives almost any amount of noise. Uneven anchors around an off-centre
-       apex break it, and that asymmetric diagonal sweep is what these ceilings
-       are actually composed on.
+    /* Scroll pushes in and drifts up, toward the trumpet and the open sky: the
+       di sotto in sù reading, where the room keeps going and you are under it.
+       The scan is already cropped inside the painted oval, so the frame can
+       never come into shot and the offsets only need clamping to the edges. */
+    var t = Math.min(1, scrollPx / Math.max(1, innerHeight * 1.6));
+    var Z  = 1 + t * .44 + (reduce ? 0 : .012 * Math.sin(idle * .004));
+    var fx = .56 + t * .02;
+    var fy = .46 - t * .18;
 
-       Masses scale and travel outward as you scroll, so you rise through them,
-       and they are drawn far to near so the near ones cut the far ones off. */
-    var ANCH = [-2.62, -2.05, -1.22, -0.42, 0.48, 1.36, 2.38];
-    var LAYERS = 4, perLayer = 5;
-    var prog = scrollPx * dpr * .00032 + idle * .00085;
-    var unit = Math.min(W, H);
+    var scale = Math.max(W / iw, H / ih) * Z;
+    var dw = iw * scale, dh = ih * scale;
+    var ox = Math.min(0, Math.max(W - dw, W / 2 - fx * dw));
+    var oy = Math.min(0, Math.max(H - dh, H / 2 - fy * dh));
+    ctx.drawImage(tiepolo, ox, oy, dw, dh);
 
-    var banks = [];
-    for (var L = 0; L < LAYERS; L++){
-      banks.push({ z: (((L / LAYERS) + prog) % 1 + 1) % 1, L: L });
-    }
-    banks.sort(function(a, b){ return a.z - b.z; });
-
-    for (var bi = 0; bi < banks.length; bi++){
-      var z = banks[bi].z;
-      var scale = .34 + z * 1.7;
-      var fade = Math.min(1, z / .14) * Math.min(1, (1 - z) / .20);
-      if (fade <= .01) continue;
-
-      var f = Math.pow(z, .62) * (nr - 1);
-      var lo = Math.floor(f);
-      var col = mix(ramp[lo], ramp[Math.min(nr - 1, lo + 1)], f - lo);
-      var lit = ramp[Math.max(0, lo - 2)];
-
-      var R = rng(hash2(banks[bi].L + 5, 23) || 1);
-      for (var i = 0; i < perLayer; i++){
-        var ang = ANCH[(i * 2 + banks[bi].L) % ANCH.length] + (R() - .5) * .34;
-        var dist = (.50 + R() * .30) * scale;
-        var cx = lx + Math.cos(ang) * dist * W * .80;
-        var cy = ly + Math.sin(ang) * dist * H * .98;
-        var rr = (.26 + R() * .17) * unit * scale;
-        var ry = rr * (.62 + R() * .20);
-        var lobes = 9 + Math.floor(R() * 5);
-        var ph = R() * 6.283185;
-
-        if (cx < -rr * 1.6 || cx > W + rr * 1.6 || cy < -ry * 1.8 || cy > H + ry * 2.4) continue;
-
-        ctx.save();
-        ctx.globalAlpha = fade;
-
-        /* A lighter copy, nudged toward the apex, with the flat one laid over
-           it: what survives is a lit rim on the side facing the light. Cheaper
-           than shading and it keeps every edge hard. */
-        var dx = lx - cx, dy = ly - cy;
-        var dl = Math.sqrt(dx * dx + dy * dy) || 1;
-        var rim = rr * .055;
-        ctx.beginPath();
-        scallop(cx + dx / dl * rim, cy + dy / dl * rim, rr, ry, lobes, ph);
-        ctx.fillStyle = lit;
-        ctx.fill();
-
-        ctx.beginPath();
-        scallop(cx, cy, rr, ry, lobes, ph);
-        ctx.fillStyle = col;
-        ctx.fill();
-        ctx.restore();
-      }
-    }
-
-    ctx.save();
-    ctx.globalAlpha = .085;
-    ctx.fillStyle = TIEPOLO.glow;
-    for (k = 0; k < rays; k++){
-      var a1 = k / rays * 6.283185 + spin;
-      var w1 = .020 + ((k * 7) % 5) * .011;
-      ctx.beginPath();
-      ctx.moveTo(lx, ly);
-      ctx.lineTo(lx + Math.cos(a1 - w1) * diag, ly + Math.sin(a1 - w1) * diag);
-      ctx.lineTo(lx + Math.cos(a1 + w1) * diag, ly + Math.sin(a1 + w1) * diag);
-      ctx.closePath();
-      ctx.fill();
-    }
-    ctx.restore();
-
-    var bloom = ctx.createRadialGradient(lx, ly, 0, lx, ly, Math.min(W, H) * .42);
-    bloom.addColorStop(0, rgba(TIEPOLO.glow, .26));
-    bloom.addColorStop(1, rgba(TIEPOLO.glow, 0));
-    ctx.fillStyle = bloom;
+    /* Graded here rather than leaning on the page scrim, so the light stays
+       luminous where the name sits and only the edges go down. */
+    var gx = ox + fx * dw, gy = oy + fy * dh;
+    var vg = ctx.createRadialGradient(gx, gy, 0, gx, gy, Math.max(W, H) * .82);
+    vg.addColorStop(0,   rgba(TIEPOLO.pit, .10));
+    vg.addColorStop(.46, rgba(TIEPOLO.pit, .44));
+    vg.addColorStop(1,   rgba(TIEPOLO.pit, .82));
+    ctx.fillStyle = vg;
     ctx.fillRect(0,0,W,H);
   }
 
