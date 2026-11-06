@@ -47,70 +47,71 @@
 
        i  asset     d  depth, 0 far and 1 near
        a  opacity   b  how far the shader displaces it                      */
+  /* Laid out on a jittered seven by seven grid rather than a ring, because a
+     ring leaves everything between it and the opening empty — which is what
+     kept reading as sparse however many formations went into it. Depth, size
+     and opacity all come from distance to the opening, so the frame fills
+     from the edge inward and the middle stays light.
+
+     Mostly the cumulus sheet. The wispy sheet is lovely but thin, and leaning
+     on it was why the sky looked underpopulated: a wisp covers area without
+     adding mass. Roughly one in six here is a wisp, for variety.
+
+     Entries are literal so they can be hand-tuned; the only rule is that the
+     list is sorted far to near, because that is the order they are drawn.
+
+       i  asset     d  depth, 0 far and 1 near
+       a  opacity   b  how far the shader displaces it                      */
   var CLOUDS = [
-    /* Denser than it looks like it needs to be on paper. The first arrangement
-       left a wide flat field of blue through the upper left and middle, because
-       a single ring of formations around an opening leaves everything between
-       the ring and the opening empty. So there are three passes here: a thin
-       scatter of high wisps across the whole frame including over the opening,
-       which stops the sky reading as flat colour; a thickened middle distance;
-       and a bank pulled in closer than before.
-
-       The centre is kept to faint far wisps only — anything heavier there
-       competes with the name. */
-
-    // high scatter, faint, everywhere
-    { i:19, x:.34, y:.26, w:.30, rot: .10, d:.05, a:.20, b:.010 },
-    { i:16, x:.72, y:.44, w:.28, rot:-.14, d:.06, a:.20, b:.010 },
-    { i:18, x:.22, y:.12, w:.28, rot: .22, d:.08, a:0.65, b:.010 },
-    { i:15, x:.56, y:.07, w:.26, rot:-.08, d:.09, a:0.68, b:.009 },
-    { i:17, x:.81, y:.31, w:.28, rot: .16, d:.10, a:0.68, b:.009 },
-    { i:20, x:.12, y:.42, w:.22, rot:-.30, d:.11, a:0.65, b:.009 },
-    { i:14, x:.30, y:.63, w:.28, rot: .06, d:.12, a:0.65, b:.009 },
-    { i:13, x:.63, y:.80, w:.30, rot:-.18, d:.13, a:0.68, b:.009 },
-    { i:12, x:.89, y:.62, w:.26, rot: .34, d:.14, a:0.68, b:.008 },
-    { i:11, x:.08, y:.72, w:.28, rot:-.26, d:.15, a:0.68, b:.008 },
-    { i:10, x:.46, y:.16, w:.28, rot: .44, d:.16, a:0.62, b:.008 },
-
-    // a second scatter into the gaps the first pass left
-    { i:12, x:.20, y:.55, w:.26, rot: .28, d:.17, a:.56, b:.008 },
-    { i:18, x:.36, y:.80, w:.28, rot:-.34, d:.18, a:.56, b:.008 },
-    { i:14, x:.76, y:.55, w:.26, rot: .50, d:.19, a:.54, b:.008 },
-    { i:16, x:.50, y:.14, w:.26, rot:-.56, d:.20, a:.24, b:.008 },
-    { i:20, x:.15, y:.29, w:.22, rot: .66, d:.21, a:.58, b:.008 },
-    { i:13, x:.62, y:.74, w:.26, rot:-.22, d:.22, a:.24, b:.008 },
-
-    // middle distance, thickened
-    { i:10, x:.06, y:.18, w:.30, rot: .12, d:.24, a:.78, b:.008 },
-    { i:11, x:.33, y:.03, w:.28, rot:-.10, d:.26, a:.80, b:.007 },
-    { i:12, x:.63, y:.02, w:.28, rot: .18, d:.27, a:.80, b:.007 },
-    { i:13, x:.90, y:.12, w:.30, rot:-.22, d:.29, a:.80, b:.007 },
-    { i:14, x:1.00, y:.39, w:.28, rot: .30, d:.31, a:.80, b:.007 },
-    { i:15, x:.96, y:.70, w:.30, rot:-.12, d:.33, a:.82, b:.007 },
-    { i:16, x:.73, y:.95, w:.28, rot: .08, d:.35, a:.82, b:.006 },
-    { i:17, x:.42, y:1.00, w:.30, rot:-.28, d:.36, a:.82, b:.006 },
-    { i:18, x:.14, y:.92, w:.28, rot: .24, d:.37, a:.82, b:.006 },
-    { i:19, x:-.02, y:.53, w:.28, rot:-.40, d:.38, a:.82, b:.006 },
-    { i:20, x:.25, y:.26, w:.22, rot: .54, d:.28, a:.70, b:.007 },
-    { i:11, x:.80, y:.19, w:.26, rot:-.62, d:.30, a:.72, b:.007 },
-
-    // the bank, pulled in
-    { i: 2, x:.10, y:.05, w:.30, rot: .08, d:.44, a:.90, b:.006 },
-    { i: 5, x:.38, y:-.05, w:.28, rot:-.12, d:.46, a:.91, b:.006 },
-    { i: 8, x:.67, y:-.03, w:.28, rot: .14, d:.48, a:.91, b:.006 },
-    { i: 4, x:.98, y:.22, w:.28, rot: .20, d:.52, a:.92, b:.005 },
-    { i: 3, x:1.02, y:.53, w:.30, rot:-.16, d:.55, a:.92, b:.005 },
-    { i: 9, x:.90, y:.85, w:.30, rot: .11, d:.58, a:.93, b:.005 },
-    { i: 7, x:.58, y:1.02, w:.28, rot:-.07, d:.60, a:.93, b:.005 },
-    { i: 6, x:.27, y:1.00, w:.28, rot: .19, d:.62, a:.93, b:.005 },
-    { i: 4, x:.02, y:.78, w:.30, rot:-.52, d:.64, a:.93, b:.005 },
-    { i: 2, x:-.03, y:.34, w:.28, rot: .72, d:.56, a:.92, b:.005 },
-
-    // near shoulders
-    { i: 1, x:.81, y:.97, w:.32, rot: .15, d:.72, a:.95, b:.004 },
-    { i: 3, x:.15, y:.95, w:.30, rot:-.11, d:.76, a:.95, b:.004 },
-    { i: 9, x:.99, y:.04, w:.28, rot: .40, d:.70, a:.94, b:.004 },
-    { i: 0, x:.46, y:1.05, w:.60, rot:-.02, d:.90, a:.97, b:.003 }
+    { i: 8, x: 0.513, y: 0.320, w:0.120, rot: 0.04, d:0.09, a:0.25, b:0.010 },
+    { i: 5, x: 0.308, y: 0.512, w:0.139, rot:-0.29, d:0.09, a:0.26, b:0.010 },
+    { i: 9, x: 0.638, y: 0.341, w:0.144, rot: 0.02, d:0.10, a:0.32, b:0.010 },
+    { i: 6, x: 0.161, y: 0.295, w:0.209, rot:-0.24, d:0.20, a:0.72, b:0.008 },
+    { i: 9, x: 0.314, y: 0.635, w:0.190, rot:-0.04, d:0.20, a:0.59, b:0.008 },
+    { i:10, x: 0.324, y: 0.130, w:0.179, rot:-0.00, d:0.21, a:0.77, b:0.008 },
+    { i: 4, x: 0.116, y: 0.481, w:0.207, rot:-0.02, d:0.23, a:0.68, b:0.008 },
+    { i: 7, x: 0.320, y: 0.274, w:0.192, rot: 0.39, d:0.24, a:0.70, b:0.008 },
+    { i: 2, x: 0.822, y: 0.704, w:0.202, rot: 0.26, d:0.28, a:0.66, b:0.008 },
+    { i: 1, x: 0.693, y: 0.658, w:0.196, rot:-0.07, d:0.29, a:0.64, b:0.008 },
+    { i: 1, x: 0.818, y: 0.347, w:0.206, rot:-0.29, d:0.30, a:0.74, b:0.008 },
+    { i: 6, x: 0.820, y: 0.479, w:0.174, rot: 0.37, d:0.32, a:0.68, b:0.008 },
+    { i: 2, x: 0.639, y: 0.095, w:0.210, rot: 0.31, d:0.33, a:0.71, b:0.008 },
+    { i: 8, x: 0.123, y: 0.644, w:0.211, rot:-0.20, d:0.36, a:0.79, b:0.008 },
+    { i: 7, x: 0.650, y: 0.843, w:0.175, rot:-0.29, d:0.36, a:0.62, b:0.008 },
+    { i: 1, x: 0.487, y: 0.156, w:0.232, rot: 0.42, d:0.38, a:0.72, b:0.008 },
+    { i: 6, x: 0.484, y: 0.868, w:0.233, rot:-0.40, d:0.39, a:0.66, b:0.008 },
+    { i: 3, x:-0.060, y: 0.490, w:0.267, rot: 0.39, d:0.45, a:0.89, b:0.006 },
+    { i: 4, x: 0.485, y: 1.082, w:0.235, rot: 0.01, d:0.47, a:0.92, b:0.006 },
+    { i: 5, x: 0.651, y: 1.014, w:0.244, rot:-0.44, d:0.47, a:0.85, b:0.006 },
+    { i: 8, x:-0.038, y: 0.111, w:0.282, rot:-0.13, d:0.49, a:0.86, b:0.006 },
+    { i: 6, x: 0.820, y:-0.028, w:0.308, rot: 0.34, d:0.51, a:0.86, b:0.006 },
+    { i: 9, x: 1.052, y: 0.831, w:0.249, rot: 0.03, d:0.51, a:0.88, b:0.006 },
+    { i: 6, x: 0.830, y: 1.061, w:0.301, rot:-0.40, d:0.51, a:0.88, b:0.006 },
+    { i: 2, x: 0.117, y: 1.037, w:0.247, rot:-0.04, d:0.52, a:0.87, b:0.006 },
+    { i: 3, x: 0.338, y:-0.077, w:0.280, rot: 0.00, d:0.53, a:0.91, b:0.006 },
+    { i: 9, x: 0.135, y: 0.147, w:0.287, rot:-0.02, d:0.53, a:0.89, b:0.006 },
+    { i: 2, x: 0.160, y:-0.030, w:0.244, rot: 0.36, d:0.54, a:0.91, b:0.006 },
+    { i: 7, x:-0.047, y: 0.673, w:0.236, rot: 0.37, d:0.54, a:0.85, b:0.006 },
+    { i: 3, x: 0.307, y: 1.077, w:0.237, rot:-0.18, d:0.55, a:0.87, b:0.006 },
+    { i: 5, x: 0.283, y: 0.872, w:0.299, rot: 0.05, d:0.56, a:0.93, b:0.006 },
+    { i: 4, x: 0.460, y:-0.030, w:0.272, rot: 0.15, d:0.57, a:0.92, b:0.006 },
+    { i: 8, x: 0.821, y: 0.861, w:0.260, rot: 0.06, d:0.58, a:0.89, b:0.006 },
+    { i: 4, x: 1.021, y: 0.159, w:0.263, rot:-0.24, d:0.59, a:0.89, b:0.006 },
+    { i: 5, x:-0.083, y: 0.325, w:0.302, rot: 0.13, d:0.59, a:0.86, b:0.006 },
+    { i:12, x: 1.074, y: 0.665, w:0.296, rot: 0.30, d:0.59, a:0.89, b:0.006 },
+    { i:11, x: 1.013, y: 0.470, w:0.288, rot:-0.28, d:0.60, a:0.88, b:0.006 },
+    { i: 5, x: 0.655, y:-0.053, w:0.248, rot:-0.03, d:0.61, a:0.89, b:0.006 },
+    { i: 3, x:-0.054, y: 0.843, w:0.304, rot: 0.34, d:0.62, a:0.86, b:0.006 },
+    { i: 2, x: 1.014, y: 0.331, w:0.256, rot: 0.27, d:0.65, a:0.89, b:0.006 },
+    { i: 4, x: 0.117, y: 0.814, w:0.267, rot: 0.33, d:0.65, a:0.89, b:0.006 },
+    { i: 3, x: 0.863, y: 0.148, w:0.295, rot:-0.36, d:0.66, a:0.90, b:0.006 },
+    { i: 1, x:-0.054, y: 1.035, w:0.284, rot: 0.13, d:0.76, a:0.94, b:0.004 },
+    { i: 1, x:-0.081, y:-0.053, w:0.353, rot: 0.19, d:0.77, a:0.94, b:0.004 },
+    { i: 7, x: 1.058, y:-0.037, w:0.293, rot: 0.25, d:0.78, a:0.94, b:0.004 },
+    { i: 7, x: 1.023, y: 1.068, w:0.300, rot:-0.26, d:0.78, a:0.96, b:0.004 },
+    { i: 0, x: 0.455, y: 1.050, w:0.600, rot:-0.02, d:0.92, a:0.97, b:0.003 },
+    { i: 0, x: 0.030, y: 1.020, w:0.420, rot: 0.34, d:0.88, a:0.96, b:0.003 },
+    { i: 0, x: 0.960, y: 1.010, w:0.440, rot:-0.28, d:0.86, a:0.96, b:0.003 }
   ];
 
   /* ------------------------------------------------------------------ glsl */
@@ -124,7 +125,7 @@
     "}",
     "float fbm(vec2 p){",
     "  float v = 0.0, a = 0.5;",
-    "  for (int i = 0; i < 3; i++){ v += a * vnoise(p); p *= 2.03; a *= 0.5; }",
+    "  for (int i = 0; i < 2; i++){ v += a * vnoise(p); p *= 2.03; a *= 0.5; }",
     "  return v;",
     "}"
   ].join("\n");
@@ -307,8 +308,13 @@
         skyU: locs(gl, skyP, ["uRes","uTime","uLook","uSun","uPowder","uSlate","uShadow","uCream"]),
         clU: locs(gl, cloudP, ["uTex","uTime","uPhase","uBillow","uDepth","uAlpha",
                                "uSunDir","uSky","uCenter","uSize","uRes","uRot"]),
-        // far to near, so the near formations crop the far ones
+        /* Far to near, so the near formations crop the far ones. On a phone
+           every other distant formation is dropped: forty-nine overlapping
+           translucent layers is a lot of fill for a mobile GPU, and the ones
+           that go are small, faint and furthest away, which is the cheapest
+           thing to lose and the hardest to notice. */
         order: CLOUDS.map(function (c, i) { return i; })
+                     .filter(function (i, n) { return !small || CLOUDS[i].d > 0.35 || n % 2 === 0; })
                      .sort(function (a, b) { return CLOUDS[a].d - CLOUDS[b].d; })
       };
 
