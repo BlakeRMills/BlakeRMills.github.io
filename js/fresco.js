@@ -48,38 +48,69 @@
        i  asset     d  depth, 0 far and 1 near
        a  opacity   b  how far the shader displaces it                      */
   var CLOUDS = [
-    // far wisps, thin and faint — the back of the room
-    { i:19, x:.63, y:.60, w:.26, rot: .05, d:.09, a:.46, b:.010 },
-    { i:18, x:.36, y:.93, w:.28, rot:-.07, d:.12, a:.58, b:.010 },
-    { i:16, x:.06, y:.50, w:.24, rot: .14, d:.14, a:.60, b:.009 },
-    { i:17, x:.95, y:.49, w:.26, rot:-.11, d:.16, a:.60, b:.009 },
-    { i:15, x:.52, y:.09, w:.26, rot: .04, d:.18, a:.64, b:.009 },
-    { i:14, x:.49, y:.87, w:.30, rot:-.03, d:.20, a:.68, b:.008 },
+    /* Denser than it looks like it needs to be on paper. The first arrangement
+       left a wide flat field of blue through the upper left and middle, because
+       a single ring of formations around an opening leaves everything between
+       the ring and the opening empty. So there are three passes here: a thin
+       scatter of high wisps across the whole frame including over the opening,
+       which stops the sky reading as flat colour; a thickened middle distance;
+       and a bank pulled in closer than before.
 
-    // mid wisps
-    { i:10, x:.30, y:.17, w:.32, rot: .08, d:.23, a:.78, b:.008 },
-    { i:11, x:.73, y:.21, w:.30, rot:-.12, d:.25, a:.78, b:.008 },
-    { i:12, x:.17, y:.71, w:.28, rot: .10, d:.27, a:.80, b:.007 },
-    { i:13, x:.78, y:.73, w:.30, rot:-.06, d:.29, a:.80, b:.007 },
-    { i:10, x:.86, y:.13, w:.26, rot: .62, d:.31, a:.70, b:.007 },
-    { i:20, x:.12, y:.36, w:.20, rot:-.40, d:.33, a:.72, b:.007 },
+       The centre is kept to faint far wisps only — anything heavier there
+       competes with the name. */
 
-    // the bank
-    { i: 9, x:.26, y:-.05, w:.24, rot: .12, d:.38, a:.88, b:.006 },
-    { i: 5, x:.41, y:-.03, w:.28, rot:-.09, d:.42, a:.90, b:.006 },
-    { i: 8, x:.65, y: .01, w:.26, rot: .16, d:.40, a:.89, b:.006 },
-    { i: 3, x:.93, y: .39, w:.25, rot:-.14, d:.45, a:.90, b:.006 },
-    { i: 2, x:.15, y: .06, w:.30, rot: .07, d:.47, a:.91, b:.006 },
-    { i: 4, x:1.01, y:.21, w:.28, rot: .22, d:.51, a:.92, b:.005 },
-    { i: 7, x:.03, y: .27, w:.30, rot:-.19, d:.53, a:.92, b:.005 },
-    { i: 2, x:1.03, y:.60, w:.30, rot: .84, d:.57, a:.92, b:.005 },
-    { i: 4, x:-.02, y:.63, w:.28, rot:-.70, d:.60, a:.93, b:.005 },
+    // high scatter, faint, everywhere
+    { i:19, x:.34, y:.26, w:.30, rot: .10, d:.05, a:.20, b:.010 },
+    { i:16, x:.72, y:.44, w:.28, rot:-.14, d:.06, a:.20, b:.010 },
+    { i:18, x:.22, y:.12, w:.28, rot: .22, d:.08, a:0.65, b:.010 },
+    { i:15, x:.56, y:.07, w:.26, rot:-.08, d:.09, a:0.68, b:.009 },
+    { i:17, x:.81, y:.31, w:.28, rot: .16, d:.10, a:0.68, b:.009 },
+    { i:20, x:.12, y:.42, w:.22, rot:-.30, d:.11, a:0.65, b:.009 },
+    { i:14, x:.30, y:.63, w:.28, rot: .06, d:.12, a:0.65, b:.009 },
+    { i:13, x:.63, y:.80, w:.30, rot:-.18, d:.13, a:0.68, b:.009 },
+    { i:12, x:.89, y:.62, w:.26, rot: .34, d:.14, a:0.68, b:.008 },
+    { i:11, x:.08, y:.72, w:.28, rot:-.26, d:.15, a:0.68, b:.008 },
+    { i:10, x:.46, y:.16, w:.28, rot: .44, d:.16, a:0.62, b:.008 },
 
-    // near shoulders, cropping at the frame
-    { i: 6, x:.67, y:1.04, w:.24, rot: .10, d:.70, a:.94, b:.004 },
-    { i: 1, x:.87, y: .96, w:.32, rot: .17, d:.75, a:.95, b:.004 },
-    { i: 3, x:.10, y: .93, w:.30, rot:-.12, d:.79, a:.95, b:.004 },
-    { i: 0, x:.45, y:1.03, w:.62, rot:-.02, d:.90, a:.97, b:.003 }
+    // a second scatter into the gaps the first pass left
+    { i:12, x:.20, y:.55, w:.26, rot: .28, d:.17, a:.56, b:.008 },
+    { i:18, x:.36, y:.80, w:.28, rot:-.34, d:.18, a:.56, b:.008 },
+    { i:14, x:.76, y:.55, w:.26, rot: .50, d:.19, a:.54, b:.008 },
+    { i:16, x:.50, y:.14, w:.26, rot:-.56, d:.20, a:.24, b:.008 },
+    { i:20, x:.15, y:.29, w:.22, rot: .66, d:.21, a:.58, b:.008 },
+    { i:13, x:.62, y:.74, w:.26, rot:-.22, d:.22, a:.24, b:.008 },
+
+    // middle distance, thickened
+    { i:10, x:.06, y:.18, w:.30, rot: .12, d:.24, a:.78, b:.008 },
+    { i:11, x:.33, y:.03, w:.28, rot:-.10, d:.26, a:.80, b:.007 },
+    { i:12, x:.63, y:.02, w:.28, rot: .18, d:.27, a:.80, b:.007 },
+    { i:13, x:.90, y:.12, w:.30, rot:-.22, d:.29, a:.80, b:.007 },
+    { i:14, x:1.00, y:.39, w:.28, rot: .30, d:.31, a:.80, b:.007 },
+    { i:15, x:.96, y:.70, w:.30, rot:-.12, d:.33, a:.82, b:.007 },
+    { i:16, x:.73, y:.95, w:.28, rot: .08, d:.35, a:.82, b:.006 },
+    { i:17, x:.42, y:1.00, w:.30, rot:-.28, d:.36, a:.82, b:.006 },
+    { i:18, x:.14, y:.92, w:.28, rot: .24, d:.37, a:.82, b:.006 },
+    { i:19, x:-.02, y:.53, w:.28, rot:-.40, d:.38, a:.82, b:.006 },
+    { i:20, x:.25, y:.26, w:.22, rot: .54, d:.28, a:.70, b:.007 },
+    { i:11, x:.80, y:.19, w:.26, rot:-.62, d:.30, a:.72, b:.007 },
+
+    // the bank, pulled in
+    { i: 2, x:.10, y:.05, w:.30, rot: .08, d:.44, a:.90, b:.006 },
+    { i: 5, x:.38, y:-.05, w:.28, rot:-.12, d:.46, a:.91, b:.006 },
+    { i: 8, x:.67, y:-.03, w:.28, rot: .14, d:.48, a:.91, b:.006 },
+    { i: 4, x:.98, y:.22, w:.28, rot: .20, d:.52, a:.92, b:.005 },
+    { i: 3, x:1.02, y:.53, w:.30, rot:-.16, d:.55, a:.92, b:.005 },
+    { i: 9, x:.90, y:.85, w:.30, rot: .11, d:.58, a:.93, b:.005 },
+    { i: 7, x:.58, y:1.02, w:.28, rot:-.07, d:.60, a:.93, b:.005 },
+    { i: 6, x:.27, y:1.00, w:.28, rot: .19, d:.62, a:.93, b:.005 },
+    { i: 4, x:.02, y:.78, w:.30, rot:-.52, d:.64, a:.93, b:.005 },
+    { i: 2, x:-.03, y:.34, w:.28, rot: .72, d:.56, a:.92, b:.005 },
+
+    // near shoulders
+    { i: 1, x:.81, y:.97, w:.32, rot: .15, d:.72, a:.95, b:.004 },
+    { i: 3, x:.15, y:.95, w:.30, rot:-.11, d:.76, a:.95, b:.004 },
+    { i: 9, x:.99, y:.04, w:.28, rot: .40, d:.70, a:.94, b:.004 },
+    { i: 0, x:.46, y:1.05, w:.60, rot:-.02, d:.90, a:.97, b:.003 }
   ];
 
   /* ------------------------------------------------------------------ glsl */
