@@ -257,15 +257,46 @@
       if (gl) gl.viewport(0, 0, W, H);
     }
 
-    function loadAll() {
-      return Promise.all(ASSETS.map(function (name) {
-        return new Promise(function (res, rej) {
-          var im = new Image();
-          im.onload = function () { res(im); };
-          im.onerror = rej;
-          im.src = base + "assets/img/art/clouds/" + name + ".webp";
+    /* Progressive, and deliberately not Promise.all.
+     *
+     * Waiting on all twenty-one assets meant nothing at all was drawn until the
+     * last byte of about 1.2 MB had arrived — and worse, one image failing
+     * rejected the lot, so a single flaky request left the page with a bare sky
+     * and no way back. Each formation now uploads the moment it lands, the
+     * scene draws whatever it has, and a failure costs exactly one cloud.
+     *
+     * Order is by depth, nearest first: the big foreground masses are what the
+     * composition reads as, so they should arrive before the far specks. */
+    function loadProgressively(onReady) {
+      var order = ASSETS.map(function (name, i) { return i; }).sort(function (a, b) {
+        var da = 0, db = 0;
+        CLOUDS.forEach(function (c) {
+          if (c.i === a && c.d > da) da = c.d;
+          if (c.i === b && c.d > db) db = c.d;
         });
-      }));
+        return db - da;
+      });
+      order.forEach(function (i) {
+        var im = new Image();
+        im.decoding = "async";
+        im.onload = function () { images[i] = im; onReady(i, im); };
+        im.onerror = function () { /* one cloud short, not a blank sky */ };
+        im.src = base + "assets/img/art/clouds/" + ASSETS[i] + ".webp";
+      });
+    }
+
+    function addTexture(i, im) {
+      if (!gl || !state) return;
+      var tex = gl.createTexture();
+      gl.bindTexture(gl.TEXTURE_2D, tex);
+      gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, im);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+      gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+      state.textures[i] = { tex: tex, w: im.naturalWidth, h: im.naturalHeight };
+      if (reduce) render(performance.now());
     }
 
     function setupGL() {
@@ -288,20 +319,12 @@
       var skyP = program(gl, SKY_VS, SKY_FS);
       var cloudP = program(gl, CLOUD_VS, CLOUD_FS);
 
-      /* Straight, NOT premultiplied. These arrive with a real alpha channel and
-         the shader premultiplies on output; doing it on upload as well scales
-         every soft edge's colour by its own alpha twice and the wisps go black. */
-      var textures = images.map(function (im) {
-        var tex = gl.createTexture();
-        gl.bindTexture(gl.TEXTURE_2D, tex);
-        gl.pixelStorei(gl.UNPACK_PREMULTIPLY_ALPHA_WEBGL, false);
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, im);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-        return { tex: tex, w: im.naturalWidth, h: im.naturalHeight };
-      });
+      /* Textures arrive later, one at a time. Uploaded straight, NOT
+         premultiplied: these carry a real alpha channel and the shader
+         premultiplies on output, so doing it here as well would scale every
+         soft edge's colour by its own alpha twice and the wisps would go
+         black. */
+      var textures = ASSETS.map(function () { return null; });
 
       state = {
         quad: quad, full: full, skyP: skyP, cloudP: cloudP, textures: textures,
@@ -449,6 +472,7 @@
     }
 
     /* ---- the 2D fallback: same assets, same arrangement, no shader ---- */
+    var repaintFlat = function () {};
     function fallback() {
       host.classList.add("is-flat");
       var g = canvas.getContext("2d");
@@ -473,23 +497,27 @@
         });
         g.globalAlpha = 1;
       };
+      repaintFlat = paint;
       paint();
       global.addEventListener("resize", function () { size(); paint(); });
     }
 
     size();
-    loadAll().then(function (ims) {
-      images = ims;
-      try { setupGL(); start(); }
-      catch (err) {
-        if (global.console && console.info) console.info("fresco: 2D fallback —", err.message);
-        gl = null;
-        fallback();
-      }
-      host.classList.add("is-ready");
-    }).catch(function () {
-      // no paint at all: the CSS sky underneath is the floor of the design
-      host.classList.add("is-ready");
+    images = ASSETS.map(function () { return null; });
+
+    /* The sky is drawn before a single cloud has arrived, so the hero is never
+       a blank rectangle while the assets come down the wire. */
+    var flat = false;
+    try { setupGL(); start(); }
+    catch (err) {
+      if (global.console && console.info) console.info("fresco: 2D fallback —", err.message);
+      gl = null; flat = true;
+      fallback();
+    }
+    host.classList.add("is-ready");
+    loadProgressively(function (i, im) {
+      if (flat) repaintFlat();
+      else addTexture(i, im);
     });
 
     return { start: start, stop: stop, pause: pause, play: play };
