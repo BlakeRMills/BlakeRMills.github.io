@@ -276,16 +276,14 @@
     return ((a * 73856093) ^ (b * 19349663) ^ 0x9e3779b9) >>> 0;
   }
 
-  /* Every number that shapes the field. Each length is a fraction of the
-     wavelength, so the proportions hold at any viewport size. */
-  var WAVE = {
-    lambda:   2.3,   // wavelengths across the viewport
-    amp:      .25,   // peak amplitude; .25 is a true semicircle
-    band:     .038,  // thickness of one lane; n * band must stay under .25
-    rowStep:  .82,   // row pitch, as a fraction of a ribbon's full height;
-                     // under 1 the rows overlap, which is what the textile does
-    gain:     .40,   // px of lateral travel per px scrolled
-    groundAt: .17    // which colour seeds the ground, 0 = darkest, 1 = lightest
+  /* Every number that shapes the Panton field. */
+  var PANTON = {
+    lanes:  34,    // bands across the viewport
+    amp:   .078,   // how far a band wanders sideways, as a fraction of width
+    cycles: 1.35,  // vertical wave periods per screen height
+    lag:   .026,   // phase carried from one band to the next
+    gain:  .0016,  // radians of phase per pixel scrolled
+    groundAt: .17  // which colour seeds the ground, 0 = darkest, 1 = lightest
   };
 
   /* ---------- colour helpers ---------- */
@@ -342,7 +340,7 @@
     // The page's type is a fixed cream, so the ground has to stay dark whatever
     // the palette is. Pull the darkest colour toward ink until it clears the
     // text by a wide margin — the hue survives, the contrast is borrowed.
-    var gi = Math.round(WAVE.groundAt * (ordered.length - 1));
+    var gi = Math.round(PANTON.groundAt * (ordered.length - 1));
     ground = mix(ordered[gi], "#070b10", .34);
     for (var g = 0; g < 20 && ratio(ground, "#f6f2ea") < 8; g++){
       ground = mix(ground, "#070b10", .18);
@@ -442,102 +440,60 @@
   resize();
   addEventListener("resize", function(){ resize(); if (reduce) draw(); });
 
-  /* The curve is a chain of tangent semicircles, not a sine.
-
-     This matters more than it sounds. Panton's lanes are thick AND his loops
-     are deep, and a sine cannot carry both: its curvature piles up at the
-     extremes, so the minimum radius at a crest is only about a tenth of the
-     wavelength, and a lane stack any thicker than that folds back through
-     itself. Semicircles of radius lambda/4, alternating up and down, give the
-     same amplitude with a radius of a quarter of the wavelength — two and a
-     half times the room — and they meet with vertical tangents, which is where
-     the near-vertical sides between his arches come from.
-
-     The ribbon is a one-sided stack: every lane boundary is the curve pushed
-     further along its own normal, which for arcs just means a smaller radius
-     on the humps and a larger one in the troughs. So teal runs along the whole
-     top edge and orange along the whole bottom, the humps narrow as you go
-     inward, and the innermost lane pinches almost to a point at each crest. At
-     the joins the lanes stack horizontally rather than vertically, because the
-     curve is vertical there. */
-  function offsets(cy, lambda, phase, band, n, vscale){
-    var R = lambda / 4, hp = lambda / 2;
-    var lanes = [];
-    for (var j = 0; j <= n; j++) lanes.push([]);
-
-    var jFrom = Math.floor((-lambda + phase) / hp + .5);
-    var jTo   = Math.ceil(((W + lambda) + phase) / hp + .5);
-    /* 18 chords per semicircle leaves a sagitta well under a pixel at any
-       radius this draws at, and each lane is filled over the full boundary
-       twice, so the count matters. */
-    var arcSteps = 18;
-
-    for (var ji = jFrom; ji <= jTo; ji++){
-      var xc = ji * hp;
-      var up = ((ji % 2) + 2) % 2 === 0 ? 1 : -1;   // +1 bulges up, -1 bulges down
-
-      for (var q = 0; q <= arcSteps; q++){
-        // step by angle, not by x: stepping by x starves the near-vertical joins
-        var th = -Math.PI / 2 + Math.PI * q / arcSteps;
-        var dx = R * Math.sin(th);
-        var hh = R * Math.cos(th);
-        var x  = xc + dx - phase;
-
-        var vs = vscale;
-        if (pointer.x > -9000){
-          var ddx = (x - pointer.x) / (lambda * .55);
-          var ddy = (cy - pointer.y) / (lambda * .40);
-          vs *= 1 + .26 * Math.exp(-(ddx*ddx + ddy*ddy));
-        }
-
-        for (var j = 0; j <= n; j++){
-          var rr = (up > 0 ? R - j * band : R + j * band) / R;
-          lanes[j].push(xc + dx * rr - phase, cy - up * hh * rr * vs);
-        }
-      }
-    }
-    return lanes;
-  }
-
-  /* Painted outer lane first, each filled all the way down to the innermost
-     boundary, so a later fill always covers the one before it and no seam can
-     show between lanes. */
-  function paintRibbon(lanes, n){
-    var inner = lanes[n];
-    for (var i = 0; i < n; i++){
-      var o = lanes[i], q;
-      var pth = new Path2D();
-      pth.moveTo(o[0], o[1]);
-      for (q = 2; q < o.length; q += 2) pth.lineTo(o[q], o[q+1]);
-      for (q = inner.length - 2; q >= 0; q -= 2) pth.lineTo(inner[q], inner[q+1]);
-      pth.closePath();
-      ctx.fillStyle = bandCols[i];
-      ctx.fill(pth);
-    }
-  }
-
+  /* Panton's wave, run vertically.
+   *
+   * The earlier version laid horizontal rows of nested semicircular ribbons,
+   * which is one of the textiles but not this one. Here the whole width is a
+   * single striped field and one serpentine wave is applied to all of it at
+   * once, so every band snakes in step — that unison is what makes it read as
+   * one piece of printed cloth rather than as separate ribbons.
+   *
+   * Colour cycles straight through the palette in luminance order rather than
+   * mirroring back. A mirror would give every group a symmetrical bright core,
+   * which looks tidy and wrong; cycling wraps hard from the lightest colour to
+   * the darkest, and those abrupt jumps from a hot orange to a deep teal are
+   * half of what the print is doing.
+   *
+   * Each band carries slightly more phase than its neighbour, so the curves
+   * fan across the frame instead of marching in a rigid column. */
   function drawPanton(){
     ctx.setTransform(1,0,0,1,0,0);
     ctx.fillStyle = ground;
     ctx.fillRect(0,0,W,H);
-    var n = bandCols.length;
+
+    var ramp = sortByLum(pal.colors);          // dark to light, then it wraps
+    var n = ramp.length;
     if (!n) return;
 
-    var lambda  = Math.max(300 * dpr, W / WAVE.lambda);
-    var band    = lambda * WAVE.band;
-    var breathe = 1 + .10 * Math.sin(scrollN * Math.PI);   // one slow swell down the page
-    var vscale  = (WAVE.amp / .25) * breathe;              // .25 is the true circle
-    var amp     = lambda * .25 * vscale;
-    var height  = 2 * amp + band * n;                      // a ribbon's full vertical reach
-    var pitch   = height * WAVE.rowStep;
-    var rows    = Math.ceil(H / pitch) + 2;
-    var phase   = scrollPx * dpr * WAVE.gain + idle;
+    var pitch = W / PANTON.lanes;
+    var amp   = W * PANTON.amp;
+    var omega = 6.283185 * PANTON.cycles / H;
+    var phase = scrollPx * dpr * PANTON.gain + (reduce ? 0 : idle * .0022);
 
-    /* Rows share a phase and a direction: in the textile every row is the same
-       curve moved straight down. Drawing top to bottom means each row laps over
-       the one above exactly as the printed panels do. */
-    for (var r = -1; r < rows; r++){
-      paintRibbon(offsets(pitch * r + amp, lambda, phase, band, n, vscale), n);
+    // enough samples that the curve stays smooth at any height
+    var steps = Math.max(24, Math.min(80, Math.round(H / (12 * dpr))));
+    var first = Math.floor(-amp / pitch) - 2;
+    var last  = Math.ceil((W + amp) / pitch) + 2;
+
+    for (var k = first; k <= last; k++){
+      var ph = phase + k * PANTON.lag;
+      ctx.beginPath();
+      var s, y, x;
+      for (s = 0; s <= steps; s++){
+        y = s / steps * H;
+        x = k * pitch + amp * Math.sin(y * omega + ph);
+        if (s === 0) ctx.moveTo(x, y); else ctx.lineTo(x, y);
+      }
+      for (s = steps; s >= 0; s--){
+        y = s / steps * H;
+        // the right edge carries the next band's phase, so neighbours meet
+        // exactly and no sliver of ground shows between them
+        x = (k + 1) * pitch + amp * Math.sin(y * omega + ph + PANTON.lag);
+        ctx.lineTo(x, y);
+      }
+      ctx.closePath();
+      ctx.fillStyle = ramp[((k % n) + n) % n];
+      ctx.fill();
     }
   }
 
