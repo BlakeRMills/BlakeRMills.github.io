@@ -1,0 +1,144 @@
+/* Baroque ceiling fresco hero.
+ *
+ * Scoped to body.fresco so nothing here can reach the other nine pages, which
+ * go on using site.css untouched. The scene (js/fresco.js) owns the canvas and
+ * nothing else; everything below is typography and chrome, editable on its own.
+ */
+
+body.fresco {
+  --fr-sky:    #647B96;
+  --fr-powder: #8295AD;
+  --fr-ivory:  #E9D9BD;
+  --fr-cream:  #E8CDA0;
+  --fr-peach:  #D9AD91;
+  --fr-shadow: #777887;
+}
+
+/* ---------------------------------------------------------------- the hero */
+.fresco-hero {
+  position: relative;
+  isolation: isolate;
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  /* the floor of the design: if the paint never arrives, this is what is left,
+     and it should still be a sky rather than a white rectangle */
+  background: radial-gradient(130% 110% at 47% 44%, #647B96 0%, #7589A2 48%, #8295AD 100%);
+}
+.fresco-canvas {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  display: block;
+  opacity: 0;
+  transition: opacity 1.4s ease;
+}
+.fresco-hero.is-ready .fresco-canvas { opacity: 1; }
+
+/* ------------------------------------------------------------- typography */
+.fresco-type {
+  position: relative; z-index: 2;
+  text-align: center;
+  padding: 0 1.5rem;
+  will-change: transform, opacity;
+}
+.fresco-name {
+  font-family: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  font-weight: 300;
+  font-size: clamp(3rem, 11.5vw, 9.5rem);
+  line-height: 1.0;
+  letter-spacing: .005em;
+  color: var(--fr-ivory);
+  margin: 0;
+}
+.fresco-name span { display: block; }
+.fresco-name .is-em { font-style: italic; }
+
+.fresco-kicker {
+  margin: clamp(1.6rem, 3.5vw, 2.4rem) 0 0;
+  font-family: "Poppins", system-ui, sans-serif;
+  font-weight: 300;
+  font-size: clamp(.6rem, 1.15vw, .72rem);
+  letter-spacing: .4em;
+  text-transform: uppercase;
+  color: var(--fr-ivory);
+}
+
+/* The type must stay legible while the cloud moves behind it, and a hard scrim
+   would flatten the opening. A whisper of shadow in the sky's own colour does
+   the same work without being visible as a shape. */
+.fresco-name,
+.fresco-kicker {
+  text-shadow: 0 1px 24px rgba(50, 62, 80, .55), 0 6px 60px rgba(50, 62, 80, .35);
+}
+
+/* ------------------------------------------------- the header, over the sky */
+body.fresco .site-header {
+  position: fixed; left: 0; right: 0; top: 0;
+  background: transparent;
+  backdrop-filter: none;
+  border-bottom: 0;
+  transition: background .5s ease, border-color .5s ease;
+}
+body.fresco .site-header .brand,
+body.fresco .site-header .nav a,
+body.fresco .site-header .icon-btn {
+  color: var(--fr-ivory);
+  transition: color .5s ease;
+}
+body.fresco .site-header .icon-btn svg { fill: currentColor; }
+body.fresco .site-header .brand {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-weight: 500;
+  font-size: 1.05rem;
+  letter-spacing: .22em;
+}
+body.fresco .site-header .nav a {
+  font-family: "Poppins", system-ui, sans-serif;
+  font-weight: 300;
+  font-size: .68rem;
+  letter-spacing: .22em;
+  text-transform: uppercase;
+}
+body.fresco .site-header .brand:hover,
+body.fresco .site-header .nav a:hover { color: #fff; }
+
+/* once the fresco is behind you the header goes back to the site's own chrome */
+body.fresco.past-hero .site-header {
+  position: sticky;
+  background: color-mix(in srgb, var(--paper) 88%, transparent);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--line);
+}
+body.fresco.past-hero .site-header .brand,
+body.fresco.past-hero .site-header .nav a,
+body.fresco.past-hero .site-header .icon-btn { color: var(--text); }
+
+/* the hero is the first thing on the page, so the fixed header sits on top of
+   it rather than pushing it down */
+body.fresco #main { padding-top: 0; }
+
+/* ------------------------------------------------------------------ credit */
+.fresco-credit {
+  position: absolute; left: 0; right: 0; bottom: 0; z-index: 2;
+  padding: 1rem clamp(1.5rem, 4vw, 2.8rem);
+  display: flex; justify-content: space-between; gap: 1rem; flex-wrap: wrap;
+  font-family: "Poppins", system-ui, sans-serif;
+  font-weight: 300;
+  font-size: .58rem; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--fr-ivory);
+  pointer-events: none;
+}
+.fresco-credit i { font-style: italic; }
+.fresco-credit a { pointer-events: auto; color: inherit; text-decoration: none;
+  border-bottom: 1px solid currentColor; }
+
+@media (max-width: 720px) {
+  .fresco-credit { font-size: .52rem; letter-spacing: .1em; }
+  .fresco-kicker { letter-spacing: .3em; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fresco-canvas { transition: none; }
+  .fresco-type { transform: none !important; opacity: 1 !important; }
+}

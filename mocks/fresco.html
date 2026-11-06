@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mock 5 · Fresco (WIP) — Blake Robert Mills</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,500;1,300&family=Poppins:wght@200;300;400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="../css/fresco.css">
+<style>
+  body { margin:0; background:#647B96; }
+  /* this page has no site.css, so the few shared bits the hero leans on are
+     restated here rather than pulling the whole stylesheet in */
+  .bar { position:fixed; inset:0 0 auto 0; z-index:50; display:flex; align-items:center;
+    gap:1rem; padding:1.1rem clamp(1.5rem,4vw,2.8rem); }
+  .bar .brand { font-family:"Cormorant Garamond",Georgia,serif; font-weight:500;
+    font-size:1.05rem; letter-spacing:.22em; color:#E9D9BD; text-decoration:none; margin-right:auto; }
+  .bar nav { display:flex; gap:1.4rem; }
+  .bar nav a { font-family:"Poppins",system-ui,sans-serif; font-weight:300; font-size:.68rem;
+    letter-spacing:.22em; text-transform:uppercase; color:#E9D9BD; text-decoration:none; }
+</style>
+</head>
+<body class="fresco">
+
+<div class="bar">
+  <a class="brand" href="../index.html">BRM</a>
+  <nav><a href="../work.html">Work</a><a href="../about.html">About</a><a href="../resume.html">Resume</a></nav>
+</div>
+
+<section class="fresco-hero" id="hero">
+  <div class="fresco-type" data-fresco-type>
+    <h1 class="fresco-name"><span>Blake</span><span>Robert</span><span class="is-em">Mills</span></h1>
+    <p class="fresco-kicker">Statistics · Civic Tech · Urban Studies</p>
+  </div>
+  <div class="fresco-credit">
+    <span>Cloud after Simon Denis, <i>Cloud Studies</i> · G. B. Tiepolo, <i>Allegory of the Planets and Continents</i></span>
+    <a href="https://www.metmuseum.org/art/collection/search/438642" target="_blank" rel="noopener">The Met · CC0</a>
+  </div>
+</section>
+
+<script src="../js/fresco.js"></script>
+<script>
+  (function () {
+    var hero = document.getElementById("hero");
+    if (window.BRMFresco) window.BRMFresco.mount(hero, { base: "../" });
+  })();
+</script>
+</body>
+</html>
