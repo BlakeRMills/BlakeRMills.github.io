@@ -8,17 +8,18 @@
 <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&family=IBM+Plex+Mono:wght@400&family=Poppins:wght@200;300&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,300;1,400&family=IBM+Plex+Mono:wght@400&family=Poppins:wght@200;300;400&display=swap" rel="stylesheet">
 <style>
   :root{
-    --pit:#120f0e; --paper:#f3ece0; --gold:#c89a63; --line:rgba(243,236,224,.17);
+    --sky:#4e6a93; --cream:#f4ece0; --vellum:#efe6d8;
+    --ink:#352f29; --ink-soft:rgba(53,47,41,.76); --terra:#a2663c;
+    --rule:rgba(53,47,41,.18);
     --display:"Cormorant Garamond",Georgia,serif;
     --body:"Poppins",system-ui,sans-serif;
     --mono:"IBM Plex Mono",monospace;
   }
   *,*::before,*::after{box-sizing:border-box}
-  html{scroll-behavior:smooth}
-  body{margin:0; background:var(--pit); color:var(--paper); font-family:var(--body); -webkit-font-smoothing:antialiased}
+  body{margin:0; background:var(--sky); color:var(--cream); font-family:var(--body); -webkit-font-smoothing:antialiased}
   a{color:inherit}
 
   #ceiling{position:fixed; inset:0; z-index:0; display:block; width:100%; height:100%}
@@ -27,76 +28,69 @@
   .bar{
     position:fixed; inset:0 0 auto 0; z-index:10; display:flex; align-items:center; gap:1.4rem;
     padding:1.3rem clamp(1.5rem,4vw,2.8rem); font-family:var(--mono);
-    font-size:.68rem; letter-spacing:.2em; text-transform:uppercase;
-    text-shadow:0 1px 12px rgba(10,8,6,.9);
+    font-size:.66rem; letter-spacing:.2em; text-transform:uppercase;
+    color:var(--cream); transition:color .5s ease;
   }
   .bar nav{display:flex; gap:1.4rem; margin-left:auto}
-  .bar a{text-decoration:none; opacity:.72} .bar a:hover{opacity:1; color:var(--gold)}
+  .bar a{text-decoration:none; opacity:1}
+  body.risen .bar{color:var(--ink)}
 
-  /* ---- the name, held in the opening ---- */
+  /* ---- the name, in the opening ---- */
   .hero{min-height:100svh; display:grid; place-items:center; text-align:center; padding:0 1.5rem}
   .hero-type{will-change:transform,opacity}
   h1{
-    font-family:var(--display); font-weight:300; margin:0;
-    font-size:clamp(3.4rem,13vw,11rem); line-height:.95; letter-spacing:.005em;
-    text-shadow:0 2px 20px rgba(14,10,8,.5), 0 14px 70px rgba(14,10,8,.65);
+    font-family:var(--display); font-weight:300; margin:0; color:var(--cream);
+    font-size:clamp(3.2rem,12.5vw,10.5rem); line-height:1.0; letter-spacing:.004em;
   }
   h1 span{display:block}
-  h1 .em{font-style:italic; font-weight:300; color:#f7efe2}
+  h1 .em{font-style:italic}
   .kicker{
-    font-family:var(--mono); font-size:clamp(.6rem,1.2vw,.72rem); letter-spacing:.42em;
-    text-transform:uppercase; opacity:.74; margin:2.2rem 0 0;
-    text-shadow:0 2px 14px rgba(14,10,8,.9);
+    font-family:var(--mono); font-size:clamp(.58rem,1.15vw,.7rem); letter-spacing:.4em;
+    text-transform:uppercase; color:var(--cream); margin:2rem 0 0;
   }
 
-  .panel{min-height:86svh; display:flex; align-items:center; padding:5rem 0 6rem}
-  .wrap{width:min(960px,100% - 3rem); margin-inline:auto}
+  /* ---- once you are up in the cloud, the page turns to paper ---- */
+  .panel{min-height:88svh; display:flex; align-items:center; padding:5rem 0 6rem; color:var(--ink)}
+  .wrap{width:min(940px,100% - 3rem); margin-inline:auto}
   .fade{opacity:0; transform:translateY(26px); transition:opacity 1.1s ease, transform 1.1s cubic-bezier(.2,.7,.3,1)}
   .fade.in{opacity:1; transform:none}
 
   .say{
-    font-family:var(--display); font-weight:300; font-size:clamp(1.7rem,4.2vw,3.2rem);
-    line-height:1.26; max-width:17ch; margin:0 0 2rem;
-    text-shadow:0 3px 26px rgba(14,10,8,.75);
+    font-family:var(--display); font-weight:300; font-size:clamp(1.8rem,4.4vw,3.3rem);
+    line-height:1.24; max-width:18ch; margin:0 0 2rem; color:var(--ink);
   }
-  .say em{font-style:italic; color:var(--gold)}
-  .body-sm{
-    font-weight:200; opacity:.86; max-width:46ch; line-height:1.85; margin:0 0 2.2rem;
-    text-shadow:0 1px 14px rgba(14,10,8,.85);
-  }
+  .say em{font-style:italic; color:var(--terra)}
+  .body-sm{font-weight:300; color:var(--ink-soft); max-width:46ch; line-height:1.85; margin:0 0 2.2rem}
   .btn{
-    display:inline-flex; font-family:var(--mono); font-size:.7rem; letter-spacing:.2em;
+    display:inline-flex; font-family:var(--mono); font-size:.68rem; letter-spacing:.2em;
     text-transform:uppercase; padding:.95rem 1.9rem; border-radius:99px; text-decoration:none;
-    background:transparent; color:var(--gold); border:1px solid var(--gold); transition:.3s;
+    background:transparent; color:var(--terra); border:1px solid var(--terra); transition:.3s;
   }
-  .btn:hover{background:var(--gold); color:#17120e}
+  .btn:hover{background:var(--terra); color:var(--vellum)}
 
-  h2{
-    font-family:var(--display); font-weight:300; font-size:clamp(1.6rem,4vw,2.8rem);
-    margin:0 0 2.2rem; letter-spacing:.01em; text-shadow:0 3px 24px rgba(14,10,8,.8);
-  }
-  .idx{display:grid; gap:0; max-width:680px; border-top:1px solid var(--line)}
+  h2{font-family:var(--display); font-weight:400; font-size:clamp(1.7rem,4vw,2.9rem); margin:0 0 2rem; color:var(--ink)}
+  .idx{display:grid; max-width:700px; border-top:1px solid var(--rule)}
   .idx a{
     display:flex; align-items:baseline; gap:1.2rem; padding:1.15rem .2rem;
-    border-bottom:1px solid var(--line); text-decoration:none; transition:.3s;
+    border-bottom:1px solid var(--rule); text-decoration:none; color:var(--ink); transition:.3s;
   }
-  .idx a:hover{padding-left:1rem; background:rgba(243,236,224,.05)}
-  .idx .n{font-family:var(--mono); font-size:.62rem; letter-spacing:.2em; opacity:.6}
-  .idx .t{font-family:var(--display); font-size:1.5rem; font-weight:400}
-  .idx .d{margin-left:auto; font-family:var(--mono); font-size:.62rem; letter-spacing:.14em; opacity:.62}
+  .idx a:hover{padding-left:1rem; color:var(--terra)}
+  .idx .n{font-family:var(--mono); font-size:.6rem; letter-spacing:.2em; opacity:.5}
+  .idx .t{font-family:var(--display); font-size:1.55rem; font-weight:400}
+  .idx .d{margin-left:auto; font-family:var(--mono); font-size:.6rem; letter-spacing:.14em; opacity:.6}
 
   .credit{
     position:fixed; left:0; right:0; bottom:0; z-index:10; pointer-events:none;
-    padding:1.1rem clamp(1.5rem,4vw,2.8rem);
-    font-family:var(--mono); font-size:.58rem; letter-spacing:.14em; text-transform:uppercase;
-    opacity:.38; text-shadow:0 1px 10px rgba(10,8,6,.95);
+    padding:1rem clamp(1.5rem,4vw,2.8rem);
+    font-family:var(--mono); font-size:.55rem; letter-spacing:.13em; text-transform:uppercase;
+    color:var(--cream); opacity:.95; transition:color .5s ease;
     display:flex; justify-content:space-between; gap:1rem; flex-wrap:wrap;
   }
-  .credit a{pointer-events:auto; text-decoration:none; border-bottom:1px solid transparent}
-  .credit a:hover{opacity:1; color:var(--gold); border-bottom-color:var(--gold)}
+  body.risen .credit{color:var(--ink)}
+  .credit a{pointer-events:auto; text-decoration:none; border-bottom:1px solid currentColor}
+  .credit i{font-style:italic}
 
   @media(prefers-reduced-motion:reduce){
-    html{scroll-behavior:auto}
     .fade{opacity:1; transform:none; transition:none}
     .hero-type{transform:none !important; opacity:1 !important}
   }
@@ -107,7 +101,7 @@
 <canvas id="ceiling" aria-hidden="true"></canvas>
 
 <div class="bar">
-  <strong style="font-family:var(--display);font-weight:400;letter-spacing:.14em;font-size:.95rem">BRM</strong>
+  <strong style="font-family:var(--display);font-weight:500;letter-spacing:.14em;font-size:.95rem">BRM</strong>
   <nav><a href="../work.html">Work</a><a href="../about.html">About</a><a href="../resume.html">Resume</a></nav>
 </div>
 
@@ -139,8 +133,8 @@
 </div>
 
 <div class="credit">
-  <span>Fragments after G. B. Tiepolo, <em style="font-style:italic">The Glorification of the Barbaro Family</em>, ca. 1750</span>
-  <a href="https://www.metmuseum.org/art/collection/search/437798" target="_blank" rel="noopener">The Met · CC0</a>
+  <span>Cloud after Simon Denis, <i>Cloud Study (Early Evening)</i> · G. B. Tiepolo, <i>Allegory of the Planets and Continents</i></span>
+  <a href="https://www.metmuseum.org/art/collection/search/438642" target="_blank" rel="noopener">The Met · CC0</a>
 </div>
 
 <script>
@@ -151,9 +145,11 @@
   var herotype = document.querySelector("[data-herotype]");
   var W = 0, H = 0, dpr = 1;
 
-  var PIT   = "#120f0e";
-  var GLOW  = "#f0e2c8";
-  var WARM  = "#c89a63";
+  var SKY_IN  = [72, 98, 137];      // the opening; cream on this measures 5.3:1
+  var SKY_OUT = [150, 172, 196];
+  var VELLUM  = [239, 230, 216];
+
+  function rgba(c, a){ return "rgba(" + c[0] + "," + c[1] + "," + c[2] + "," + a.toFixed(3) + ")"; }
 
   function rng(seed){
     var x = seed >>> 0 || 1;
@@ -163,77 +159,80 @@
     };
   }
 
-  /* Regions of the scan worth lifting, in normalised coordinates: cloud banks,
-     open sky, the angel's wing and drapery, the dark weather along the bottom.
-     Figures are not avoided on principle — a putto or a wingtip surfacing in a
-     wisp is the point. */
-  /* Regions are wide on purpose. The crop is 2270px across at native, so a
-     narrow region simply has too few pixels to fill a third of a retina screen
-     and comes out mush — the painting cannot be enlarged past what is in it.
-     Wider cuts, drawn at roughly their own scale, stay legible as cloud. */
+  /* Two sources, both Met Open Access. Denis painted nothing but cloud, so his
+     forms are the cleanest available; the Tiepolo supplies the warm cream and
+     the ceiling it is all pretending to be. At the scale these are cut to,
+     both read as one sky — they are the same century and the same medium. */
+  var IMG = [
+    { url:"../assets/img/art/denis-clouds.webp",   el:null },
+    { url:"../assets/img/art/denis-clouds-2.webp", el:null },
+    { url:"../assets/img/art/tiepolo-sky.webp",    el:null }
+  ];
+
+  /* [image, x0, y0, x1, y1]. Denis carries the form — he painted nothing but
+     cloud, so there is no figure anywhere to cut around. The Tiepolo is down
+     to two patches of open sky, used only as atmosphere: the Allegory is dense
+     with horses and putti, and a stray hoof in a cumulus reads as a mistake
+     rather than as an allusion. The warmth it used to supply is done with a
+     soft-light pass instead, which is controllable. */
   var SRC = [
-    [.10, .00, .42, .46],   // 0  warm peach cloud, upper left
-    [.00, .02, .26, .40],   // 1  pale cream cloud
-    [.26, .02, .56, .46],   // 2  open blue sky
-    [.42, .00, .72, .34],   // 3  the wing, and white drapery
-    [.32, .38, .62, .74],   // 4  cool grey cloud
-    [.38, .72, .72, 1.0],   // 5  dark weather, centre bottom
-    [.00, .72, .30, 1.0],   // 6  dark weather, left
-    [.78, .02, 1.0, .36],   // 7  pale sky, right
-    [.02, .16, .30, .56]    // 8  putti in cloud
+    [0, .20, .33, .60, .70],   // 0  the big lit cumulus
+    [0, .38, .12, .62, .38],   // 1  bright cloud, high
+    [0, .62, .02, .98, .60],   // 2  grey cumulus flank
+    [0, .00, .48, .34, .86],   // 3  lower bank
+    [0, .02, .00, .26, .20],   // 4  small puffs
+    [0, .22, .76, .62, .95],   // 5  the pink flush
+    [1, .33, .38, .70, .64],   // 6  lit cumulus tops
+    [1, .02, .02, .32, .24],   // 7  pale puff, high
+    [1, .00, .46, .40, .82],   // 8  bank, left
+    [1, .54, .46, .96, .80],   // 9  bank, right
+    [1, .40, .00, .86, .16],   // 10 wisps, high
+    [2, .26, .02, .54, .24],   // 11 open sky, warm  (atmosphere only)
+    [2, .28, .24, .52, .46]    // 12 open sky, lower (atmosphere only)
   ];
 
-  /* The composition. Everything is placed on a ring so the middle stays empty
-     for the name — the opening a ceiling like this is built around. Angles are
-     deliberately uneven; evenly spaced anything reads as a wreath.
-       i      which fragment
-       a      angle, radians
-       r      distance from centre, as a fraction of the half-diagonal
-       s      size, as a fraction of the shorter viewport edge
-       rot    rotation
-       o      opacity
-       d      depth: how hard scroll pushes it outward
-       b      true to screen it on, for the luminous ones */
+  /* Massed around the edges and into the corners, not on a tidy ring: the
+     reference is a hole in a bank of cloud, so the pieces have to crowd the
+     frame and thin toward the middle. r is well past 1 for the ones that only
+     show a shoulder. */
   var COMP = [
-    /* Atmosphere first: a handful of the same fragments blown up large and held
-       at low opacity, drawn under the light. Without them the legible pieces
-       sit on black like torn scraps — this is the paint that joins them into
-       one continuous cloud. Marked u so the opening is drawn after. */
-    { i:0, a:-2.20, r:.30, s:1.50, rot: .40, o:.34, d:0.80, b:0, u:1 },
-    { i:4, a: 0.90, r:.34, s:1.60, rot:-.60, o:.32, d:0.90, b:0, u:1 },
-    { i:5, a: 2.40, r:.32, s:1.50, rot: 1.20, o:.34, d:0.90, b:0, u:1 },
-    { i:2, a:-0.60, r:.36, s:1.40, rot: 2.00, o:.26, d:0.80, b:0, u:1 },
-    { i:1, a: 1.70, r:.30, s:1.50, rot:-1.80, o:.28, d:0.80, b:0, u:1 },
+    // atmosphere: the two Tiepolo skies plus a couple of soft banks
+    { i:11, a:-2.30, r:.58, s:1.15, rot: .30, o:.45, d:.70, u:1 },
+    { i:12, a: 0.80, r:.62, s:1.20, rot:-.40, o:.42, d:.80, u:1 },
+    { i:8,  a: 2.30, r:.60, s:1.15, rot: .90, o:.40, d:.75, u:1 },
+    { i:9,  a:-0.70, r:.64, s:1.10, rot:-1.1, o:.38, d:.75, u:1 },
 
-    // inner ring: close around the name, small enough to read as cloud rather
-    // than as brushwork. A fragment blown up past its own scale stops looking
-    // like anything — it just looks like paint.
-    { i:3, a:-1.78, r:.48, s:.42, rot: .10, o:.90, d:1.20, b:1 },
-    { i:0, a:-2.46, r:.52, s:.48, rot:-.22, o:.95, d:1.00, b:0 },
-    { i:8, a: 2.58, r:.50, s:.44, rot:-.08, o:.90, d:0.95, b:0 },
-    { i:5, a: 1.18, r:.49, s:.50, rot:-.18, o:.94, d:1.30, b:0 },
-    { i:2, a:-0.98, r:.54, s:.42, rot: .32, o:.70, d:0.85, b:0 },
-    { i:6, a: 1.96, r:.51, s:.46, rot: .20, o:.92, d:1.10, b:0 },
+    // the bank, crowded around the opening
+    { i:0,  a:-2.86, r:.70, s:.78, rot:-.18, o:.96, d:1.00 },
+    { i:6,  a:-2.50, r:.64, s:.70, rot: .12, o:.94, d:1.15 },
+    { i:1,  a:-2.14, r:.72, s:.60, rot:-.30, o:.90, d:1.05 },
+    { i:9,  a:-1.78, r:.66, s:.74, rot: .22, o:.92, d:.95 },
+    { i:0,  a:-1.42, r:.72, s:.76, rot:-.12, o:.92, d:1.10 },
+    { i:2,  a:-1.06, r:.68, s:.80, rot: .34, o:.90, d:1.20 },
+    { i:6,  a:-0.70, r:.74, s:.72, rot:-.26, o:.94, d:1.05 },
+    { i:8,  a:-0.34, r:.68, s:.74, rot: .14, o:.90, d:1.15 },
+    { i:3,  a: 0.02, r:.72, s:.78, rot:-.20, o:.92, d:1.10 },
+    { i:6,  a: 0.38, r:.66, s:.72, rot: .40, o:.94, d:1.15 },
+    { i:7,  a: 0.74, r:.74, s:.56, rot:-.50, o:.86, d:1.00 },
+    { i:0,  a: 1.10, r:.70, s:.78, rot: .60, o:.94, d:1.05 },
+    { i:5,  a: 1.46, r:.68, s:.66, rot:-.16, o:.80, d:1.15 },
+    { i:9,  a: 1.82, r:.72, s:.78, rot: .28, o:.90, d:1.20 },
+    { i:6,  a: 2.18, r:.66, s:.70, rot:-.36, o:.94, d:1.10 },
+    { i:3,  a: 2.54, r:.72, s:.76, rot: .18, o:.92, d:1.10 },
+    { i:10, a: 2.90, r:.76, s:.70, rot:-.44, o:.76, d:.95 },
+    { i:4,  a: 3.10, r:.70, s:.58, rot: .52, o:.86, d:1.05 },
 
-    // middle
-    { i:1, a:-2.98, r:.72, s:.52, rot: .16, o:.84, d:1.20, b:1 },
-    { i:4, a: 0.46, r:.70, s:.54, rot: .24, o:.90, d:1.15, b:0 },
-    { i:7, a:-0.34, r:.74, s:.48, rot:-.14, o:.76, d:1.05, b:0 },
-    { i:0, a: 2.10, r:.76, s:.56, rot: .80, o:.78, d:1.25, b:0 },
-    { i:5, a:-2.18, r:.68, s:.52, rot: 1.4, o:.80, d:1.30, b:0 },
-    { i:3, a: 0.92, r:.72, s:.46, rot:-.60, o:.70, d:1.20, b:1 },
-
-    // outer: the weather, mostly off the edges, giving the ring some depth
-    { i:5, a:-0.88, r:1.00, s:.82, rot: 1.9, o:.72, d:1.50, b:0 },
-    { i:6, a: 0.30, r:1.04, s:.78, rot:-2.2, o:.70, d:1.45, b:0 },
-    { i:4, a: 2.26, r:.98, s:.76, rot:-1.3, o:.68, d:1.40, b:0 },
-    { i:0, a:-1.42, r:1.02, s:.80, rot: 2.6, o:.62, d:1.45, b:0 },
-    { i:1, a: 1.62, r:1.06, s:.72, rot: .50, o:.58, d:1.50, b:1 },
-    { i:8, a:-2.70, r:.96, s:.70, rot: 1.1, o:.62, d:1.35, b:0 }
+    // shoulders into the corners, where a little softness costs nothing
+    { i:2,  a:-1.60, r:1.10, s:1.05, rot: 1.9, o:.80, d:1.40 },
+    { i:8,  a:-0.45, r:1.14, s:1.00, rot:-2.2, o:.76, d:1.45 },
+    { i:9,  a: 1.10, r:1.12, s:1.05, rot: 2.6, o:.80, d:1.40 },
+    { i:0,  a: 2.70, r:1.08, s:1.00, rot:-1.4, o:.78, d:1.35 },
+    { i:3,  a: 0.00, r:1.18, s:.95, rot: .80, o:.72, d:1.50 },
+    { i:6,  a: 3.05, r:1.16, s:.95, rot:-.60, o:.72, d:1.45 }
   ];
 
-  var img = null, patches = [], ready = false;
-  var scrollPx = 0, idle = 0;
+  var patches = [], ready = false;
+  var scrollPx = 0, idle = 0, risen = false;
 
   function resize(){
     dpr = Math.min(2, devicePixelRatio || 1);
@@ -241,12 +240,10 @@
     H = cv.height = Math.floor(innerHeight * dpr);
   }
 
-  /* An irregular closed blob, smoothed through the midpoints of noisy radii.
-     The harmonics are kept modest on purpose: the mask plus its blur has to
-     die out before the canvas edge, and every bit of wobble eats into that
-     budget. Overrun it and the blur gets clipped, which puts a dead straight
-     line across the wisp — the one thing that gives the whole trick away. */
-  var BLOB_MAX = 1.36;    // worst case of the three harmonics below
+  /* The mask plus its blur has to die out before the canvas edge — overrun it
+     and the blur clips, which lays a dead straight line across the wisp and
+     gives the whole thing away. Hence modest harmonics and a small radius. */
+  var BLOB_MAX = 1.36;
   function blob(g, cx, cy, rx, ry, R){
     var N = 18, pts = [];
     var p1 = R() * 6.283, p2 = R() * 6.283, p3 = R() * 6.283;
@@ -265,27 +262,22 @@
     g.closePath();
   }
 
-  /* Each fragment is cut once into its own canvas and masked there, not every
-     frame. The mask is an irregular blob drawn under a heavy blur and composited
-     with destination-in, so what is left has no edge anywhere — a rectangle of
-     paint would announce itself instantly, and a hard-edged cutout would read
-     as a sticker. */
+  /* Cut once, at the source's own resolution. Cutting at a fixed size upscales
+     every fragment before it is drawn back down, and that round trip is what
+     makes them all look out of focus. */
   function buildPatches(){
     patches = SRC.map(function(r, n){
-      var iw = img.naturalWidth, ih = img.naturalHeight;
-      var sw = (r[2] - r[0]) * iw, sh = (r[3] - r[1]) * ih;
-      /* Cut at the source's own resolution. Cutting at a fixed size upscaled
-         every fragment before it was drawn back down, and that round trip is
-         what made them all look out of focus — the paint has only so much
-         detail in it and enlarging cannot add any. */
-      var w = Math.round(Math.min(sw, 1100));
+      var im = IMG[r[0]].el;
+      if (!im) return null;
+      var iw = im.naturalWidth, ih = im.naturalHeight;
+      var sw = (r[3] - r[1]) * iw, sh = (r[4] - r[2]) * ih;
+      var w = Math.round(Math.min(sw, 1200));
       var h = Math.round(w * sh / sw);
       var c = document.createElement("canvas");
       c.width = w; c.height = h;
       var g = c.getContext("2d");
-      g.drawImage(img, r[0] * iw, r[1] * ih, sw, sh, 0, 0, w, h);
-      /* radius * BLOB_MAX + 2 * blur must stay under half the canvas */
-      var rad = .25, blur = Math.round(Math.min(w, h) * .065);
+      g.drawImage(im, r[1] * iw, r[2] * ih, sw, sh, 0, 0, w, h);
+      var rad = .28, blur = Math.round(Math.min(w, h) * .048);
       g.globalCompositeOperation = "destination-in";
       g.filter = "blur(" + blur + "px)";
       blob(g, w / 2, h / 2, w * rad, h * rad, rng(n * 2654435761 + 17));
@@ -295,74 +287,122 @@
     });
   }
 
-  function draw(){
-    ctx.setTransform(1,0,0,1,0,0);
-    ctx.globalCompositeOperation = "source-over";
-    ctx.globalAlpha = 1;
-    ctx.filter = "none";
-    ctx.fillStyle = PIT;
-    ctx.fillRect(0,0,W,H);
-    if (!ready) return;
-
-    var cx = W * .5, cy = H * .46;
-    var half = Math.sqrt(W * W + H * H) / 2;
-    var shorter = Math.min(W, H);
-    var t = Math.min(1, scrollPx / Math.max(1, innerHeight * 1.5));
-    var drift = reduce ? 0 : idle;
-
-    drawLayer(1, cx, cy, half, shorter, t, drift);
-
-    /* the opening: laid over the atmosphere and under everything that has to
-       stay readable */
-    var bloom = ctx.createRadialGradient(cx, cy, 0, cx, cy, shorter * (.40 + t * .18));
-    bloom.addColorStop(0,   "rgba(248,240,224,.40)");
-    bloom.addColorStop(.30, "rgba(230,204,162,.16)");
-    bloom.addColorStop(1,   "rgba(200,154,99,0)");
-    ctx.fillStyle = bloom;
-    ctx.fillRect(0,0,W,H);
-
-    drawLayer(0, cx, cy, half, shorter, t, drift);
-
-    // sink the corners so the type always has somewhere dark to sit
-    ctx.globalCompositeOperation = "source-over";
-    ctx.globalAlpha = 1;
-    var vg = ctx.createRadialGradient(cx, cy, shorter * .22, cx, cy, half * 1.05);
-    vg.addColorStop(0, "rgba(18,15,14,0)");
-    vg.addColorStop(.62, "rgba(18,15,14,.26)");
-    vg.addColorStop(1, "rgba(14,11,10,.72)");
-    ctx.fillStyle = vg;
-    ctx.fillRect(0,0,W,H);
-
-    // the ceiling belongs to the hero; behind reading copy it sinks away
-    if (t > 0){
-      ctx.fillStyle = "rgba(16,13,12," + (t * .46).toFixed(3) + ")";
-      ctx.fillRect(0,0,W,H);
-    }
-  }
-
   function drawLayer(under, cx, cy, half, shorter, t, drift){
     for (var k = 0; k < COMP.length; k++){
       var c = COMP[k], p = patches[c.i];
       if (!p || !!c.u !== !!under) continue;
-
-      // scroll pushes the ring open and enlarges it: rising through the cloud
-      var rr = c.r * (1 + t * .52 * c.d);
-      var ss = c.s * (1 + t * .40 * c.d);
-      var ang = c.a + drift * .000045 * (k % 2 ? 1 : -1);
+      var rr = c.r * (1 + t * .50 * c.d);
+      var ss = c.s * (1 + t * .42 * c.d);
+      var ang = c.a + drift * .000040 * (k % 2 ? 1 : -1);
       var px = cx + Math.cos(ang) * rr * half;
       var py = cy + Math.sin(ang) * rr * half * .88;
       var pw = shorter * ss, ph = pw * p.height / p.width;
-
       ctx.save();
-      ctx.globalAlpha = c.o * (1 - t * .25);
-      ctx.globalCompositeOperation = c.b ? "screen" : "source-over";
+      ctx.globalAlpha = c.o;
       ctx.translate(px, py);
-      ctx.rotate(c.rot + drift * .00003 * (k % 3 - 1));
+      ctx.rotate(c.rot + drift * .000028 * (k % 3 - 1));
       ctx.drawImage(p, -pw / 2, -ph / 2, pw, ph);
       ctx.restore();
     }
-    ctx.globalCompositeOperation = "source-over";
     ctx.globalAlpha = 1;
+  }
+
+  function draw(){
+    ctx.setTransform(1,0,0,1,0,0);
+    ctx.globalAlpha = 1;
+    ctx.filter = "none";
+
+    var cx = W * .5, cy = H * .46;
+    var half = Math.sqrt(W * W + H * H) / 2;
+    var shorter = Math.min(W, H);
+    var t = Math.min(1, scrollPx / Math.max(1, innerHeight * 1.35));
+    var drift = reduce ? 0 : idle;
+
+    /* The opening is the darkest thing on the page, not the brightest — that
+       is how the cloud around it reads as lit, and it is the only way cream
+       type can sit in the middle of a pale sky and still be legible. */
+    var sky = ctx.createRadialGradient(cx, cy, 0, cx, cy, shorter * .78);
+    sky.addColorStop(0,   rgba(SKY_IN, 1));
+    sky.addColorStop(.55, rgba(SKY_IN, 1));
+    sky.addColorStop(1,   rgba(SKY_OUT, 1));
+    ctx.fillStyle = sky;
+    ctx.fillRect(0,0,W,H);
+    if (!ready) return;
+
+    drawLayer(1, cx, cy, half, shorter, t, drift);
+    drawLayer(0, cx, cy, half, shorter, t, drift);
+
+    /* Denis painted an evening sky in Italy and it is cooler than the cream
+       the reference wants. Soft-light with a warm tone lifts the midtones
+       without blowing the lit edges, which a plain overlay would. */
+    ctx.globalCompositeOperation = "soft-light";
+    ctx.fillStyle = "rgba(255,206,146,.55)";
+    ctx.fillRect(0,0,W,H);
+    ctx.globalCompositeOperation = "source-over";
+
+    // keep the hole open: the bank is pushed back out of the middle
+    var open = ctx.createRadialGradient(cx, cy, 0, cx, cy, shorter * (.62 + t * .30));
+    open.addColorStop(0,   rgba(SKY_IN, .74));
+    open.addColorStop(.42, rgba(SKY_IN, .32));
+    open.addColorStop(1,   rgba(SKY_IN, 0));
+    ctx.fillStyle = open;
+    ctx.fillRect(0,0,W,H);
+
+    // the sun, off to one side, warming the cloud it falls on
+    var sx = W * .22, sy = H * .18;
+    var sun = ctx.createRadialGradient(sx, sy, 0, sx, sy, shorter * .85);
+    sun.addColorStop(0,  "rgba(255,243,219,.46)");
+    sun.addColorStop(.3, "rgba(250,226,189,.18)");
+    sun.addColorStop(1,  "rgba(250,226,189,0)");
+    ctx.fillStyle = sun;
+    ctx.fillRect(0,0,W,H);
+
+    /* A pool of the opening's own blue, held behind the name. The bank will
+       always drift across the middle somewhere, and cream type over a lit
+       cumulus edge measures about 1.8:1 — invisible to anyone who needs
+       contrast. Sunk to the flat sky colour it measures 4.7:1, which clears AA
+       for the name and the line under it both. Elliptical because the name is
+       much wider than it is tall, and faded out as the name leaves. */
+    if (t < 1){
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.scale(1.5, 1);
+      var pool = ctx.createRadialGradient(0, 0, 0, 0, 0, shorter * .60);
+      pool.addColorStop(0,   rgba(SKY_IN, .97 * (1 - t)));
+      pool.addColorStop(.54, rgba(SKY_IN, .93 * (1 - t)));
+      pool.addColorStop(.72, rgba(SKY_IN, .60 * (1 - t)));
+      pool.addColorStop(1,   rgba(SKY_IN, 0));
+      ctx.fillStyle = pool;
+      ctx.fillRect(-W, -H, W * 2, H * 2);
+      ctx.restore();
+    }
+
+    /* The nav and the credit line sit on whatever cloud happens to be under
+       them, which measured under 2:1. Two shallow bands of the sky's own blue
+       give them something to sit on, and they fade out as the page turns to
+       paper and the type flips to ink. */
+    if (t < 1){
+      var band = H * .17;
+      var tg = ctx.createLinearGradient(0, 0, 0, band);
+      tg.addColorStop(0, rgba(SKY_IN, .94 * (1 - t)));
+      tg.addColorStop(1, rgba(SKY_IN, 0));
+      ctx.fillStyle = tg;
+      ctx.fillRect(0, 0, W, band);
+
+      var bg = ctx.createLinearGradient(0, H, 0, H - band * .7);
+      bg.addColorStop(0, rgba(SKY_IN, .92 * (1 - t)));
+      bg.addColorStop(1, rgba(SKY_IN, 0));
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, H - band * .7, W, band * .7);
+    }
+
+    /* Scrolling rises into the cloud, so the page turns to paper and the type
+       flips to ink. */
+    if (t > 0){
+      // not all the way: a blank cream field is not "up in the cloud"
+      ctx.fillStyle = rgba(VELLUM, Math.min(.80, t * 1.15));
+      ctx.fillRect(0,0,W,H);
+    }
   }
 
   function frame(){ idle += 1; draw(); requestAnimationFrame(frame); }
@@ -371,8 +411,10 @@
   function onScroll(){
     scrollPx = scrollY;
     var t = Math.min(1, scrollY / innerHeight);
-    herotype.style.transform = "translate3d(0," + (-scrollY * .26).toFixed(1) + "px,0) scale(" + (1 - t * .05).toFixed(3) + ")";
-    herotype.style.opacity = String(1 - t * .92);
+    herotype.style.transform = "translate3d(0," + (-scrollY * .24).toFixed(1) + "px,0) scale(" + (1 - t * .05).toFixed(3) + ")";
+    herotype.style.opacity = String(1 - t * .95);
+    var up = scrollY > innerHeight * .45;
+    if (up !== risen){ risen = up; document.body.classList.toggle("risen", up); }
     if (reduce) draw();
     queued = false;
   }
@@ -382,14 +424,17 @@
   addEventListener("resize", function(){ resize(); draw(); });
 
   resize();
-  var im = new Image();
-  im.onload = function(){
-    img = im; ready = true; buildPatches();
-    if (reduce) draw(); else frame();
-  };
-  im.onerror = function(){ draw(); };
-  im.src = "../assets/img/art/tiepolo-barbaro.webp?v=1";
   draw();
+  var left = IMG.length;
+  IMG.forEach(function(rec){
+    var im = new Image();
+    im.onload = function(){
+      rec.el = im;
+      if (--left === 0){ ready = true; buildPatches(); if (reduce) draw(); else frame(); }
+    };
+    im.onerror = function(){ if (--left === 0){ ready = true; buildPatches(); if (!reduce) frame(); } };
+    im.src = rec.url;
+  });
 
   /* Reveal helper. The observer alone isn't enough: if layout shifts while the
      webfonts load, an element can be reported as not intersecting and then
