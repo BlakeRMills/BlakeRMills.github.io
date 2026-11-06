@@ -3,24 +3,24 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Mock 5 · Fresco (WIP) — Blake Robert Mills</title>
+<title>Blake Robert Mills — Statistics, Civic Tech &amp; Urban Studies</title>
 <meta name="robots" content="noindex">
 <link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,500;1,300&family=Poppins:wght@200;300;400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,500;1,300&family=Manrope:wght@300;400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="../css/fresco.css">
 <style>
-  body { margin:0; background:#647B96; }
+  body { margin:0; background:#91A9BF; }
   /* this page has no site.css, so the few shared bits the hero leans on are
      restated here rather than pulling the whole stylesheet in */
   .bar { position:fixed; inset:0 0 auto 0; z-index:50; display:flex; align-items:center;
-    gap:1rem; padding:1.1rem clamp(1.5rem,4vw,2.8rem); }
+    gap:1rem; padding:1.35rem clamp(1.25rem,5vw,4.5rem); }
   .bar .brand { font-family:"Cormorant Garamond",Georgia,serif; font-weight:500;
-    font-size:1.05rem; letter-spacing:.22em; color:#E9D9BD; text-decoration:none; margin-right:auto; }
-  .bar nav { display:flex; gap:1.4rem; }
-  .bar nav a { font-family:"Poppins",system-ui,sans-serif; font-weight:300; font-size:.68rem;
-    letter-spacing:.22em; text-transform:uppercase; color:#E9D9BD; text-decoration:none; }
+    font-size:1.12rem; letter-spacing:.2em; color:#fff4e3; text-decoration:none; margin-right:auto; }
+  .bar nav { display:flex; gap:clamp(1rem,2.4vw,2.2rem); align-items:center; }
+  .bar nav a { font-family:"Manrope",system-ui,sans-serif; font-weight:400; font-size:.67rem;
+    letter-spacing:.17em; text-transform:uppercase; color:#fff4e3; text-decoration:none; }
 </style>
 </head>
 <body class="fresco">
@@ -33,11 +33,18 @@
 <section class="fresco-hero" id="hero">
   <div class="fresco-type" data-fresco-type>
     <h1 class="fresco-name"><span>Blake</span><span>Robert</span><span class="is-em">Mills</span></h1>
-    <p class="fresco-kicker">Statistics · Civic Tech · Urban Studies</p>
+    <p class="fresco-kicker">Statistics <span>·</span> Civic Tech <span>·</span> Urban Studies</p>
   </div>
+  <div class="fresco-actions">
+    <a class="fresco-explore" href="../work.html">Explore my work <span aria-hidden="true">↗</span></a>
+    <button class="fresco-motion" type="button" aria-pressed="false" aria-label="Pause cloud movement">
+      <span class="motion-icon" aria-hidden="true">Ⅱ</span><span class="motion-label">Pause the sky</span>
+    </button>
+  </div>
+  <p class="fresco-hint" aria-hidden="true">Move your pointer through the clouds</p>
   <div class="fresco-credit">
-    <span>Cloud after Simon Denis, <i>Cloud Studies</i> · G. B. Tiepolo, <i>Allegory of the Planets and Continents</i></span>
-    <a href="https://www.metmuseum.org/art/collection/search/438642" target="_blank" rel="noopener">The Met · CC0</a>
+    <span>Cloud studies after the baroque ceiling painters</span>
+    <span>Twenty formations, independently lit and drifted</span>
   </div>
 </section>
 
@@ -45,7 +52,17 @@
 <script>
   (function () {
     var hero = document.getElementById("hero");
-    if (window.BRMFresco) window.BRMFresco.mount(hero, { base: "../" });
+    if (!window.BRMFresco) return;
+    var scene = window.BRMFresco.mount(hero, { base: "../" });
+    var button = document.querySelector(".fresco-motion");
+    button.addEventListener("click", function () {
+      var paused = button.getAttribute("aria-pressed") !== "true";
+      button.setAttribute("aria-pressed", String(paused));
+      button.setAttribute("aria-label", paused ? "Resume cloud movement" : "Pause cloud movement");
+      button.querySelector(".motion-icon").textContent = paused ? "▶" : "Ⅱ";
+      button.querySelector(".motion-label").textContent = paused ? "Still the sky" : "Pause the sky";
+      paused ? scene.pause() : scene.play();
+    });
   })();
 </script>
 </body>

@@ -38,3 +38,19 @@ Object 437790 — public domain, Met Open Access (CC0 1.0).
 https://www.metmuseum.org/art/collection/search/437790
 
 A crop of the open sky above the central cloud bank.
+
+## clouds/cloud-01.webp … cloud-20.webp
+
+Generated for this site by Blake Robert Mills, in the manner of baroque ceiling
+painting. Not Met material and not public domain — these are his own assets and
+carry no third-party attribution.
+
+Supplied as three sheets on a flat neutral backdrop (~rgb 123). Keyed to alpha
+on chroma and luminance together rather than a plain difference key, which
+would have eaten the shadowed mauve undersides; neutral passages enclosed by
+cloud are protected by a flood fill from the borders, so they do not punch
+through. Colour is unpremultiplied against the measured backdrop so soft edges
+keep their hue, crop borders are feathered, and each formation is cut to its
+own bounding box and encoded as WebP with alpha.
+
+Pipeline: scratchpad key.py (dwebp -pam -> key -> PNG -> cwebp).
