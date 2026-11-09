@@ -13,34 +13,33 @@
 <link rel="stylesheet" href="../css/yoro.css">
 <style>
   :root{
-    --paper:#f1e2bf; --ink:#0e3e63; --cream:#f0dfbd;
+    --paper:#fbe6c2; --ink:#173f5f; --cream:#f6e6c6; --sky:#24506a;
     --display:"Marcellus",Georgia,serif;
     --body:"Josefin Sans",system-ui,sans-serif;
   }
   *,*::before,*::after{box-sizing:border-box}
-  body{margin:0; background:var(--ink); color:var(--cream); font-family:var(--body)}
+  body{margin:0; background:var(--sky); color:var(--cream); font-family:var(--body)}
   a{color:inherit}
 
-  /* The bar is the reference's own: initials top left, three links top right,
-     in the sky's cream. It is real text over the picture, so it sits on a
+  /* Initials top left, three links top right, in the paper's cream. It is real text over the picture, so it sits on a
      short wipe of the sky's ink rather than trusting what is underneath. */
   .bar{position:fixed; inset:0 0 auto 0; z-index:20; display:flex; align-items:center;
     gap:1rem; padding:1.15rem clamp(1.1rem,2.2vw,2.4rem) 1.6rem;
     font-family:var(--body); font-weight:400; font-size:clamp(.72rem,1.15vw,1rem);
     letter-spacing:.14em; text-transform:uppercase; color:var(--cream);
-    background:linear-gradient(rgba(14,62,99,.9) 0%, rgba(14,62,99,.72) 55%, rgba(14,62,99,0) 100%)}
+    background:linear-gradient(rgba(36,80,106,.92) 0%, rgba(36,80,106,.7) 55%, rgba(36,80,106,0) 100%)}
   .bar .brand{font-family:var(--display); font-size:clamp(1.25rem,2.1vw,1.9rem);
     letter-spacing:.06em; text-decoration:none; margin-right:auto; line-height:1}
   .bar nav{display:flex; gap:clamp(1.1rem,3vw,3.2rem)}
   .bar nav a{text-decoration:none}
   .bar nav a:hover{text-decoration:underline; text-underline-offset:.35em}
-  .bar.on-paper{background:rgba(241,226,191,.95); color:var(--ink);
-    border-bottom:1px solid rgba(14,62,99,.16); padding-bottom:1.15rem}
+  .bar.on-paper{background:rgba(251,230,194,.96); color:var(--ink);
+    border-bottom:1px solid rgba(23,63,95,.16); padding-bottom:1.15rem}
 
   /* over the waves, which are half cream: it gets its own ground */
   .yoro-hint{position:absolute; left:50%; bottom:1rem; z-index:3; margin:0;
     transform:translateX(-50%); width:max-content; max-width:92vw;
-    padding:.6rem 1rem .42rem; background:rgba(14,62,99,.88);
+    padding:.6rem 1rem .42rem; background:rgba(23,63,95,.9);
     font-size:.62rem; letter-spacing:.22em; text-transform:uppercase;
     color:var(--cream); transition:opacity .4s ease}
 
@@ -51,25 +50,25 @@
   .sheet .lead{margin:0 0 1.1rem; font-family:var(--display);
     font-size:clamp(1.6rem,3.6vw,2.7rem); line-height:1.2}
   .sheet .body-sm{margin:0 0 1.9rem; max-width:44rem; font-weight:300;
-    font-size:clamp(.95rem,1.4vw,1.1rem); line-height:1.7; color:#1d4a6e}
+    font-size:clamp(.95rem,1.4vw,1.1rem); line-height:1.7; color:#24506a}
   .sheet .btn{display:inline-block; text-decoration:none; font-size:.74rem;
     letter-spacing:.2em; text-transform:uppercase; padding:.95rem 1.6rem .8rem;
     border:1px solid var(--ink); color:var(--ink)}
   .sheet .btn:hover{background:var(--ink); color:var(--paper)}
   .sheet h2{margin:0 0 2rem; font-family:var(--display); font-weight:400;
     font-size:clamp(1.1rem,1.9vw,1.4rem); letter-spacing:.2em; text-transform:uppercase}
-  .rule{border:0; border-top:1px solid rgba(14,62,99,.2); margin:0}
+  .rule{border:0; border-top:1px solid rgba(23,63,95,.2); margin:0}
   .links a{display:grid; grid-template-columns:3.2rem 1fr auto; align-items:baseline;
     gap:1rem; padding:1.15rem .25rem; text-decoration:none; color:var(--ink);
-    border-top:1px solid rgba(14,62,99,.2)}
-  .links a:last-child{border-bottom:1px solid rgba(14,62,99,.2)}
-  .links a:hover{background:rgba(14,62,99,.06)}
-  .links .n{font-size:.74rem; letter-spacing:.12em; color:#3d6485}
+    border-top:1px solid rgba(23,63,95,.2)}
+  .links a:last-child{border-bottom:1px solid rgba(23,63,95,.2)}
+  .links a:hover{background:rgba(23,63,95,.06)}
+  .links .n{font-size:.74rem; letter-spacing:.12em; color:#3f6781}
   .links .t{font-family:var(--display); font-size:clamp(1.1rem,2.2vw,1.55rem)}
-  .links .d{font-size:.7rem; letter-spacing:.14em; text-transform:uppercase; color:#3d6485}
+  .links .d{font-size:.7rem; letter-spacing:.14em; text-transform:uppercase; color:#3f6781}
   .colophon{padding:0 clamp(1.5rem,6vw,4rem) clamp(3rem,7vh,5rem);
     max-width:62rem; margin:0 auto;
-    font-size:.66rem; letter-spacing:.16em; text-transform:uppercase; color:#3d6485}
+    font-size:.66rem; letter-spacing:.16em; text-transform:uppercase; color:#3f6781}
 </style>
 </head>
 <body>
@@ -82,17 +81,70 @@
 <div class="yoro-stage">
   <section class="yoro" id="hero">
 
-    <!-- The print. Six PNGs; only the stacking order is decided here. -->
+    <!-- The print. PNG layers; only the stacking order is decided here. -->
     <div class="yoro-frame" data-frame aria-hidden="true">
-      <img class="yoro-scene" src="../assets/img/art/yoro/01-scene.png" alt="" width="1672" height="941" decoding="async">
-      <div class="yoro-fall" data-fall>
-        <img class="yoro-paper" src="../assets/img/art/yoro/02-fall-paper.png" alt="" width="432" height="456">
-        <div class="yoro-run yoro-sheets"></div>
-        <div class="yoro-run yoro-threads"></div>
-      </div>
-      <div class="yoro-spray a"></div>
-      <div class="yoro-spray b"></div>
-      <div class="yoro-spray c"></div>
+      <img class="yoro-scene" src="../assets/img/art/yoro/01-scene.png" alt="" width="1924" height="1082" decoding="async">
+      <canvas class="yoro-fall" data-fall></canvas>
+      <!-- foliage:start (written by tools/yoro-layers.py) -->
+      <img class="yoro-leaf" src="../assets/img/art/yoro/foliage/01.png" alt="" width="122" height="120" loading="eager" decoding="async" style="left:19.802%;top:6.470%;width:6.341%;--o:21.7% 78.3%;--a:1.09deg;--d:4.9s;--w:-6.0s">
+      <img class="yoro-leaf" src="../assets/img/art/yoro/foliage/02.png" alt="" width="118" height="133" loading="eager" decoding="async" style="left:22.973%;top:0.092%;width:6.133%;--o:39.2% 75.4%;--a:1.39deg;--d:6.4s;--w:-0.4s">
+      <img class="yoro-leaf" src="../assets/img/art/yoro/foliage/03.png" alt="" width="171" height="68" loading="eager" decoding="async" style="left:31.497%;top:0.000%;width:8.888%;--o:44.1% 64.7%;--a:1.06deg;--d:5.2s;--w:-3.6s">
+      <img class="yoro-leaf" src="../assets/img/art/yoro/foliage/04.png" alt="" width="121" height="175" loading="eager" decoding="async" style="left:35.655%;top:0.000%;width:6.289%;--o:45.8% 78.1%;--a:0.81deg;--d:4.7s;--w:-1.7s">
+      <img class="yoro-leaf" src="../assets/img/art/yoro/foliage/05.png" alt="" width="43" height="54" loading="eager" decoding="async" style="left:40.748%;top:0.000%;width:2.235%;--o:56.6% 67.0%;--a:2.23deg;--d:6.1s;--w:-1.5s">
+      <img class="yoro-leaf" src="../assets/img/art/yoro/foliage/06.png" alt="" width="97" height="142" loading="eager" decoding="async" style="left:40.852%;top:0.000%;width:5.042%;--o:59.7% 78.1%;--a:0.89deg;--d:6.1s;--w:-3.2s">
+      <img class="yoro-leaf" src="../assets/img/art/yoro/foliage/07.png" alt="" width="51" height="52" loading="eager" decoding="async" style="left:45.582%;top:4.621%;width:2.651%;--o:53.1% 74.9%;--a:2.25deg;--d:4.8s;--w:-3.4s">
+      <img class="yoro-leaf" src="../assets/img/art/yoro/foliage/08.png" alt="" width="104" height="118" loading="eager" decoding="async" style="left:45.426%;top:0.000%;width:5.405%;--o:60.3% 78.5%;--a:1.25deg;--d:4.6s;--w:-3.5s">
+      <img class="yoro-leaf" src="../assets/img/art/yoro/foliage/09.png" alt="" width="68" height="33" loading="eager" decoding="async" style="left:54.886%;top:0.000%;width:3.534%;--o:45.1% 55.7%;--a:2.60deg;--d:5.6s;--w:-4.7s">
+      <img class="yoro-leaf" src="../assets/img/art/yoro/foliage/10.png" alt="" width="68" height="49" loading="eager" decoding="async" style="left:55.457%;top:8.688%;width:3.534%;--o:64.0% 69.3%;--a:2.53deg;--d:4.8s;--w:-1.9s">
+      <img class="yoro-leaf" src="../assets/img/art/yoro/foliage/11.png" alt="" width="75" height="59" loading="eager" decoding="async" style="left:56.029%;top:1.664%;width:3.898%;--o:34.8% 74.2%;--a:2.11deg;--d:4.1s;--w:-0.2s">
+      <img class="yoro-leaf" src="../assets/img/art/yoro/foliage/12.png" alt="" width="106" height="67" loading="eager" decoding="async" style="left:57.952%;top:5.915%;width:5.509%;--o:39.6% 72.4%;--a:1.53deg;--d:5.3s;--w:-1.0s">
+      <img class="yoro-leaf" src="../assets/img/art/yoro/foliage/13.png" alt="" width="105" height="103" loading="eager" decoding="async" style="left:7.277%;top:13.863%;width:5.457%;--o:53.9% 85.7%;--a:1.45deg;--d:4.6s;--w:-2.1s">
+      <img class="yoro-leaf" src="../assets/img/art/yoro/foliage/14.png" alt="" width="100" height="144" loading="eager" decoding="async" style="left:11.331%;top:11.275%;width:5.198%;--o:44.3% 83.2%;--a:1.28deg;--d:4.0s;--w:-5.5s">
+      <img class="yoro-leaf" src="../assets/img/art/yoro/foliage/15.png" alt="" width="116" height="115" loading="eager" decoding="async" style="left:14.501%;top:16.821%;width:6.029%;--o:51.7% 77.6%;--a:1.51deg;--d:4.1s;--w:-2.1s">
+      <img class="yoro-leaf" src="../assets/img/art/yoro/foliage/16.png" alt="" width="107" height="126" loading="eager" decoding="async" style="left:19.439%;top:16.081%;width:5.561%;--o:54.2% 77.2%;--a:1.04deg;--d:5.5s;--w:-1.4s">
+      <img class="yoro-leaf" src="../assets/img/art/yoro/foliage/17.png" alt="" width="117" height="89" loading="eager" decoding="async" style="left:22.713%;top:9.889%;width:6.081%;--o:30.0% 75.3%;--a:1.04deg;--d:4.1s;--w:-3.2s">
+      <img class="yoro-leaf" src="../assets/img/art/yoro/foliage/18.png" alt="" width="132" height="151" loading="eager" decoding="async" style="left:26.819%;top:11.645%;width:6.861%;--o:41.4% 83.0%;--a:0.84deg;--d:6.1s;--w:-4.9s">
+      <img class="yoro-leaf" src="../assets/img/art/yoro/foliage/19.png" alt="" width="121" height="183" loading="eager" decoding="async" style="left:39.137%;top:10.536%;width:6.289%;--o:68.1% 78.7%;--a:0.66deg;--d:5.2s;--w:-5.9s">
+      <img class="yoro-leaf" src="../assets/img/art/yoro/foliage/20.png" alt="" width="86" height="144" loading="eager" decoding="async" style="left:45.946%;top:9.335%;width:4.470%;--o:58.2% 81.8%;--a:0.91deg;--d:4.1s;--w:-1.2s">
+      <img class="yoro-leaf" src="../assets/img/art/yoro/foliage/21.png" alt="" width="71" height="57" loading="eager" decoding="async" style="left:56.237%;top:13.401%;width:3.690%;--o:48.0% 76.1%;--a:1.72deg;--d:4.0s;--w:-1.9s">
+      <img class="yoro-leaf" src="../assets/img/art/yoro/foliage/22.png" alt="" width="118" height="124" loading="eager" decoding="async" style="left:2.391%;top:21.904%;width:6.133%;--o:45.8% 75.5%;--a:1.38deg;--d:6.2s;--w:-1.7s">
+      <img class="yoro-leaf" src="../assets/img/art/yoro/foliage/23.png" alt="" width="111" height="117" loading="eager" decoding="async" style="left:4.938%;top:27.634%;width:5.769%;--o:62.8% 74.7%;--a:1.50deg;--d:5.9s;--w:-0.9s">
+      <img class="yoro-leaf" src="../assets/img/art/yoro/foliage/24.png" alt="" width="119" height="101" loading="eager" decoding="async" style="left:7.432%;top:21.904%;width:6.185%;--o:44.2% 74.2%;--a:1.44deg;--d:4.6s;--w:-5.3s">
+      <img class="yoro-leaf" src="../assets/img/art/yoro/foliage/25.png" alt="" width="110" height="75" loading="eager" decoding="async" style="left:9.459%;top:33.549%;width:5.717%;--o:44.0% 77.7%;--a:1.29deg;--d:5.9s;--w:-0.8s">
+      <img class="yoro-leaf" src="../assets/img/art/yoro/foliage/26.png" alt="" width="122" height="113" loading="eager" decoding="async" style="left:16.112%;top:24.214%;width:6.341%;--o:40.3% 76.2%;--a:0.98deg;--d:4.9s;--w:-4.9s">
+      <img class="yoro-leaf" src="../assets/img/art/yoro/foliage/27.png" alt="" width="92" height="124" loading="eager" decoding="async" style="left:18.139%;top:31.054%;width:4.782%;--o:49.0% 80.0%;--a:1.14deg;--d:5.3s;--w:-1.1s">
+      <img class="yoro-leaf" src="../assets/img/art/yoro/foliage/28.png" alt="" width="77" height="126" loading="eager" decoding="async" style="left:23.285%;top:24.307%;width:4.002%;--o:39.8% 80.2%;--a:1.27deg;--d:4.9s;--w:-1.2s">
+      <img class="yoro-leaf" src="../assets/img/art/yoro/foliage/29.png" alt="" width="111" height="128" loading="eager" decoding="async" style="left:36.954%;top:30.591%;width:5.769%;--o:66.7% 76.6%;--a:1.35deg;--d:5.4s;--w:-3.0s">
+      <img class="yoro-leaf" src="../assets/img/art/yoro/foliage/30.png" alt="" width="96" height="115" loading="eager" decoding="async" style="left:38.202%;top:22.643%;width:4.990%;--o:66.8% 83.6%;--a:1.33deg;--d:3.9s;--w:-5.3s">
+      <img class="yoro-leaf" src="../assets/img/art/yoro/foliage/31.png" alt="" width="68" height="56" loading="eager" decoding="async" style="left:42.412%;top:26.895%;width:3.534%;--o:58.6% 70.6%;--a:2.55deg;--d:4.2s;--w:-3.9s">
+      <img class="yoro-leaf" src="../assets/img/art/yoro/foliage/32.png" alt="" width="52" height="67" loading="eager" decoding="async" style="left:45.010%;top:26.802%;width:2.703%;--o:50.2% 74.3%;--a:2.66deg;--d:4.0s;--w:-5.2s">
+      <img class="yoro-leaf" src="../assets/img/art/yoro/foliage/33.png" alt="" width="138" height="133" loading="eager" decoding="async" style="left:42.516%;top:31.331%;width:7.173%;--o:77.7% 77.8%;--a:0.98deg;--d:4.4s;--w:-2.8s">
+      <img class="yoro-leaf" src="../assets/img/art/yoro/foliage/34.png" alt="" width="103" height="87" loading="eager" decoding="async" style="left:30.717%;top:57.116%;width:5.353%;--o:50.5% 76.8%;--a:1.77deg;--d:5.4s;--w:-3.0s">
+      <img class="yoro-leaf" src="../assets/img/art/yoro/foliage/35.png" alt="" width="149" height="145" loading="eager" decoding="async" style="left:45.738%;top:46.858%;width:7.744%;--o:22.1% 78.7%;--a:1.22deg;--d:6.1s;--w:-3.5s">
+      <img class="yoro-leaf" src="../assets/img/art/yoro/foliage/36.png" alt="" width="122" height="124" loading="eager" decoding="async" style="left:50.052%;top:59.519%;width:6.341%;--o:43.2% 73.0%;--a:1.27deg;--d:5.9s;--w:-4.6s">
+      <img class="yoro-leaf" src="../assets/img/art/yoro/foliage/37.png" alt="" width="127" height="110" loading="eager" decoding="async" style="left:50.260%;top:50.832%;width:6.601%;--o:37.9% 79.5%;--a:1.11deg;--d:6.1s;--w:-1.3s">
+      <img class="yoro-leaf" src="../assets/img/art/yoro/foliage/38.png" alt="" width="72" height="54" loading="eager" decoding="async" style="left:55.094%;top:50.924%;width:3.742%;--o:32.5% 71.7%;--a:2.28deg;--d:3.8s;--w:-1.0s">
+      <img class="yoro-leaf" src="../assets/img/art/yoro/foliage/39.png" alt="" width="117" height="91" loading="eager" decoding="async" style="left:40.125%;top:64.233%;width:6.081%;--o:33.1% 78.4%;--a:1.37deg;--d:4.5s;--w:-5.1s">
+      <img class="yoro-leaf" src="../assets/img/art/yoro/foliage/40.png" alt="" width="125" height="121" loading="eager" decoding="async" style="left:45.374%;top:63.494%;width:6.497%;--o:46.0% 74.3%;--a:1.03deg;--d:5.2s;--w:-4.7s">
+      <img class="yoro-leaf" src="../assets/img/art/yoro/foliage/41.png" alt="" width="96" height="39" loading="eager" decoding="async" style="left:49.168%;top:71.072%;width:4.990%;--o:49.5% 75.6%;--a:1.55deg;--d:4.3s;--w:-2.1s">
+      <img class="yoro-leaf" src="../assets/img/art/yoro/foliage/42.png" alt="" width="80" height="95" loading="eager" decoding="async" style="left:54.470%;top:72.551%;width:4.158%;--o:48.6% 83.3%;--a:1.43deg;--d:5.8s;--w:-2.1s">
+      <img class="yoro-leaf" src="../assets/img/art/yoro/foliage/43.png" alt="" width="131" height="110" loading="eager" decoding="async" style="left:54.418%;top:64.880%;width:6.809%;--o:49.4% 79.1%;--a:1.21deg;--d:6.1s;--w:-3.0s">
+      <img class="yoro-leaf" src="../assets/img/art/yoro/foliage/44.png" alt="" width="93" height="122" loading="eager" decoding="async" style="left:57.588%;top:70.518%;width:4.834%;--o:42.8% 83.1%;--a:1.36deg;--d:3.9s;--w:-1.7s">
+      <img class="yoro-leaf" src="../assets/img/art/yoro/foliage/45.png" alt="" width="57" height="54" loading="eager" decoding="async" style="left:18.451%;top:76.802%;width:2.963%;--o:39.7% 73.8%;--a:2.11deg;--d:5.3s;--w:-2.0s">
+      <img class="yoro-leaf" src="../assets/img/art/yoro/foliage/46.png" alt="" width="193" height="144" loading="eager" decoding="async" style="left:17.983%;top:80.776%;width:10.031%;--o:58.7% 84.7%;--a:0.85deg;--d:6.3s;--w:-4.2s">
+      <img class="yoro-leaf" src="../assets/img/art/yoro/foliage/47.png" alt="" width="95" height="68" loading="eager" decoding="async" style="left:22.713%;top:82.532%;width:4.938%;--o:63.6% 74.3%;--a:1.33deg;--d:5.9s;--w:-1.9s">
+      <img class="yoro-leaf" src="../assets/img/art/yoro/foliage/48.png" alt="" width="61" height="32" loading="eager" decoding="async" style="left:24.740%;top:80.776%;width:3.170%;--o:37.3% 63.4%;--a:2.19deg;--d:4.2s;--w:-0.4s">
+      <img class="yoro-leaf" src="../assets/img/art/yoro/foliage/49.png" alt="" width="88" height="92" loading="eager" decoding="async" style="left:54.470%;top:79.667%;width:4.574%;--o:41.4% 79.6%;--a:1.85deg;--d:4.2s;--w:-4.2s">
+      <img class="yoro-leaf" src="../assets/img/art/yoro/foliage/50.png" alt="" width="106" height="92" loading="eager" decoding="async" style="left:54.470%;top:86.137%;width:5.509%;--o:38.6% 80.8%;--a:1.33deg;--d:5.9s;--w:-3.2s">
+      <img class="yoro-leaf" src="../assets/img/art/yoro/foliage/51.png" alt="" width="112" height="110" loading="eager" decoding="async" style="left:57.640%;top:80.129%;width:5.821%;--o:35.2% 80.4%;--a:1.17deg;--d:5.5s;--w:-5.5s">
+      <img class="yoro-leaf" src="../assets/img/art/yoro/foliage/52.png" alt="" width="179" height="84" loading="eager" decoding="async" style="left:17.983%;top:92.237%;width:9.304%;--o:47.9% 93.5%;--a:0.69deg;--d:5.4s;--w:-5.7s">
+      <img class="yoro-leaf" src="../assets/img/art/yoro/foliage/53.png" alt="" width="49" height="74" loading="eager" decoding="async" style="left:25.884%;top:93.161%;width:2.547%;--o:57.6% 78.6%;--a:2.15deg;--d:6.0s;--w:-3.5s">
+      <img class="yoro-leaf" src="../assets/img/art/yoro/foliage/54.png" alt="" width="116" height="76" loading="eager" decoding="async" style="left:54.470%;top:92.976%;width:6.029%;--o:48.8% 92.4%;--a:1.53deg;--d:6.0s;--w:-0.5s">
+      <img class="yoro-leaf" src="../assets/img/art/yoro/foliage/55.png" alt="" width="108" height="124" loading="eager" decoding="async" style="left:57.848%;top:88.540%;width:5.613%;--o:44.7% 77.8%;--a:1.00deg;--d:4.8s;--w:-5.4s">      <!-- foliage:end -->
+      <div class="yoro-mist a"></div><div class="yoro-mist b"></div>
+      <div class="yoro-mist c"></div><div class="yoro-mist d"></div>
+      <div class="yoro-spray r1"></div><div class="yoro-spray r2"></div><div class="yoro-spray r3"></div>
+      <div class="yoro-spray l1"></div><div class="yoro-spray l2"></div><div class="yoro-spray l3"></div>
     </div>
 
     <div class="yoro-wipe" aria-hidden="true"></div>
@@ -126,7 +178,7 @@
       <a href="../resume.html"><span class="n">06</span><span class="t">Resume</span><span class="d">PDF</span></a>
     </div>
   </div>
-  <p class="colophon">After Hokusai · six PNG layers, stacked</p>
+  <p class="colophon">Katsushika Hokusai, Yōrō Waterfall in Mino Province, c. 1832 · widened and cut into layers</p>
 </main>
 
 <script src="../js/yoro.js"></script>

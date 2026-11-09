@@ -1,122 +1,138 @@
-/* Yoro — a waterfall print, stacked from six PNG layers.
+/* Yoro — Hokusai's waterfall, stacked from PNG layers.
  *
- * Nothing here is drawn in code. The picture is 01-scene.png; the moving water
- * is three more images laid over it through a mask; the spray is a fifth. This
- * file is only the stacking and the motion.
+ * Nothing in the picture is drawn in code. 01-scene.png is the whole wide
+ * picture; over it go the moving water (a small canvas that only slides PNG
+ * tiles past a mask), the trees again as separate pieces that sway, a bank of
+ * mist and loose spray. This file is the stacking and the CSS-driven motion;
+ * js/yoro.js runs the water and reads the scroll.
  *
- * Everything inside the frame is placed in percentages of the frame, which is
- * the 1672x941 picture, so the layers stay registered at any window size.
- * tools/yoro-layers.py prints the numbers used for the water box.
+ * Everything inside the frame is placed in percentages of the frame, the
+ * 1924 x 1082 picture, so the layers stay registered at any window size.
+ * tools/yoro-layers.py prints the numbers used here.
  */
 
 .yoro-stage{position:relative; height:200svh}
 .yoro{position:sticky; top:0; height:100svh; overflow:hidden; isolation:isolate;
-  background:#0e3e63; container-type:size}
+  background:#fbe6c2; container-type:size}
 
-/* The frame: the picture, scaled to cover the hero and centred. --fw is its
-   width; --u is one pixel of the original picture, so anything can be placed
-   by reading a coordinate straight off the artwork. */
+/* The frame: the picture scaled to cover the hero. --u is one pixel of the
+   picture, so anything can be placed by reading a coordinate off the artwork.
+   A window narrower than the picture loses mostly its left side: the fall and
+   the open cloud the name sits on are both right of there. */
 .yoro-frame, .yoro-typewrap{
-  --fw: max(100cqw, 100cqh * 1672 / 941);
-  --fh: calc(var(--fw) * 941 / 1672);
-  --fx: calc((100cqw - var(--fw)) / 2);
-  --fy: calc((100cqh - var(--fh)) * 0.3);   /* wider than 16:9: keep the sky, lose more of the pool */
-  --u:  calc(var(--fw) / 1672);
+  --fw: max(100cqw, 100cqh * 1924 / 1082);
+  --fh: calc(var(--fw) * 1082 / 1924);
+  --fx: calc((100cqw - var(--fw)) * 0.77);
+  --fy: calc((100cqh - var(--fh)) * 0.3);
+  --u:  calc(var(--fw) / 1924);
 }
 .yoro-frame{position:absolute; left:var(--fx); top:var(--fy);
   width:var(--fw); height:var(--fh);
-  transform:scale(1.02); transform-origin:34.2% 68%; will-change:transform}
+  transform:scale(1.02); transform-origin:33% 70%; will-change:transform}
 .yoro-scene{position:absolute; inset:0; width:100%; height:100%; display:block}
 
-/* ---- the water ----
-   A box over the fall. Inside it: bare paper, then two tall strips that slide
-   down for ever. Each strip is its tile twice over and travels exactly one
-   tile, so the loop has no seam. The mask is what lets the cliffs and the
-   trees stay in front, and feathers the top and the foot into the print. */
-.yoro-fall{position:absolute; left:21.292%; top:14.878%; width:25.837%; height:48.459%;
-  overflow:hidden; isolation:isolate; opacity:0; transition:opacity .9s ease;
-  -webkit-mask:url(../assets/img/art/yoro/05-fall-mask.png) center / 100% 100% no-repeat;
-          mask:url(../assets/img/art/yoro/05-fall-mask.png) center / 100% 100% no-repeat}
+/* ---- the water: a canvas the size of the fall. See js/yoro.js. ---- */
+.yoro-fall{position:absolute; left:25.052%; top:22.181%; width:16.008%; height:43.993%;
+  opacity:0; transition:opacity .9s ease}
 .yoro-fall.is-live{opacity:1}
-.yoro-paper{position:absolute; inset:0; width:100%; height:100%; display:block}
-.yoro-run{position:absolute; left:0; top:0; width:100%; aspect-ratio:432 / 2400;
-  background-repeat:repeat-y; background-size:100% 50%;
-  animation:yoro-run linear infinite; will-change:transform}
-/* printed over the paper, the way the block was: the grain comes up through it */
-.yoro-sheets{background-image:url(../assets/img/art/yoro/03-fall-sheets.png);
-  mix-blend-mode:multiply; animation-duration:8s}
-.yoro-threads{background-image:url(../assets/img/art/yoro/04-fall-threads.png);
-  animation-duration:4.6s}
-@keyframes yoro-run{
-  from{transform:translate3d(0,-50%,0)}
-  to  {transform:translate3d(0,0,0)}
+
+/* ---- the foliage ----
+   Each piece carries its own pivot (--o), reach (--a), period (--d) and
+   offset (--w), written by tools/yoro-layers.py. The scene underneath still
+   has every leaf, so a piece that leans only ever uncovers itself. */
+.yoro-leaf{position:absolute; height:auto; display:block; transform-origin:var(--o);
+  animation:yoro-sway var(--d) ease-in-out var(--w) infinite alternate; will-change:transform}
+@keyframes yoro-sway{
+  from{transform:rotate(calc(var(--a) * -1)) skewX(calc(var(--a) * -.7))}
+  to  {transform:rotate(var(--a)) skewX(calc(var(--a) * .7))}
 }
 
-/* ---- the spray ----
-   One sheet of stipple, used three times at the foot of the fall, each copy
-   lifting away and fading on its own clock. */
-.yoro-spray{position:absolute; aspect-ratio:300 / 460; opacity:0;
-  background:url(../assets/img/art/yoro/06-spray.png) center / 100% 100% no-repeat;
-  animation:yoro-spray 4.2s ease-out infinite; will-change:transform,opacity}
-.yoro-spray.a{left:46.2%; top:50%; width:11.4%}
-.yoro-spray.b{left:46.6%; top:54%; width:9.6%; animation-delay:-2.1s}
-.yoro-spray.c{left:41%; top:57%; width:7.6%; animation-delay:-1.1s; animation-duration:3.4s}
-@keyframes yoro-spray{
-  0%  {transform:translate3d(-5%,7%,0) scale(.92);  opacity:0}
-  22% {opacity:.9}
-  100%{transform:translate3d(9%,-10%,0) scale(1.07); opacity:0}
+/* ---- mist: one soft bank, four times, each swelling and thinning ---- */
+.yoro-mist{position:absolute; aspect-ratio:640 / 380; opacity:0; pointer-events:none;
+  background:url(../assets/img/art/yoro/06-mist.png) center / 100% 100% no-repeat;
+  animation:yoro-mist 11s ease-in-out infinite; will-change:transform,opacity}
+.yoro-mist.a{left:15%;   top:52%; width:20%; --mx:-12%}
+.yoro-mist.b{left:33%;   top:53%; width:20%; --mx:12%; animation-duration:13s; animation-delay:-4s}
+.yoro-mist.c{left:22.5%; top:57%; width:21%; --mx:-4%; animation-duration:9.5s; animation-delay:-7s}
+.yoro-mist.d{left:27%;   top:50%; width:17%; --mx:6%;  animation-duration:12s; animation-delay:-2s}
+@keyframes yoro-mist{
+  0%  {transform:translate3d(0,8%,0) scale(.8); opacity:0}
+  40% {opacity:.6}
+  100%{transform:translate3d(var(--mx),-10%,0) scale(1.3); opacity:0}
 }
 
-.yoro.is-paused .yoro-run, .yoro.is-paused .yoro-spray{animation-play-state:paused}
+/* ---- spray: stipple thrown out either side of the foot of the fall ---- */
+.yoro-spray{position:absolute; aspect-ratio:1; width:17%; opacity:0; pointer-events:none;
+  background:url(../assets/img/art/yoro/07-spray.png) center / 100% 100% no-repeat;
+  animation:yoro-spray-r 4.6s cubic-bezier(.2,.6,.4,1) infinite; will-change:transform,opacity}
+.yoro-spray.r1{left:39.6%; top:48%}
+.yoro-spray.r2{left:38.4%; top:53%; width:14%; animation-duration:3.7s; animation-delay:-1.3s}
+.yoro-spray.r3{left:40.2%; top:44%; width:19%; animation-duration:5.6s; animation-delay:-3.1s}
+.yoro-spray.l1{left:9.6%;  top:49%; animation-name:yoro-spray-l; animation-delay:-2.2s}
+.yoro-spray.l2{left:13.4%; top:54%; width:14%; animation-name:yoro-spray-l; animation-duration:3.9s; animation-delay:-.6s}
+.yoro-spray.l3{left:7.2%;  top:45%; width:19%; animation-name:yoro-spray-l; animation-duration:5.3s; animation-delay:-4s}
+@keyframes yoro-spray-r{
+  0%  {transform:translate3d(-14%,10%,0) scale(.78); opacity:0}
+  18% {opacity:1}
+  70% {opacity:.85}
+  100%{transform:translate3d(42%,-12%,0) scale(1.16); opacity:0}
+}
+@keyframes yoro-spray-l{
+  0%  {transform:translate3d(14%,10%,0) scale(-.78,.78); opacity:0}
+  18% {opacity:1}
+  70% {opacity:.85}
+  100%{transform:translate3d(-42%,-12%,0) scale(-1.16,1.16); opacity:0}
+}
+
+.yoro.is-paused .yoro-leaf, .yoro.is-paused .yoro-mist, .yoro.is-paused .yoro-spray{animation-play-state:paused}
 
 /* ---- the lettering ----
-   Real text, set where the reference has it painted: over the open sky right
-   of the fall. --tu is the picture's own pixel again, capped so a very wide,
-   short window cannot push the name off the top and bottom. */
+   Real text, in the print's own ink, on the open cloud right of the fall. */
 .yoro-typewrap{
-  --tu: min(var(--u), 100cqh / 640);
+  --tu: min(var(--u), 100cqh / 700);
   position:absolute; z-index:3;
-  left:calc(var(--fx) + var(--u) * 1160);
-  top:max(4.6rem, calc(var(--fy) + var(--u) * 148));
+  left:calc(var(--fx) + var(--u) * 1500);
+  top:max(4.8rem, calc(var(--fy) + var(--u) * 236));
   transform:translateX(-50%); text-align:center; white-space:nowrap;
-  color:#f0dfbd;
+  color:#173f5f;
 }
 .yoro-type{will-change:transform,opacity}
 .yoro-name{margin:0; font-family:"Marcellus",Georgia,serif; font-weight:400;
-  font-size:calc(var(--tu) * 108); line-height:.98; letter-spacing:.02em;
+  font-size:calc(var(--tu) * 100); line-height:.98; letter-spacing:.02em;
   text-transform:uppercase}
 .yoro-name span{display:block}
-.yoro-kicker{margin:calc(var(--tu) * 30) 0 0;
-  font-family:"Josefin Sans",system-ui,sans-serif; font-weight:400;
-  font-size:max(.62rem, calc(var(--tu) * 21)); letter-spacing:.14em;
+.yoro-kicker{margin:calc(var(--tu) * 34) 0 0;
+  font-family:"Josefin Sans",system-ui,sans-serif; font-weight:500;
+  font-size:max(.64rem, calc(var(--tu) * 20)); letter-spacing:.14em;
   text-transform:uppercase}
 
 .yoro-wipe{display:none}
 
 /* ---- tall windows ----
-   The picture is 16:9 and the name lives in its right-hand third. Once the
-   window is narrower than about 5:4 there is no crop that keeps both the fall
-   and the sky, so the layout changes rather than the picture: the frame sits
-   on the bottom of the hero with the fall centred, and the top is wiped with
-   the sky's own ink — a printer's bokashi — to carry the name. */
+   Below about 5:4 no crop of a wide picture holds both the fall and the open
+   cloud, so the layout changes rather than the picture: the frame sits on the
+   bottom of the hero with the fall centred, which on a phone is very nearly
+   the print as Hokusai cut it, and the name goes above it on a wipe of the
+   sky's blue. */
 @container (max-aspect-ratio: 5 / 4){
+  .yoro{background:#24506a}
   .yoro-frame, .yoro-typewrap{
-    --fw: max(100cqw, 72cqh * 1672 / 941);
-    --fx: clamp(100cqw - var(--fw), 50cqw - var(--fw) * 0.341, 0px);
+    --fw: max(100cqw, 72cqh * 1924 / 1082);
+    --fx: clamp(100cqw - var(--fw), 50cqw - var(--fw) * 0.3306, 0px);
     --fy: calc(100cqh - var(--fh));
   }
   .yoro-wipe{display:block; position:absolute; inset:0; z-index:2; pointer-events:none;
-    background:linear-gradient(#0e3e63 0%, #0e3e63 28%,
-      rgba(14,62,99,.86) 33%, rgba(14,62,99,.5) 38%, rgba(14,62,99,0) 45%)}
-  .yoro-typewrap{left:50cqw; top:calc(4.2rem + 1.5cqh)}
+    background:linear-gradient(#24506a 0%, #24506a 27%,
+      rgba(36,80,106,.9) 31%, rgba(40,86,110,.55) 36%, rgba(61,107,127,0) 44%)}
+  .yoro-typewrap{left:50cqw; top:calc(4.2rem + 1.5cqh); color:#f6e6c6}
   .yoro-name{font-size:min(13cqw, 7.2cqh)}
-  .yoro-kicker{margin-top:1.6cqh; font-size:clamp(.6rem, 2.9cqw, .95rem)}
+  .yoro-kicker{margin-top:1.6cqh; font-size:clamp(.6rem, 2.9cqw, .95rem); font-weight:400}
 }
 
-/* Still picture for anyone who has asked for less motion: the scene already
-   contains the print's own water, so the moving layers simply stay away. */
+/* Less motion asked for: the scene alone is the complete print. */
 @media (prefers-reduced-motion:reduce){
-  .yoro-fall, .yoro-spray{display:none}
+  .yoro-fall, .yoro-mist, .yoro-spray{display:none}
+  .yoro-leaf{animation:none}
   .yoro-frame{transform:none !important}
   .yoro-type{transform:none !important; opacity:1 !important}
 }
