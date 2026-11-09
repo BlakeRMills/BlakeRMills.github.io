@@ -1,0 +1,122 @@
+/* Yoro — a waterfall print, stacked from six PNG layers.
+ *
+ * Nothing here is drawn in code. The picture is 01-scene.png; the moving water
+ * is three more images laid over it through a mask; the spray is a fifth. This
+ * file is only the stacking and the motion.
+ *
+ * Everything inside the frame is placed in percentages of the frame, which is
+ * the 1672x941 picture, so the layers stay registered at any window size.
+ * tools/yoro-layers.py prints the numbers used for the water box.
+ */
+
+.yoro-stage{position:relative; height:200svh}
+.yoro{position:sticky; top:0; height:100svh; overflow:hidden; isolation:isolate;
+  background:#0e3e63; container-type:size}
+
+/* The frame: the picture, scaled to cover the hero and centred. --fw is its
+   width; --u is one pixel of the original picture, so anything can be placed
+   by reading a coordinate straight off the artwork. */
+.yoro-frame, .yoro-typewrap{
+  --fw: max(100cqw, 100cqh * 1672 / 941);
+  --fh: calc(var(--fw) * 941 / 1672);
+  --fx: calc((100cqw - var(--fw)) / 2);
+  --fy: calc((100cqh - var(--fh)) * 0.3);   /* wider than 16:9: keep the sky, lose more of the pool */
+  --u:  calc(var(--fw) / 1672);
+}
+.yoro-frame{position:absolute; left:var(--fx); top:var(--fy);
+  width:var(--fw); height:var(--fh);
+  transform:scale(1.02); transform-origin:34.2% 68%; will-change:transform}
+.yoro-scene{position:absolute; inset:0; width:100%; height:100%; display:block}
+
+/* ---- the water ----
+   A box over the fall. Inside it: bare paper, then two tall strips that slide
+   down for ever. Each strip is its tile twice over and travels exactly one
+   tile, so the loop has no seam. The mask is what lets the cliffs and the
+   trees stay in front, and feathers the top and the foot into the print. */
+.yoro-fall{position:absolute; left:21.292%; top:14.878%; width:25.837%; height:48.459%;
+  overflow:hidden; isolation:isolate; opacity:0; transition:opacity .9s ease;
+  -webkit-mask:url(../assets/img/art/yoro/05-fall-mask.png) center / 100% 100% no-repeat;
+          mask:url(../assets/img/art/yoro/05-fall-mask.png) center / 100% 100% no-repeat}
+.yoro-fall.is-live{opacity:1}
+.yoro-paper{position:absolute; inset:0; width:100%; height:100%; display:block}
+.yoro-run{position:absolute; left:0; top:0; width:100%; aspect-ratio:432 / 2400;
+  background-repeat:repeat-y; background-size:100% 50%;
+  animation:yoro-run linear infinite; will-change:transform}
+/* printed over the paper, the way the block was: the grain comes up through it */
+.yoro-sheets{background-image:url(../assets/img/art/yoro/03-fall-sheets.png);
+  mix-blend-mode:multiply; animation-duration:8s}
+.yoro-threads{background-image:url(../assets/img/art/yoro/04-fall-threads.png);
+  animation-duration:4.6s}
+@keyframes yoro-run{
+  from{transform:translate3d(0,-50%,0)}
+  to  {transform:translate3d(0,0,0)}
+}
+
+/* ---- the spray ----
+   One sheet of stipple, used three times at the foot of the fall, each copy
+   lifting away and fading on its own clock. */
+.yoro-spray{position:absolute; aspect-ratio:300 / 460; opacity:0;
+  background:url(../assets/img/art/yoro/06-spray.png) center / 100% 100% no-repeat;
+  animation:yoro-spray 4.2s ease-out infinite; will-change:transform,opacity}
+.yoro-spray.a{left:46.2%; top:50%; width:11.4%}
+.yoro-spray.b{left:46.6%; top:54%; width:9.6%; animation-delay:-2.1s}
+.yoro-spray.c{left:41%; top:57%; width:7.6%; animation-delay:-1.1s; animation-duration:3.4s}
+@keyframes yoro-spray{
+  0%  {transform:translate3d(-5%,7%,0) scale(.92);  opacity:0}
+  22% {opacity:.9}
+  100%{transform:translate3d(9%,-10%,0) scale(1.07); opacity:0}
+}
+
+.yoro.is-paused .yoro-run, .yoro.is-paused .yoro-spray{animation-play-state:paused}
+
+/* ---- the lettering ----
+   Real text, set where the reference has it painted: over the open sky right
+   of the fall. --tu is the picture's own pixel again, capped so a very wide,
+   short window cannot push the name off the top and bottom. */
+.yoro-typewrap{
+  --tu: min(var(--u), 100cqh / 640);
+  position:absolute; z-index:3;
+  left:calc(var(--fx) + var(--u) * 1160);
+  top:max(4.6rem, calc(var(--fy) + var(--u) * 148));
+  transform:translateX(-50%); text-align:center; white-space:nowrap;
+  color:#f0dfbd;
+}
+.yoro-type{will-change:transform,opacity}
+.yoro-name{margin:0; font-family:"Marcellus",Georgia,serif; font-weight:400;
+  font-size:calc(var(--tu) * 108); line-height:.98; letter-spacing:.02em;
+  text-transform:uppercase}
+.yoro-name span{display:block}
+.yoro-kicker{margin:calc(var(--tu) * 30) 0 0;
+  font-family:"Josefin Sans",system-ui,sans-serif; font-weight:400;
+  font-size:max(.62rem, calc(var(--tu) * 21)); letter-spacing:.14em;
+  text-transform:uppercase}
+
+.yoro-wipe{display:none}
+
+/* ---- tall windows ----
+   The picture is 16:9 and the name lives in its right-hand third. Once the
+   window is narrower than about 5:4 there is no crop that keeps both the fall
+   and the sky, so the layout changes rather than the picture: the frame sits
+   on the bottom of the hero with the fall centred, and the top is wiped with
+   the sky's own ink — a printer's bokashi — to carry the name. */
+@container (max-aspect-ratio: 5 / 4){
+  .yoro-frame, .yoro-typewrap{
+    --fw: max(100cqw, 72cqh * 1672 / 941);
+    --fx: clamp(100cqw - var(--fw), 50cqw - var(--fw) * 0.341, 0px);
+    --fy: calc(100cqh - var(--fh));
+  }
+  .yoro-wipe{display:block; position:absolute; inset:0; z-index:2; pointer-events:none;
+    background:linear-gradient(#0e3e63 0%, #0e3e63 28%,
+      rgba(14,62,99,.86) 33%, rgba(14,62,99,.5) 38%, rgba(14,62,99,0) 45%)}
+  .yoro-typewrap{left:50cqw; top:calc(4.2rem + 1.5cqh)}
+  .yoro-name{font-size:min(13cqw, 7.2cqh)}
+  .yoro-kicker{margin-top:1.6cqh; font-size:clamp(.6rem, 2.9cqw, .95rem)}
+}
+
+/* Still picture for anyone who has asked for less motion: the scene already
+   contains the print's own water, so the moving layers simply stay away. */
+@media (prefers-reduced-motion:reduce){
+  .yoro-fall, .yoro-spray{display:none}
+  .yoro-frame{transform:none !important}
+  .yoro-type{transform:none !important; opacity:1 !important}
+}

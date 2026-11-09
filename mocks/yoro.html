@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mock 6 · Yōrō — Blake Robert Mills</title>
+<meta name="robots" content="noindex">
+<link rel="icon" href="../assets/img/favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Marcellus&family=Josefin+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="preload" as="image" href="../assets/img/art/yoro/01-scene.png">
+<link rel="stylesheet" href="../css/yoro.css">
+<style>
+  :root{
+    --paper:#f1e2bf; --ink:#0e3e63; --cream:#f0dfbd;
+    --display:"Marcellus",Georgia,serif;
+    --body:"Josefin Sans",system-ui,sans-serif;
+  }
+  *,*::before,*::after{box-sizing:border-box}
+  body{margin:0; background:var(--ink); color:var(--cream); font-family:var(--body)}
+  a{color:inherit}
+
+  /* The bar is the reference's own: initials top left, three links top right,
+     in the sky's cream. It is real text over the picture, so it sits on a
+     short wipe of the sky's ink rather than trusting what is underneath. */
+  .bar{position:fixed; inset:0 0 auto 0; z-index:20; display:flex; align-items:center;
+    gap:1rem; padding:1.15rem clamp(1.1rem,2.2vw,2.4rem) 1.6rem;
+    font-family:var(--body); font-weight:400; font-size:clamp(.72rem,1.15vw,1rem);
+    letter-spacing:.14em; text-transform:uppercase; color:var(--cream);
+    background:linear-gradient(rgba(14,62,99,.9) 0%, rgba(14,62,99,.72) 55%, rgba(14,62,99,0) 100%)}
+  .bar .brand{font-family:var(--display); font-size:clamp(1.25rem,2.1vw,1.9rem);
+    letter-spacing:.06em; text-decoration:none; margin-right:auto; line-height:1}
+  .bar nav{display:flex; gap:clamp(1.1rem,3vw,3.2rem)}
+  .bar nav a{text-decoration:none}
+  .bar nav a:hover{text-decoration:underline; text-underline-offset:.35em}
+  .bar.on-paper{background:rgba(241,226,191,.95); color:var(--ink);
+    border-bottom:1px solid rgba(14,62,99,.16); padding-bottom:1.15rem}
+
+  /* over the waves, which are half cream: it gets its own ground */
+  .yoro-hint{position:absolute; left:50%; bottom:1rem; z-index:3; margin:0;
+    transform:translateX(-50%); width:max-content; max-width:92vw;
+    padding:.6rem 1rem .42rem; background:rgba(14,62,99,.88);
+    font-size:.62rem; letter-spacing:.22em; text-transform:uppercase;
+    color:var(--cream); transition:opacity .4s ease}
+
+  /* Below the print: the sheet, in the print's own paper and ink. */
+  .sheet{position:relative; z-index:4; background:var(--paper); color:var(--ink)}
+  .sheet .wrap{max-width:62rem; margin:0 auto;
+    padding:clamp(4rem,10vh,7.5rem) clamp(1.5rem,6vw,4rem)}
+  .sheet .lead{margin:0 0 1.1rem; font-family:var(--display);
+    font-size:clamp(1.6rem,3.6vw,2.7rem); line-height:1.2}
+  .sheet .body-sm{margin:0 0 1.9rem; max-width:44rem; font-weight:300;
+    font-size:clamp(.95rem,1.4vw,1.1rem); line-height:1.7; color:#1d4a6e}
+  .sheet .btn{display:inline-block; text-decoration:none; font-size:.74rem;
+    letter-spacing:.2em; text-transform:uppercase; padding:.95rem 1.6rem .8rem;
+    border:1px solid var(--ink); color:var(--ink)}
+  .sheet .btn:hover{background:var(--ink); color:var(--paper)}
+  .sheet h2{margin:0 0 2rem; font-family:var(--display); font-weight:400;
+    font-size:clamp(1.1rem,1.9vw,1.4rem); letter-spacing:.2em; text-transform:uppercase}
+  .rule{border:0; border-top:1px solid rgba(14,62,99,.2); margin:0}
+  .links a{display:grid; grid-template-columns:3.2rem 1fr auto; align-items:baseline;
+    gap:1rem; padding:1.15rem .25rem; text-decoration:none; color:var(--ink);
+    border-top:1px solid rgba(14,62,99,.2)}
+  .links a:last-child{border-bottom:1px solid rgba(14,62,99,.2)}
+  .links a:hover{background:rgba(14,62,99,.06)}
+  .links .n{font-size:.74rem; letter-spacing:.12em; color:#3d6485}
+  .links .t{font-family:var(--display); font-size:clamp(1.1rem,2.2vw,1.55rem)}
+  .links .d{font-size:.7rem; letter-spacing:.14em; text-transform:uppercase; color:#3d6485}
+  .colophon{padding:0 clamp(1.5rem,6vw,4rem) clamp(3rem,7vh,5rem);
+    max-width:62rem; margin:0 auto;
+    font-size:.66rem; letter-spacing:.16em; text-transform:uppercase; color:#3d6485}
+</style>
+</head>
+<body>
+
+<div class="bar">
+  <a class="brand" href="../index.html">BRM</a>
+  <nav><a href="../work.html">Work</a><a href="../about.html">About</a><a href="../resume.html">Resume</a></nav>
+</div>
+
+<div class="yoro-stage">
+  <section class="yoro" id="hero">
+
+    <!-- The print. Six PNGs; only the stacking order is decided here. -->
+    <div class="yoro-frame" data-frame aria-hidden="true">
+      <img class="yoro-scene" src="../assets/img/art/yoro/01-scene.png" alt="" width="1672" height="941" decoding="async">
+      <div class="yoro-fall" data-fall>
+        <img class="yoro-paper" src="../assets/img/art/yoro/02-fall-paper.png" alt="" width="432" height="456">
+        <div class="yoro-run yoro-sheets"></div>
+        <div class="yoro-run yoro-threads"></div>
+      </div>
+      <div class="yoro-spray a"></div>
+      <div class="yoro-spray b"></div>
+      <div class="yoro-spray c"></div>
+    </div>
+
+    <div class="yoro-wipe" aria-hidden="true"></div>
+
+    <div class="yoro-typewrap">
+      <div class="yoro-type" data-type>
+        <h1 class="yoro-name"><span>Blake</span><span>Robert</span><span>Mills</span></h1>
+        <p class="yoro-kicker">Statistics · Civic Tech · Urban Studies</p>
+      </div>
+    </div>
+
+    <p class="yoro-hint" data-hint>Scroll · the water runs faster</p>
+  </section>
+</div>
+
+<main class="sheet">
+  <div class="wrap">
+    <p class="lead">I work where data, design and cities meet.</p>
+    <p class="body-sm">Data scientist in government innovation and public interest technology. I build colour palettes for the R community, map the places people live, and write about what the numbers turn up.</p>
+    <a class="btn" href="mailto:brm2143@columbia.edu">Get in touch</a>
+  </div>
+  <hr class="rule">
+  <div class="wrap">
+    <h2>The work</h2>
+    <div class="links">
+      <a href="../metbrewer.html"><span class="n">01</span><span class="t">{MetBrewer}</span><span class="d">56 palettes</span></a>
+      <a href="../momacolors.html"><span class="n">02</span><span class="t">{MoMAColors}</span><span class="d">35 palettes</span></a>
+      <a href="../visualizations.html"><span class="n">03</span><span class="t">Visualizations</span><span class="d">75 pieces</span></a>
+      <a href="../designs.html"><span class="n">04</span><span class="t">Designs</span><span class="d">Illustration</span></a>
+      <a href="../writings.html"><span class="n">05</span><span class="t">Writings</span><span class="d">Published</span></a>
+      <a href="../resume.html"><span class="n">06</span><span class="t">Resume</span><span class="d">PDF</span></a>
+    </div>
+  </div>
+  <p class="colophon">After Hokusai · six PNG layers, stacked</p>
+</main>
+
+<script src="../js/yoro.js"></script>
+<script>
+  (function(){
+    var hero = document.getElementById("hero");
+    if (window.BRMYoro) window.BRMYoro.mount(hero, { base: "../" });
+
+    var hint  = document.querySelector("[data-hint]");
+    var bar   = document.querySelector(".bar");
+    var stage = document.querySelector(".yoro-stage");
+    function onScroll(){
+      var t = Math.min(1, scrollY / innerHeight);
+      if (hint) hint.style.opacity = String(Math.max(0, 1 - t * 4));
+      bar.classList.toggle("on-paper", scrollY > stage.offsetHeight - bar.offsetHeight * 1.4);
+    }
+    addEventListener("scroll", onScroll, {passive:true});
+    onScroll();
+  })();
+</script>
+</body>
+</html>
