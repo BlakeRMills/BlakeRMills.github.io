@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Hokusai layer generator</title>
+<meta name="robots" content="noindex">
+<style>
+  body{margin:0;background:#11181f;color:#f5f1ea;font:14px/1.6 ui-monospace,monospace;padding:2rem}
+  h1{font-size:1rem;letter-spacing:.2em;text-transform:uppercase;margin:0 0 1rem}
+  p{max-width:70ch;opacity:.75}
+  #log{white-space:pre-wrap;margin-top:1.5rem}
+  canvas{display:block;margin:.6rem 0;max-width:460px;height:auto;
+    background:repeating-conic-gradient(#2a3540 0 25%,#222c35 0 50%) 0 0/16px 16px;
+    border:1px solid #39434d}
+  .row{display:inline-block;margin:0 1.2rem 1.2rem 0;vertical-align:top}
+  .row b{font-weight:400;opacity:.6;font-size:.72rem;letter-spacing:.1em}
+</style>
+</head>
+<body>
+<h1>Hokusai layer generator</h1>
+<p>Renders every layer of the print to its own PNG and PUTs it into
+   <code>assets/img/art/hokusai/</code>. Re-run after changing a layer's drawing code.
+   Full-frame layers are all 2000&times;1250 and aligned, so they stack as one document.</p>
+<p>A plain static server has nowhere to put the files, so run
+   <code>python3 tools/layerserve.py</code> from the repository root and open this page
+   at <code>http://127.0.0.1:4188/tools/hokusai-layers.html</code>. Opened any other
+   way it still renders every layer below &mdash; the writes just fail.</p>
+<div id="log"></div>
+<div id="out"></div>
+
+<script>
+/* ---------------------------------------------------------------------------
+   The canonical frame. Every full-frame layer is this size and shares these
+   coordinates, so opening them all as layers in one document lines them up.
+--------------------------------------------------------------------------- */
+var FW = 2000, FH = 1250;
+var S = {
+  fallX:  .34 * FW,        // 680  — centre of the fall
+  fallW:  .175 * FW,       // 350  — width at the lip
+  fallB:  .175 * 1.22 * FW,// 427  — width at the base
+  top:    .02 * FH,        // 25
+  bottom: .74 * FH,        // 925
+  horiz:  .80 * FH         // 1000
+};
+
+var PAPER = "#efe4ca";
+var INK = ["#0a2e57","#295384","#5a97c1","#74c8c3","#95c36e","#d8d97a"];
+function I(i){ return INK[Math.max(0, Math.min(INK.length-1, i))]; }
+var DEEP = I(0), MID = I(1), WATER = I(2), LEAF = I(4), LEAF_L = I(5);
+
+function rgb(h){ h=h.replace("#",""); return [parseInt(h.slice(0,2),16),parseInt(h.slice(2,4),16),parseInt(h.slice(4,6),16)]; }
+function rgba(h,a){ var c=rgb(h); return "rgba("+c[0]+","+c[1]+","+c[2]+","+a.toFixed(3)+")"; }
+function mix(a,b,t){ var x=rgb(a),y=rgb(b); return "#"+[0,1,2].map(function(i){
+  var v=Math.round(x[i]+(y[i]-x[i])*t).toString(16); return v.length<2?"0"+v:v; }).join(""); }
+function rng(seed){ var x=seed>>>0||1; return function(){ x^=x<<13;x>>>=0;x^=x>>17;x^=x<<5;x>>>=0; return x/4294967296; }; }
+
+/* bokashi: the printer wipes ink across the block, so the fade is stepped.
+   Canvas gradients dither, which both triples the PNG and reads as airbrush. */
+function wipe(g,x,y,w,h,from,to,steps){
+  steps = steps || 48;
+  for (var i=0;i<steps;i++){
+    g.fillStyle = mix(from,to,i/(steps-1));
+    g.fillRect(x, y + h*i/steps, w, h/steps + 1);
+  }
+}
+function wipeClip(g,from,to,steps){   // fills the current path with a wipe
+  g.save(); g.clip();
+  var b = g.canvas;
+  wipe(g,0,0,b.width,b.height,from,to,steps);
+  g.restore();
+}
+
+function sheet(w,h){
+  var c=document.createElement("canvas"); c.width=w; c.height=h;
+  return { c:c, g:c.getContext("2d") };
+}
+
+/* a flat scalloped form, the way a block cuts a cloud or a leaf mass */
+function cloudForm(g,cx,cy,rx,ry,lobes,phase,col,alpha){
+  g.fillStyle=col; g.globalAlpha=alpha; g.beginPath();
+  var N=Math.max(140,lobes*18);
+  for(var i=0;i<=N;i++){
+    var t=i/N*6.283185;
+    var b=Math.pow(Math.abs(Math.cos(lobes*t/2+phase)),.55);
+    var k=.86+.20*b;
+    var x=cx+Math.cos(t)*rx*k, y=cy+Math.sin(t)*ry*k;
+    i?g.lineTo(x,y):g.moveTo(x,y);
+  }
+  g.closePath(); g.fill(); g.globalAlpha=1;
+}
+
+/* stipple that wraps across the edges, so tiles stay seamless */
+function stipple(g,W,H,cx,cy,rx,ry,n,r0,r1,col,alpha,R,wrap){
+  g.fillStyle=col; g.globalAlpha=alpha;
+  for(var i=0;i<n;i++){
+    var a=R()*6.283, d=Math.sqrt(R());
+    var x=cx+Math.cos(a)*rx*d, y=cy+Math.sin(a)*ry*d, r=r0+R()*(r1-r0);
+    var xs=wrap?[x-W,x,x+W]:[x], ys=wrap?[y-H,y,y+H]:[y];
+    for(var p=0;p<xs.length;p++) for(var q=0;q<ys.length;q++){
+      g.beginPath(); g.arc(xs[p],ys[q],r,0,6.283); g.fill();
+    }
+  }
+  g.globalAlpha=1;
+}
+
+/* =========================== the layers ================================= */
+var LAYERS = [];
+function layer(name,w,h,repeat,note,fn){ LAYERS.push({name:name,w:w,h:h,repeat:repeat,note:note,fn:fn}); }
+
+/* --- 01 sky: the only opaque layer. Everything else sits on this. ------- */
+layer("01-sky.png",FW,FH,"none","Opaque ground. The wiped sky above the horizon and the water below it.",function(g){
+  wipe(g,0,0,FW,FH*.30, DEEP, MID, 22);
+  wipe(g,0,FH*.30,FW,S.horiz-FH*.30, MID, mix(MID,WATER,.72), 30);
+  wipe(g,0,S.horiz,FW,FH-S.horiz, MID, DEEP, 20);
+});
+
+/* --- 02/03 the gorge walls ---------------------------------------------- */
+function wall(g,pts,R){
+  g.beginPath();
+  pts.forEach(function(p,i){ i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]); });
+  g.closePath();
+  wipeClip(g, mix(MID,DEEP,.45), DEEP, 26);
+
+  // keyblock: every flat in a print sits inside an outline from its own block
+  g.lineJoin="round";
+  g.strokeStyle=rgba(DEEP,.9); g.lineWidth=5.5;
+  g.beginPath();
+  pts.slice(1,-1).forEach(function(p,i){ i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]); });
+  g.stroke();
+
+  // the water throws light onto the rock beside it
+  g.strokeStyle=rgba(PAPER,.30); g.lineWidth=6.5;
+  g.beginPath();
+  pts.slice(1,4).forEach(function(p,i){ i?g.lineTo(p[0],p[1]):g.moveTo(p[0],p[1]); });
+  g.stroke();
+}
+function hatch(g,R,x0,x1){
+  g.strokeStyle=rgba(DEEP,.5); g.lineWidth=2.2;
+  for(var i=0;i<16;i++){
+    var y=FH*(.05+R()*.55), x=x0+R()*(x1-x0);
+    g.beginPath(); g.moveTo(x,y); g.lineTo(x+S.fallW*(.10+R()*.22),y+FH*.03); g.stroke();
+  }
+}
+layer("02-cliff-left.png",FW,FH,"none","Left wall, full frame and aligned with the others.",function(g){
+  var fx=S.fallX, fw=S.fallW;
+  wall(g,[[-2,-2],[fx-fw*.62,-2],[fx-fw*.70,FH*.22],[fx-fw*1.25,FH*.46],[-2,FH*.60]],rng(31));
+  hatch(g,rng(31),fx-fw*2.1,fx-fw*.75);
+});
+layer("03-cliff-right.png",FW,FH,"none","Right wall, stepped the way a block cuts rock.",function(g){
+  var fx=S.fallX, fw=S.fallW;
+  wall(g,[[FW+2,-2],[fx+fw*.60,-2],[fx+fw*.74,FH*.17],[fx+fw*1.5,FH*.30],[fx+fw*1.2,FH*.52],[FW+2,FH*.42]],rng(77));
+  hatch(g,rng(77),fx+fw*.7,fx+fw*2.2);
+});
+layer("04-cliff-outcrop.png",FW,FH,"none","The dark shelf the fall breaks over.",function(g){
+  var fx=S.fallX, fw=S.fallW;
+  g.fillStyle=DEEP; g.beginPath();
+  g.moveTo(fx-fw*.30,FH*.60); g.lineTo(fx+fw*.10,FH*.54); g.lineTo(fx+fw*.52,FH*.68);
+  g.lineTo(fx+fw*.16,FH*.80); g.lineTo(fx-fw*.52,FH*.74); g.closePath(); g.fill();
+  g.strokeStyle=rgba(PAPER,.22); g.lineWidth=4; g.stroke();
+});
+
+/* --- 05 the fall: a seamless vertical tile ------------------------------
+   The renderer repeats this down the column and slices it into bands to get
+   the taper, so the tile itself is a straight strip. Everything in it has a
+   vertical period that divides the tile height exactly, which is what makes
+   the loop invisible.                                                      */
+var TW=384, TH=768;
+layer("05-fall.png",TW,TH,"repeat-y","Seamless water column. Tiles top-to-bottom; the renderer tapers it.",function(g){
+  var R=rng(7);
+  // the wash, with an edge that wanders on periods that divide the tile
+  function edge(y,side,seed){
+    var p=y/TH*6.283185;
+    return side*(TW*.46 + Math.sin(p+seed)*TW*.022 + Math.sin(p*2+seed*1.7)*TW*.014
+                 + Math.sin(p*4+seed*2.3)*TW*.008);
+  }
+  g.fillStyle=rgba(PAPER,.93);
+  g.beginPath();
+  var k, steps=160;
+  for(k=0;k<=steps;k++){ var y=k/steps*TH; g.lineTo(TW/2+edge(y,-1,0.0),y); }
+  for(k=steps;k>=0;k--){ y=k/steps*TH; g.lineTo(TW/2+edge(y,1,1.9),y); }
+  g.closePath(); g.fill();
+
+  // a cooler band down one side, so the column has a near and a far face
+  for(var b=0;b<14;b++){
+    g.fillStyle=rgba(WATER,.16*(1-b/13));
+    g.fillRect(TW*.06 + TW*.46*b/14, 0, TW*.46/14 + 1, TH);
+  }
+
+  // the streaks. Dash cycles are exact divisors of the tile height.
+  var cycles=[1024,512,256];
+  g.lineCap="butt";
+  for(var i=0;i<46;i++){
+    var x=TW*.06+(i/45)*TW*.88+(R()-.5)*8;
+    var cyc=cycles[(R()*cycles.length)|0];
+    var long=cyc*(.62+R()*.22), gap=cyc-long;
+    g.setLineDash(R()<.14?[]:[long,gap]);
+    g.lineDashOffset=-R()*cyc;
+    g.lineWidth=1.4+R()*4.2;
+    g.strokeStyle=R()<.22?rgba(WATER,.46):rgba(PAPER,.80+R()*.20);
+    g.beginPath(); g.moveTo(x,-4); g.lineTo(x+(R()-.5)*10,TH+4); g.stroke();
+  }
+  g.setLineDash([]); g.lineDashOffset=0;
+});
+
+/* --- 06 the lip ---------------------------------------------------------- */
+layer("06-fall-crest.png",FW,FH,"none","The lip where the water comes over, plus the first loose strands.",function(g){
+  var R=rng(1212), fx=S.fallX, fw=S.fallW;
+  g.fillStyle=rgba(PAPER,.95);
+  g.beginPath();
+  g.moveTo(fx-fw*.52,S.top+FH*.02);
+  g.quadraticCurveTo(fx-fw*.1,S.top-FH*.012,fx+fw*.50,S.top+FH*.016);
+  g.lineTo(fx+fw*.46,S.top+FH*.055);
+  g.quadraticCurveTo(fx,S.top+FH*.082,fx-fw*.48,S.top+FH*.052);
+  g.closePath(); g.fill();
+  g.lineCap="round";
+  for(var i=0;i<22;i++){
+    var x=fx+(R()-.5)*fw*.98;
+    g.strokeStyle=rgba(PAPER,.55+R()*.4); g.lineWidth=1.6+R()*3;
+    g.beginPath(); g.moveTo(x,S.top+FH*.03); g.lineTo(x+(R()-.5)*14,S.top+FH*(.07+R()*.10)); g.stroke();
+  }
+  stipple(g,FW,FH,fx,S.top+FH*.055,fw*.56,FH*.022,120,1.2,3.4,PAPER,.5,R,false);
+});
+
+/* --- 07 the spray at the base -------------------------------------------- */
+layer("07-spray.png",768,384,"none","Burst where the fall lands. Anchored on the fall's base, which moves with scroll.",function(g){
+  var R=rng(99);
+  cloudForm(g,384,225,225,52,13,.6,rgba(PAPER,.30),1);
+  cloudForm(g,285,188,135,36,11,2.1,rgba(PAPER,.22),1);
+  cloudForm(g,488,196,142,38,9,1.1,rgba(PAPER,.20),1);
+  stipple(g,768,384,384,158,248,72,620,1.0,3.6,PAPER,.55,R,false);
+  stipple(g,768,384,384,202,202,57,300,1.0,2.8,WATER,.30,R,false);
+});
+
+/* --- 08/09 the pool: seigaiha sheets that tile sideways -------------------
+   Open arcs on their own read as a row of croquet hoops. What makes the
+   pattern water is a filled band with a scalloped top edge, ruled over.    */
+function seigaiha(g,W,H,spans,rows,v0,v1){
+  for(var r=0;r<rows;r++){
+    var v=v0+(v1-v0)*((r+.5)/rows);
+    var span=W/spans, rad=span*.5;
+    var y=H*((r+.6)/rows);
+    var off=(r%2)?span/2:0;
+    g.fillStyle=mix(MID,DEEP,v*.85);
+    g.beginPath(); g.moveTo(-span,H+2); g.lineTo(-span,y);
+    for(var x=-span;x<W+span;x+=span) g.arc(x+off+rad,y,rad,Math.PI,0);
+    g.lineTo(W+span,H+2); g.closePath(); g.fill();
+    for(x=-span;x<W+span;x+=span){
+      for(var k=0;k<4;k++){
+        var kr=rad*(1-k*.22); if(kr<=1) continue;
+        g.strokeStyle=k===0?rgba(PAPER,.88-v*.26):rgba(PAPER,.46-v*.16-k*.05);
+        g.lineWidth=Math.max(1,4.6-k*.9-v*1.1);
+        g.beginPath(); g.arc(x+off+rad,y,kr,Math.PI,0); g.stroke();
+      }
+    }
+  }
+}
+layer("08-pool-far.png",1024,256,"repeat-x","Far water. Tiles left-to-right and drifts slowly.",function(g){
+  seigaiha(g,1024,256,8,3,0,.35);
+});
+layer("09-pool-near.png",1024,256,"repeat-x","Near water. Tiles left-to-right and drifts faster.",function(g){
+  seigaiha(g,1024,256,4,3,.45,1);
+});
+
+/* --- 10 mist -------------------------------------------------------------- */
+layer("10-mist.png",FW,FH,"none","Mist along the far edge of the pool.",function(g){
+  cloudForm(g,FW*.18,S.horiz-FH*.012,FW*.30,FH*.028,11,1.2,rgba(PAPER,.34),1);
+  cloudForm(g,FW*.74,S.horiz-FH*.006,FW*.26,FH*.024,13,.4,rgba(PAPER,.26),1);
+  cloudForm(g,FW*.46,S.horiz-FH*.018,FW*.22,FH*.020,9,2.6,rgba(PAPER,.20),1);
+});
+
+/* --- 11/12 foliage --------------------------------------------------------
+   A filled lobed mass first, then stipple over it. Dots on their own scatter
+   into confetti; in a print the foliage is a solid shape and the stipple only
+   breaks its surface.                                                       */
+function grove(g,clusters,seed){
+  var R=rng(seed);
+  clusters.forEach(function(c,i){
+    var cx=c[0]*FW, cy=c[1]*FH, rx=c[2]*FW, ry=c[3]*FH;
+    cloudForm(g,cx,cy,rx,ry,9+(i%4)*2,i*1.3,LEAF,.95);
+    cloudForm(g,cx-rx*.12,cy-ry*.18,rx*.6,ry*.52,11,i*2.1,LEAF_L,.8);
+    stipple(g,FW,FH,cx,cy,rx*.94,ry*.9,90,2.2,5.4,DEEP,.30,R,false);
+    stipple(g,FW,FH,cx-rx*.1,cy-ry*.2,rx*.5,ry*.45,44,1.9,4.2,LEAF_L,.5,R,false);
+  });
+}
+layer("11-foliage-far.png",FW,FH,"none","The smaller, higher clusters. Moves least on scroll.",function(g){
+  grove(g,[[.30,-.035,.16,.075],[.52,-.03,.12,.065],[.70,-.035,.15,.075],
+           [.17,.50,.11,.065],[.86,.46,.12,.065]],555);
+});
+layer("12-foliage-near.png",FW,FH,"none","The big clusters at the frame edges. Moves most on scroll.",function(g){
+  grove(g,[[.155,-.015,.175,.095],[.855,-.01,.16,.085],
+           [.105,.21,.115,.065],[.90,.19,.125,.075]],556);
+});
+
+/* --- 13 paper ------------------------------------------------------------- */
+layer("13-grain.png",256,256,"repeat","Paper tooth, laid over everything at low opacity.",function(g){
+  var R=rng(4242);
+  stipple(g,256,256,128,128,150,150,900,.6,1.3,"#e3d4b2",.16,R,true);
+  stipple(g,256,256,128,128,150,150,480,.6,1.2,"#3a2d18",.12,R,true);
+});
+
+/* =========================== run ======================================== */
+var log=document.getElementById("log"), out=document.getElementById("out");
+function say(s){ log.textContent += s + "\n"; }
+
+(async function(){
+  var manifest=[];
+  for (var i=0;i<LAYERS.length;i++){
+    var L=LAYERS[i];
+    var s=sheet(L.w,L.h);
+    L.fn(s.g);
+    var blob=await new Promise(function(r){ s.c.toBlob(r,"image/png"); });
+    var res=await fetch("/"+L.name,{method:"PUT",body:blob});
+    say((res.ok?"ok   ":"FAIL ")+L.name+"  "+L.w+"×"+L.h+"  "+Math.round(blob.size/1024)+" KB");
+    manifest.push({name:L.name,w:L.w,h:L.h,repeat:L.repeat,note:L.note,kb:Math.round(blob.size/1024)});
+    var d=document.createElement("div"); d.className="row";
+    d.innerHTML="<b>"+L.name+" · "+L.w+"×"+L.h+"</b>"; d.appendChild(s.c); out.appendChild(d);
+  }
+  window.MANIFEST=manifest;
+  say("\ndone — "+LAYERS.length+" layers");
+})();
+</script>
+</body>
+</html>
