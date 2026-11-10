@@ -31,6 +31,24 @@ or Procreate and those are the coordinates you see.
   page; the script writes that list.
 - **Mist and spray.** CSS animations in `css/yoro.css`.
 
+## Recolouring
+
+The bar at the foot of the picture reprints it in any MetBrewer or MoMAColors
+palette. The print's own colours are the default and are labelled Hokusai3,
+the MetBrewer palette taken from it.
+
+A woodblock print is a few flat inks on paper, so the page treats it that way.
+`INKS` at the top of `js/yoro.js` lists the print's inks as measured off the
+scan, in six blocks: cliff, foliage, pale water, streams, sky, keyline. A
+palette's colours are dealt to the six blocks by scoring every possible
+assignment (similar darkness to the block's own ink, strong colours first,
+nothing that vanishes into the paper, neighbouring blocks kept apart). Every
+pixel then shifts by the same amount as the ink it is closest to. Paper, mist
+and the red seals are left alone.
+
+If you redraw a layer in different colours, update `INKS` to match or the
+recolour will not find them.
+
 ## What is Hokusai and what is not
 
 The middle 752 pixels are the print. Everything left and right of it was made

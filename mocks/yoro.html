@@ -27,7 +27,8 @@
     gap:1rem; padding:1.15rem clamp(1.1rem,2.2vw,2.4rem) 1.6rem;
     font-family:var(--body); font-weight:400; font-size:clamp(.72rem,1.15vw,1rem);
     letter-spacing:.14em; text-transform:uppercase; color:var(--cream);
-    background:linear-gradient(rgba(36,80,106,.92) 0%, rgba(36,80,106,.7) 55%, rgba(36,80,106,0) 100%)}
+    background:linear-gradient(color-mix(in srgb, var(--sky) 92%, transparent) 0%,
+      color-mix(in srgb, var(--sky) 70%, transparent) 55%, transparent 100%)}
   .bar .brand{font-family:var(--display); font-size:clamp(1.25rem,2.1vw,1.9rem);
     letter-spacing:.06em; text-decoration:none; margin-right:auto; line-height:1}
   .bar nav{display:flex; gap:clamp(1.1rem,3vw,3.2rem)}
@@ -36,12 +37,33 @@
   .bar.on-paper{background:rgba(251,230,194,.96); color:var(--ink);
     border-bottom:1px solid rgba(23,63,95,.16); padding-bottom:1.15rem}
 
-  /* over the waves, which are half cream: it gets its own ground */
-  .yoro-hint{position:absolute; left:50%; bottom:1rem; z-index:3; margin:0;
-    transform:translateX(-50%); width:max-content; max-width:92vw;
-    padding:.6rem 1rem .42rem; background:rgba(23,63,95,.9);
-    font-size:.62rem; letter-spacing:.22em; text-transform:uppercase;
-    color:var(--cream); transition:opacity .4s ease}
+  /* The palette bar. The print is six inks on paper, and it only changes
+     inks when you ask it to. */
+  .palbar{position:absolute; left:50%; bottom:1rem; z-index:5; transform:translateX(-50%);
+    display:flex; align-items:center; gap:.8rem; padding:.45rem .5rem .45rem 1rem;
+    max-width:calc(100% - 1.5rem); border-radius:99px;
+    background:color-mix(in srgb, var(--sky) 92%, transparent); color:var(--cream);
+    font-size:.66rem; letter-spacing:.14em; text-transform:uppercase; white-space:nowrap;
+    transition:opacity .4s ease}
+  .palbar.is-busy{opacity:.6}
+  .palbar .pkg{opacity:.6}
+  .palbar .nm{text-decoration:none; padding-top:.15em}
+  .palbar .nm:hover{text-decoration:underline; text-underline-offset:.3em}
+  .palbar .chips{display:flex; gap:2px}
+  .palbar .chips i{display:block; width:13px; height:13px; border-radius:2px}
+  .palbar button, .palbar select{font:inherit; letter-spacing:inherit; text-transform:inherit;
+    cursor:pointer; color:inherit; background:transparent; border-radius:99px;
+    border:1px solid color-mix(in srgb, var(--cream) 40%, transparent); padding:.5rem .9rem .35rem}
+  .palbar button:hover, .palbar select:hover{border-color:var(--cream)}
+  .palbar select{-webkit-appearance:none; appearance:none; padding-right:1.7rem; max-width:11rem;
+    background-image:linear-gradient(45deg,transparent 50%,currentColor 50%),linear-gradient(135deg,currentColor 50%,transparent 50%);
+    background-position:right 1rem center,right .75rem center;
+    background-size:4px 4px,4px 4px; background-repeat:no-repeat}
+  .palbar select option, .palbar select optgroup{background:#12283a; color:#f6e6c6}
+  @media (max-width:640px){
+    .palbar{gap:.55rem; padding-left:.8rem}
+    .palbar .pkg, .palbar .nm{display:none}
+  }
 
   /* Below the print: the sheet, in the print's own paper and ink. */
   .sheet{position:relative; z-index:4; background:var(--paper); color:var(--ink)}
@@ -50,7 +72,7 @@
   .sheet .lead{margin:0 0 1.1rem; font-family:var(--display);
     font-size:clamp(1.6rem,3.6vw,2.7rem); line-height:1.2}
   .sheet .body-sm{margin:0 0 1.9rem; max-width:44rem; font-weight:300;
-    font-size:clamp(.95rem,1.4vw,1.1rem); line-height:1.7; color:#24506a}
+    font-size:clamp(.95rem,1.4vw,1.1rem); line-height:1.7; color:color-mix(in srgb, var(--ink) 86%, var(--paper))}
   .sheet .btn{display:inline-block; text-decoration:none; font-size:.74rem;
     letter-spacing:.2em; text-transform:uppercase; padding:.95rem 1.6rem .8rem;
     border:1px solid var(--ink); color:var(--ink)}
@@ -63,12 +85,12 @@
     border-top:1px solid rgba(23,63,95,.2)}
   .links a:last-child{border-bottom:1px solid rgba(23,63,95,.2)}
   .links a:hover{background:rgba(23,63,95,.06)}
-  .links .n{font-size:.74rem; letter-spacing:.12em; color:#3f6781}
+  .links .n{font-size:.74rem; letter-spacing:.12em; color:color-mix(in srgb, var(--ink) 70%, var(--paper))}
   .links .t{font-family:var(--display); font-size:clamp(1.1rem,2.2vw,1.55rem)}
-  .links .d{font-size:.7rem; letter-spacing:.14em; text-transform:uppercase; color:#3f6781}
+  .links .d{font-size:.7rem; letter-spacing:.14em; text-transform:uppercase; color:color-mix(in srgb, var(--ink) 70%, var(--paper))}
   .colophon{padding:0 clamp(1.5rem,6vw,4rem) clamp(3rem,7vh,5rem);
     max-width:62rem; margin:0 auto;
-    font-size:.66rem; letter-spacing:.16em; text-transform:uppercase; color:#3f6781}
+    font-size:.66rem; letter-spacing:.16em; text-transform:uppercase; color:color-mix(in srgb, var(--ink) 70%, var(--paper))}
 </style>
 </head>
 <body>
@@ -156,7 +178,13 @@
       </div>
     </div>
 
-    <p class="yoro-hint" data-hint>Scroll · the water runs faster</p>
+    <div class="palbar" data-palbar>
+      <span class="pkg" data-pkg>MetBrewer</span>
+      <a class="nm" data-nm href="../metbrewer.html">Hokusai3</a>
+      <span class="chips" data-chips aria-hidden="true"></span>
+      <button type="button" data-shuffle>Shuffle</button>
+      <select data-pal aria-label="Reprint the picture in another palette"></select>
+    </div>
   </section>
 </div>
 
@@ -185,18 +213,82 @@
 <script>
   (function(){
     var hero = document.getElementById("hero");
-    if (window.BRMYoro) window.BRMYoro.mount(hero, { base: "../" });
+    var scene = window.BRMYoro ? window.BRMYoro.mount(hero, { base: "../" }) : null;
 
-    var hint  = document.querySelector("[data-hint]");
     var bar   = document.querySelector(".bar");
     var stage = document.querySelector(".yoro-stage");
     function onScroll(){
-      var t = Math.min(1, scrollY / innerHeight);
-      if (hint) hint.style.opacity = String(Math.max(0, 1 - t * 4));
       bar.classList.toggle("on-paper", scrollY > stage.offsetHeight - bar.offsetHeight * 1.4);
     }
     addEventListener("scroll", onScroll, {passive:true});
     onScroll();
+
+    /* ---- the palette bar ----
+       The print as Hokusai printed it is the default, and it is what
+       MetBrewer's Hokusai3 was taken from, so that is what it is called here.
+       Any other palette reprints the picture in its inks. */
+    if (!scene) return;
+    var HOME = { pkg: "MetBrewer", name: "Hokusai3",
+                 colors: ["#d8d97a","#95c36e","#74c8c3","#5a97c1","#295384","#0a2e57"] };
+    var all = [HOME], now = HOME;
+    var root = document.documentElement, palbar = document.querySelector("[data-palbar]");
+    var sel = document.querySelector("[data-pal]"), shuffleBtn = document.querySelector("[data-shuffle]");
+    var PAPER = [251, 230, 194], CREAM = [246, 230, 198];
+
+    function label(p, chips){
+      document.querySelector("[data-pkg]").textContent = p.pkg;
+      var nm = document.querySelector("[data-nm]");
+      nm.textContent = p.name;
+      nm.href = "../" + (p.pkg === "MoMAColors" ? "momacolors" : "metbrewer") + ".html";
+      document.querySelector("[data-chips]").innerHTML = chips.map(function(c){
+        return '<i style="background:' + c + '"></i>'; }).join("");
+      sel.value = p.pkg + "/" + p.name;
+    }
+    function apply(p){
+      now = p;
+      var own = p === HOME;
+      label(p, own ? p.colors : scene.inksFor(p.colors).map(function(c){
+        return "rgb(" + c.map(Math.round).join(",") + ")"; }));
+      palbar.classList.add("is-busy");
+      scene.recolour(own ? null : p.colors).then(function(target){
+        if (now !== p) return;
+        var pg = scene.pageInks(target, PAPER, CREAM);
+        root.style.setProperty("--ink", pg.ink);
+        root.style.setProperty("--sky", pg.sky);
+        palbar.classList.remove("is-busy");
+      });
+    }
+    shuffleBtn.addEventListener("click", function(){
+      var p; do { p = all[Math.floor(Math.random() * all.length)]; } while (all.length > 1 && p === now);
+      apply(p);
+    });
+    sel.addEventListener("change", function(){
+      var p = all.filter(function(q){ return q.pkg + "/" + q.name === sel.value; })[0];
+      if (p) apply(p);
+    });
+    function fill(){
+      var groups = {};
+      all.forEach(function(p){ (groups[p.pkg] = groups[p.pkg] || []).push(p); });
+      sel.innerHTML = Object.keys(groups).map(function(pkg){
+        return '<optgroup label="' + pkg + '">' + groups[pkg].map(function(p){
+          return '<option value="' + pkg + "/" + p.name + '">' + p.name + "</option>"; }).join("") + "</optgroup>";
+      }).join("");
+    }
+    fill(); label(HOME, HOME.colors);
+
+    fetch("../assets/data/palettes.json").then(function(r){ return r.json(); }).then(function(d){
+      all = [];
+      Object.keys(d).forEach(function(pkg){
+        Object.keys(d[pkg]).forEach(function(name){
+          if (pkg === HOME.pkg && name === HOME.name) { all.push(HOME); return; }
+          if (d[pkg][name].colors.length >= 4) all.push({ pkg: pkg, name: name, colors: d[pkg][name].colors });
+        });
+      });
+      fill(); label(now, HOME.colors);
+      var want = new URLSearchParams(location.search).get("pal");
+      var pick = want && all.filter(function(p){ return p.name.toLowerCase() === want.toLowerCase(); })[0];
+      if (pick && pick !== HOME) apply(pick);
+    }).catch(function(){ /* the print's own inks stay */ });
   })();
 </script>
 </body>

@@ -94,7 +94,7 @@
   left:calc(var(--fx) + var(--u) * 1500);
   top:max(4.8rem, calc(var(--fy) + var(--u) * 236));
   transform:translateX(-50%); text-align:center; white-space:nowrap;
-  color:#173f5f;
+  color:var(--ink, #173f5f);
 }
 .yoro-type{will-change:transform,opacity}
 .yoro-name{margin:0; font-family:"Marcellus",Georgia,serif; font-weight:400;
@@ -115,15 +115,16 @@
    the print as Hokusai cut it, and the name goes above it on a wipe of the
    sky's blue. */
 @container (max-aspect-ratio: 5 / 4){
-  .yoro{background:#24506a}
+  .yoro{background:var(--sky, #24506a)}
   .yoro-frame, .yoro-typewrap{
     --fw: max(100cqw, 72cqh * 1924 / 1082);
     --fx: clamp(100cqw - var(--fw), 50cqw - var(--fw) * 0.3306, 0px);
     --fy: calc(100cqh - var(--fh));
   }
   .yoro-wipe{display:block; position:absolute; inset:0; z-index:2; pointer-events:none;
-    background:linear-gradient(#24506a 0%, #24506a 27%,
-      rgba(36,80,106,.9) 31%, rgba(40,86,110,.55) 36%, rgba(61,107,127,0) 44%)}
+    background:linear-gradient(var(--sky, #24506a) 0%, var(--sky, #24506a) 27%,
+      color-mix(in srgb, var(--sky, #24506a) 90%, transparent) 31%,
+      color-mix(in srgb, var(--sky, #24506a) 55%, transparent) 36%, transparent 44%)}
   .yoro-typewrap{left:50cqw; top:calc(4.2rem + 1.5cqh); color:#f6e6c6}
   .yoro-name{font-size:min(13cqw, 7.2cqh)}
   .yoro-kicker{margin-top:1.6cqh; font-size:clamp(.6rem, 2.9cqw, .95rem); font-weight:400}
